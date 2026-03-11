@@ -107,6 +107,15 @@
       "category": "analysis",
       "tags": ["stocks", "valuation", "dcf", "investment", "finance"],
       "keywords": ["equity", "stocks", "research", "valuation", "finance"]
+    },
+    {
+      "name": "pencil-pen-generator",
+      "source": "./plugins/pencil-pen-generator",
+      "description": "Generate and convert Pencil .pen design files — the JSON-based format used by pencil.dev for describing UI designs. Adds a /pencil-pen-generator skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["pencil", "design", "pen-format", "ui", "design-as-code"],
+      "keywords": ["pencil", "pen", "design", "ui", "component", "design-file"]
     }
   ]
 }
