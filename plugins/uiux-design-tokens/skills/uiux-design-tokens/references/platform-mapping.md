@@ -46,40 +46,78 @@ Use `:root` for light/default values. Override with `[data-theme="dark"]` for al
 
 Key principle: semantic CSS vars always reference primitive CSS vars, never raw hex values.
 
-## Tailwind CSS
+### Dark Mode
 
-Map tokens through CSS custom properties in `tailwind.config.js`:
+Override primitive custom properties within a dark scope. Semantic vars stay unchanged — they reference the same primitives, which now resolve differently.
 
-```js
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        action: {
-          primary: 'var(--color-action-primary)',
-          'primary-hover': 'var(--color-action-primary-hover)',
-        },
-      },
-      spacing: {
-        sm: 'var(--spacing-scale-sm)',
-        md: 'var(--spacing-scale-md)',
-      },
-      fontSize: {
-        body: 'var(--font-size-body-base)',
-      },
-      borderRadius: {
-        token: 'var(--radius-md)',
-      },
-      boxShadow: {
-        card: 'var(--shadow-card)',
-      },
-    },
-  },
-};
+```css
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-neutral-50: #0a0a0a;
+    --color-neutral-900: #fafafa;
+    /* Swap the full neutral scale + adjust feedback colors */
+  }
+}
+
+/* Or class-based for manual toggle: */
+.dark {
+  --color-neutral-50: #0a0a0a;
+  --color-neutral-900: #fafafa;
+}
 ```
 
-Key principle: Tailwind config references CSS custom properties, not raw values. This keeps themes switchable at runtime without rebuilding.
+### High Contrast
+
+For `forced-colors` / Windows High Contrast mode:
+
+```css
+@media (forced-colors: active) {
+  :root {
+    --color-background-surface: Canvas;
+    --color-text-primary: CanvasText;
+    --color-border-default: CanvasText;
+    --color-interactive-default: LinkText;
+  }
+}
+```
+
+### Reduced Motion
+
+Gate all duration tokens when user prefers reduced motion:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0ms;
+    --motion-duration-normal: 0ms;
+    --motion-duration-slow: 0ms;
+  }
+}
+```
+
+## Tailwind CSS v4
+
+Tailwind v4 uses CSS-first configuration. Import the generated token CSS file, then map tokens in `@theme`:
+
+```css
+@import "./design-tokens.css";
+@import "tailwindcss";
+
+@theme {
+  --color-surface: var(--color-background-surface);
+  --color-primary: var(--color-interactive-default);
+  --color-danger: var(--color-feedback-danger);
+  --spacing-inline-md: var(--space-inline-md);
+  --spacing-stack-lg: var(--space-stack-lg);
+  --radius-interactive: var(--radius-interactive);
+}
+```
+
+Key principle: the token CSS file provides custom properties; `@theme` maps them to Tailwind's namespace so utility classes like `bg-surface`, `text-primary`, and `rounded-interactive` work.
+
+For Tailwind v3: use `tailwind.config.js` with `var(--token-name)` references in `theme.extend`.
+
+> For full Tailwind v4 configuration, dark mode ThemeProvider, OKLCH color patterns, and shadcn/ui integration, see the `uiux-design-tailwindv4` skill.
 
 ## SCSS
 
@@ -136,3 +174,9 @@ Native platforms receive resolved values (not `var()` references) since CSS cust
 ```
 
 Add additional platform entries (android, ios, scss) to generate all outputs from one token source.
+
+For Tokens Studio projects, add `@tokens-studio/sd-transforms` to handle Tokens Studio–specific formats (math expressions, color modifiers, multi-value composites) before Style Dictionary processes them:
+
+```bash
+npm install @tokens-studio/sd-transforms
+```
