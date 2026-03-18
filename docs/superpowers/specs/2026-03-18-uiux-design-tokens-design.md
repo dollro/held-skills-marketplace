@@ -97,6 +97,22 @@ Three tiers, each referencing the one below:
 - `-` (hyphen) in CSS custom properties output
 - Token names are `kebab-case` within each level
 
+**Annotated formula mapping examples:**
+
+```
+color.blue.600
+  └─category─┘.└concept─┘.└scale─┘
+
+color.background.danger
+  └─category─┘.└─concept──┘.└variant┘
+
+button.color.background.primary.hover
+  └namespace/component┘.└cat┘.└concept┘.└variant┘.└state┘
+
+font.size.300
+  └cat┘.└property┘.└scale┘
+```
+
 **Naming examples per tier:**
 
 Primitive:
@@ -187,7 +203,7 @@ For each category, the skill defines: which tiers apply, primitive scale convent
 
 W3C Design Tokens Community Group JSON format specification:
 - File structure: tokens as JSON objects with `$value`, `$type`, `$description`
-- All official token types: `color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`, `number`
+- All official token types: `color`, `dimension`, `fontFamily`, `fontWeight`, `fontStyle`, `duration`, `cubicBezier`, `number`, `string`
 - Composite types: `shadow`, `border`, `transition`, `gradient`, `typography`, `strokeStyle`
 - Alias syntax: `{group.token}` for referencing other tokens
 - Group nesting with `$type` inheritance
@@ -245,6 +261,8 @@ Explicitly framed as scaffolding — the agent should adapt to project needs, no
 ---
 
 ## 5. Marketplace Registration
+
+**Note:** This section defines the entry in the root `/.claude-plugin/marketplace.json` registry, NOT the per-plugin `.claude-plugin/plugin.json` (which only contains `name`, `description`, `version`).
 
 ```json
 {
