@@ -116,6 +116,42 @@
       "category": "development",
       "tags": ["pencil", "design", "pen-format", "ui", "design-as-code"],
       "keywords": ["pencil", "pen", "design", "ui", "component", "design-file"]
+    },
+    {
+      "name": "uiux-design-penpot",
+      "source": "./plugins/uiux-design-penpot",
+      "description": "Comprehensive guide for creating professional UI/UX designs in Penpot using MCP tools. Covers design systems, accessibility, component patterns, and platform guidelines. Adds a /uiux-design-penpot skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp"],
+      "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
+    },
+    {
+      "name": "uiux-design-tailwindv4",
+      "source": "./plugins/uiux-design-tailwindv4",
+      "description": "Production-ready Tailwind CSS v4 design systems with CSS-first configuration, semantic tokens, OKLCH colors, component patterns (CVA), responsive layouts, dark mode, and accessibility. Includes optional shadcn/ui depth for rapid component development. Adds a /uiux-design-tailwindv4 skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["tailwindcss", "design-system", "css", "components", "dark-mode", "shadcn", "oklch"],
+      "keywords": ["tailwind", "tailwindcss", "v4", "design-system", "css", "shadcn", "CVA", "theme"]
+    },
+    {
+      "name": "uiux-design-vue3",
+      "source": "./plugins/uiux-design-vue3",
+      "description": "Vue 3 development skills prioritizing Composition API with <script setup> for all greenfield work. Covers best practices, routing (Vue Router 4), Pinia state management, testing (Vitest/Playwright), debugging, JSX, Options API (brownfield only), and adaptable composables.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["vue3", "composition-api", "vue-router", "pinia", "vitest", "composables", "typescript"],
+      "keywords": ["vue", "vue3", "vuejs", "composition-api", "options-api", "pinia", "vue-router", "composables"]
+    },
+    {
+      "name": "uiux-design-tokens",
+      "source": "./plugins/uiux-design-tokens",
+      "description": "Guide coding agents on design token best practices: 3-tier hierarchy, naming taxonomy, W3C DTCG format, and platform mapping. Adds a /uiux-design-tokens skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["design-system", "tokens", "css", "theming", "ui"],
+      "keywords": ["design tokens", "design system", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "primitives", "semantic tokens"]
     }
   ]
 }
