@@ -178,7 +178,7 @@ Each category below covers the primitive scale, semantic patterns, key conventio
 
 ### 2. Typography
 
-**Primitive scale:** `font.family.sans`, `font.family.serif`, `font.family.mono` — each holds a font stack string. Sizes: `font.size.100` (12px) through `font.size.900` (60px) on a modular or linear scale. Weights: `font.weight.regular` (400), `font.weight.medium` (500), `font.weight.semibold` (600), `font.weight.bold` (700). Line heights: `font.line-height.tight` (1.2), `font.line-height.normal` (1.5), `font.line-height.relaxed` (1.75).
+**Primitive scale:** `font.family.sans`, `font.family.serif`, `font.family.mono` — each holds a font stack string. Sizes: `font.size.100` (12px) through `font.size.900` (60px) on a modular or linear scale. Weights: `font.weight.regular` (400), `font.weight.medium` (500), `font.weight.semibold` (600), `font.weight.bold` (700). Line heights: `font.line-height.tight` (1.2), `font.line-height.normal` (1.5), `font.line-height.relaxed` (1.75). Letter spacing: `font.letter-spacing.tight` (-0.025em, for headings), `font.letter-spacing.normal` (0, for body), `font.letter-spacing.wide` (0.025em, for captions and all-caps text). Paragraph spacing: `font.paragraph-spacing.none` (0), `font.paragraph-spacing.md` (1rem).
 
 **Semantic patterns:**
 - `font.heading.*` — `font.heading.size`, `font.heading.weight`, `font.heading.line-height`
@@ -186,7 +186,7 @@ Each category below covers the primitive scale, semantic patterns, key conventio
 - `font.caption.*` — smaller supporting text
 - `font.label.*` — form labels, button text, UI chrome
 
-**Convention:** Use DTCG composite `typography` type to bundle family + size + weight + line-height into a single token. This is especially useful for heading presets like `font.heading.lg` that need all four values together.
+**Convention:** Use `rem` for font size token values, not `px`. This allows users to scale text via browser preferences — a WCAG requirement (Success Criterion 1.4.4 — Resize Text). Store values as rem in token files; design tools convert automatically using the base font size. Use DTCG composite `typography` type to bundle family + size + weight + line-height + letter-spacing into a single token for heading/body presets.
 
 **Pitfall:** Pick one scale convention (numeric `100–900` or t-shirt `xs–xl`) and stick with it across the entire system. Mixing conventions creates confusion.
 
