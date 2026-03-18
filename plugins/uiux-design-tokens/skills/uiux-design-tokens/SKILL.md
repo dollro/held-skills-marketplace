@@ -99,6 +99,9 @@ The order is fixed. Don't rearrange levels — consistency across the system is 
 - **CSS custom properties**: use `-` as the separator — `--color-blue-600`
 - **SCSS variables**: use `-` as the separator — `$color-blue-600`
 - **JavaScript/TypeScript**: use camelCase — `colorBlue600` or nested objects `color.blue[600]`
+- **Figma Local Variables**: use `/` as the separator — `color / blue / 600`
+- **Penpot Design Tokens**: use `.` as the separator — `color.blue.600`
+- **Tailwind CSS v4 classes**: use `-` in utility classes — `bg-[--color-bg-surface]`
 - **Within levels**: use `kebab-case` — `line-height`, `ease-in-out`, `on-primary`
 - **Never mix** separators within the same context. Don't use `color-blue.600` or `color.blue-600`.
 
@@ -157,9 +160,9 @@ space.inline.md
 
 ## Token Categories
 
-Each category below covers the primitive scale, semantic patterns, key conventions, and common pitfalls. Not every project needs all 11 categories — start with color, typography, and spacing, then add others as your system grows.
+Each category below covers the primitive scale, semantic patterns, key conventions, and common pitfalls. Not every project needs all 12 categories — start with color, typography, and spacing, then add others as your system grows.
 
-**Priority order for new systems:** Color > Typography > Spacing > Border Radius > Shadow > Sizing > Border > Motion > Opacity > Z-Index > Breakpoints. The first three cover ~80% of typical UI token needs.
+**Priority order for new systems:** Color > Typography > Spacing > Border Radius > Shadow > Sizing > Border > Motion > Opacity > Z-Index > Breakpoints > Grid System. The first three cover ~80% of typical UI token needs.
 
 ### 1. Color
 
@@ -277,6 +280,14 @@ Each category below covers the primitive scale, semantic patterns, key conventio
 **Convention:** Keep the set small — 4 to 6 values. Opacity rarely needs a large scale.
 
 **Pitfall:** If you find yourself creating many opacity tokens, reconsider whether you should be using color tokens with alpha channels instead (e.g. `rgba(0,0,0,0.5)` as a color primitive rather than a separate opacity token applied to a solid color).
+
+### 12. Grid System
+
+**Tokens per breakpoint:** `grid.columns` (4/8/12), `grid.gutter` (16px/24px/24px), `grid.margin` (16px/24px/auto), `grid.max-width` (1280px for desktop).
+
+**Convention:** Grid tokens are inherently responsive — define values per breakpoint. They bridge spacing tokens (gaps between elements) and layout structure (column arrangement). Follow the 8-point grid: all spacing and sizing dimensions are multiples of 8, with 4px for fine adjustments.
+
+**Pitfall:** Don't over-tokenize the grid. Most systems need 3–4 breakpoint configurations. The grid is structural scaffolding, not a design decision that changes frequently.
 
 ## Accessibility Tokens
 
@@ -423,6 +434,10 @@ When in doubt between semantic and component, start at the semantic tier. Promot
 - **Consolidate outliers.** If two tokens always hold the same value and serve the same intent, merge them into one.
 - **Review regularly.** Audit tokens quarterly. Remove unused ones, merge duplicates, and rename tokens that no longer match their intent.
 - **Document decisions.** When you create a token, briefly note why it exists. Future maintainers will thank you when they need to decide whether to keep it or consolidate it.
+
+### Governance
+
+Treat token sets like code — use semantic versioning (MAJOR.MINOR.PATCH). A new token is a minor bump. Renaming or removing a token is a major bump. Audit tokens quarterly: remove unused ones, merge duplicates, update names that no longer match their intent.
 
 ## When to Load Reference Files
 
