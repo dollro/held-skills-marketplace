@@ -453,6 +453,9 @@ Consult the appropriate reference file based on what you're doing:
 | Generating Tailwind theme config from tokens | `references/platform-mapping.md` |
 | Creating SCSS variables or maps from tokens | `references/platform-mapping.md` |
 | Setting up Style Dictionary or token pipelines | `references/platform-mapping.md` |
+| Adding accessibility tokens (focus ring, touch target) | `references/starter-template.md` |
+| Implementing dark mode or high-contrast CSS | `references/platform-mapping.md` |
+| Setting up reduced-motion overrides | `references/platform-mapping.md` |
 
 You don't need to load all references at once. Load them on demand based on the task at hand. If you're only advising on naming, hierarchy, or reviewing existing tokens, this SKILL.md alone is sufficient — no reference files needed.
 

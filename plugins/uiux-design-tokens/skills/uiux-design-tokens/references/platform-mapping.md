@@ -8,10 +8,10 @@ How to transform design tokens from the abstract DTCG format into platform-speci
 
 | DTCG path | CSS custom property |
 |-|-|
-| `color.primitive.blue.500` | `--color-primitive-blue-500` |
-| `color.semantic.action.primary` | `--color-semantic-action-primary` |
-| `spacing.scale.md` | `--spacing-scale-md` |
-| `font.size.body.base` | `--font-size-body-base` |
+| `color.blue.500` | `--color-blue-500` |
+| `color.background.surface` | `--color-background-surface` |
+| `space.4` | `--space-4` |
+| `font.size.300` | `--font-size-300` |
 
 Dots become hyphens. The full token path maps 1:1 to the variable name.
 
@@ -22,25 +22,25 @@ Use `:root` for light/default values. Override with `[data-theme="dark"]` for al
 ```css
 /* Primitives — raw palette */
 :root {
-  --color-primitive-blue-500: #2563eb;
-  --color-primitive-blue-700: #1d4ed8;
-  --color-primitive-gray-50: #f9fafb;
-  --color-primitive-gray-900: #111827;
-  --spacing-scale-sm: 0.5rem;
-  --spacing-scale-md: 1rem;
+  --color-blue-500: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-neutral-50: #fafafa;
+  --color-neutral-900: #171717;
+  --space-4: 1rem;
+  --space-8: 2rem;
 }
 
 /* Semantics — reference primitives */
 :root {
-  --color-action-primary: var(--color-primitive-blue-500);
-  --color-action-primary-hover: var(--color-primitive-blue-700);
-  --color-bg-default: var(--color-primitive-gray-50);
-  --color-text-default: var(--color-primitive-gray-900);
+  --color-interactive-default: var(--color-blue-500);
+  --color-interactive-hover: var(--color-blue-700);
+  --color-background-surface: var(--color-neutral-50);
+  --color-text-primary: var(--color-neutral-900);
 }
 
 [data-theme="dark"] {
-  --color-bg-default: var(--color-primitive-gray-900);
-  --color-text-default: var(--color-primitive-gray-50);
+  --color-neutral-50: #171717;
+  --color-neutral-900: #fafafa;
 }
 ```
 
@@ -124,13 +124,13 @@ For Tailwind v3: use `tailwind.config.js` with `var(--token-name)` references in
 Map tokens to `$variables` and use maps for scales:
 
 ```scss
-$color-action-primary: var(--color-action-primary);
-$spacing-md: var(--spacing-scale-md);
+$color-interactive-default: var(--color-interactive-default);
+$space-md: var(--space-4);
 
 $font-sizes: (
-  sm: var(--font-size-body-sm),
-  base: var(--font-size-body-base),
-  lg: var(--font-size-body-lg),
+  sm: var(--font-size-200),
+  base: var(--font-size-300),
+  lg: var(--font-size-500),
 );
 
 @mixin typography($token) {
