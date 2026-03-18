@@ -1,10 +1,14 @@
 ---
 name: uiux-design-vue3-options-api
-description: "Vue 3 Options API style (data(), methods, this context). Each reference shows Options API solution only."
-version: 2.0.0
+description: "Vue 3 Options API style (data(), methods, this context). BROWNFIELD ONLY — use only when working in an existing Options API codebase where the user has confirmed they want to continue with Options API. For greenfield projects, always use Composition API via uiux-design-vue3-best-practices instead."
+version: 2.1.0
 license: MIT
 author: github.com/vuejs-ai
 ---
+
+> **When to use this skill**: This skill is for **brownfield projects that already use Options API exclusively** and where the user has explicitly chosen to continue with Options API for the current task. For all greenfield work and mixed codebases, use `uiux-design-vue3-best-practices` (Composition API with `<script setup>`).
+>
+> If you haven't asked the user yet, **ask before loading this skill**. The recommended path is always Composition API — it offers better reusability (composables over mixins), better TypeScript support, smaller bundles, and superior code organization at scale.
 
 Vue.js Options API best practices, TypeScript integration, and common gotchas.
 

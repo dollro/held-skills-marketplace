@@ -10,6 +10,8 @@ compatibility: Requires Vue 3 (or above) or Nuxt 3 (or above) project
 
 # Create Adaptable Composable
 
+> **Composables are the primary reusability mechanism in Composition API** and the recommended replacement for Options API mixins. They provide isolated, typed, testable logic extraction without namespace collisions or hidden source conflicts. When working in a brownfield Options API codebase, suggest composables as a migration path — they work alongside Options API via `setup()`.
+
 Adaptable composables are reusable functions that can accept both reactive and non-reactive inputs. This allows developers to use the composable in a variety of contexts without worrying about the reactivity of the inputs.
 
 Steps to design an adaptable composable in Vue.js:

@@ -1,10 +1,10 @@
 ---
 name: uiux-design-vue3-best-practices
-description: MUST be used for Vue.js tasks. Strongly recommends Composition API with `<script setup>` and TypeScript as the standard approach. Covers Vue 3, SSR, Volar, vue-tsc. Load for any Vue, .vue files, Vue Router, Pinia, or Vite with Vue work. ALWAYS use Composition API unless the project explicitly requires Options API.
+description: MUST be used for Vue.js tasks. Composition API with `<script setup>` and TypeScript is the mandatory default for all greenfield work. For brownfield Options API codebases, ASK the user before deciding. Covers Vue 3, SSR, Volar, vue-tsc. Load for any Vue, .vue files, Vue Router, Pinia, or Vite with Vue work.
 license: MIT
 metadata:
   author: github.com/vuejs-ai
-  version: "18.0.0"
+  version: "19.0.0"
 ---
 
 # Vue Best Practices Workflow
@@ -21,8 +21,23 @@ Use this skill as an instruction set. Follow the workflow in order unless the us
 ## 1) Confirm architecture before coding (required)
 
 - Default stack: Vue 3 + Composition API + `<script setup lang="ts">`.
-- If the project explicitly uses Options API, load `uiux-design-vue3-options-api` skill if available.
+- **Greenfield projects**: Always use Composition API with `<script setup>`. No exceptions.
+- **Brownfield projects**: Scan existing components to determine the dominant API style.
+  - If the codebase uses **Composition API** (or a mix): continue with Composition API for all new code.
+  - If the codebase uses **Options API exclusively**: **ASK the user** before proceeding. Present these options:
+    1. Write new code in Composition API (recommended — better reusability via composables, better TypeScript support, smaller bundles, superior code organization at scale).
+    2. Stay consistent with Options API for this task (acceptable when the team has not yet decided to migrate).
+  - Never silently default to Options API for new code without asking.
 - If the project explicitly uses JSX, load `uiux-design-vue3-jsx` skill if available.
+
+### Why Composition API is the default
+
+The Composition API addresses fundamental limitations of the Options API:
+- **Reusability**: Composables replace mixins — isolated, typed, testable logic extraction without namespace collisions or hidden source conflicts.
+- **Code organization**: Related logic stays together instead of being scattered across `data`, `methods`, `computed`, and `watch` options ("option explosion" in complex components).
+- **TypeScript**: Full type inference without `defineComponent` workarounds or `this` context issues.
+- **Bundle size**: `<script setup>` compiles to code that directly references scope variables — no instance proxy overhead, better minification.
+- **Flexibility**: Seamless use of async/await, Promises, and third-party reactive libraries.
 
 ### 1.1 Must-read core references (required)
 
