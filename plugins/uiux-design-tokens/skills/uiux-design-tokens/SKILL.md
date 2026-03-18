@@ -118,7 +118,7 @@ color.background.danger
 (semantic — intent-based, no raw value)
 
 button.color.background.primary.hover
-└──namespace/component──┘.└cat┘.└concept┘.└variant┘.└state┘
+└─────component────────┘.└cat┘.└concept┘.└variant┘.└state┘
 (component — scoped to button, includes interaction state)
 
 font.size.300
