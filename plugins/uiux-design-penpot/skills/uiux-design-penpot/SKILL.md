@@ -77,11 +77,14 @@ Add to `settings.json`:
 ## Quick Reference
 
 | Task | Reference File |
-| ---- | -------------- |
+|-|-|
 | MCP server installation & troubleshooting | [setup-troubleshooting.md](references/setup-troubleshooting.md) |
 | Component specs (buttons, forms, nav) | [component-patterns.md](references/component-patterns.md) |
 | Accessibility (contrast, touch targets) | [accessibility.md](references/accessibility.md) |
 | Screen sizes & platform specs | [platform-guidelines.md](references/platform-guidelines.md) |
+| Full Penpot Plugin API reference | [penpot-api-reference.md](references/penpot-api-reference.md) |
+| Color conversion utilities (OKLCH→hex, HSL→hex) | [color-utilities.md](references/color-utilities.md) |
+| Prototyping, interactions & animations | [prototyping-interactions.md](references/prototyping-interactions.md) |
 
 ## Core Design Principles
 
@@ -105,10 +108,12 @@ Add to `settings.json`:
 
 1. **Check for design system first**: Ask user if they have existing tokens/specs, or discover from current Penpot file
 2. **Understand the page**: Call `mcp__penpot__execute_code` with `penpotUtils.shapeStructure()` to see hierarchy
-3. **Find elements**: Use `penpotUtils.findShapes()` to locate elements by type or name
-4. **Create/modify**: Use `penpot.createBoard()`, `penpot.createRectangle()`, `penpot.createText()` etc.
-5. **Apply layout**: Use `addFlexLayout()` for responsive containers
-6. **Validate**: Call `mcp__penpot__export_shape` to visually check your work
+3. **Find elements**: Use `penpotUtils.findShapes()` or `penpot.currentPage.findShapes({name, type})` to locate elements
+4. **Create/modify**: Use `penpot.createBoard()`, `createRectangle()`, `createEllipse()`, `createText()`, `createPath()`, `createShapeFromSvg()` etc.
+5. **Apply layout**: Use `addFlexLayout()` or `addGridLayout()` for responsive containers
+6. **Add effects**: Apply shadows, blur, strokes, blend modes as needed
+7. **Set up prototyping**: Add interactions, flows, overlays for click-through prototypes
+8. **Validate**: Call `mcp__penpot__export_shape` to visually check your work
 
 ## Design System Handling
 
@@ -152,11 +157,40 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 
 ## Key Penpot API Gotchas
 
+- **Penpot only accepts hex colors** (`#RRGGBB`) — CSS functions like `oklch()`, `hsl()`, `rgb()` do NOT work. See [color-utilities.md](references/color-utilities.md) for converters
+- **No DOM in execute_code** — `document`, `window`, `getComputedStyle` are undefined. All code must be pure JavaScript math
 - `width`/`height` are READ-ONLY → use `shape.resize(w, h)`
+- `rotation` is READ-ONLY → use `shape.rotate(angle, center?)`
 - `parentX`/`parentY` are READ-ONLY → use `penpotUtils.setParentXY(shape, x, y)`
 - Use `insertChild(index, shape)` for z-ordering (not `appendChild`)
 - Flex children array order is REVERSED for `dir="column"` or `dir="row"`
 - After `text.resize()`, reset `growType` to `"auto-width"` or `"auto-height"`
+- Grid `appendChild(child, row, column)` requires row/column — unlike flex's `appendChild(child)`
+- `"fill"` token property maps to `fillColor` of the first fill, not the fills array
+
+### OKLCH to Hex (inline helper)
+
+When working with OKLCH colors (Tailwind v4, modern design systems), use this converter:
+
+```javascript
+function oklchToHex(L, C, H) {
+  const hRad = H * Math.PI / 180;
+  const a = C * Math.cos(hRad), b = C * Math.sin(hRad);
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+  let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  let bl = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+  const gamma = v => v > 0.0031308 ? 1.055 * Math.pow(v, 1/2.4) - 0.055 : 12.92 * v;
+  const toByte = v => Math.max(0, Math.min(255, Math.round(gamma(Math.max(0, v)) * 255)));
+  return '#' + [r, g, bl].map(v => toByte(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+// oklchToHex(1, 0, 0) → '#FFFFFF'  |  oklchToHex(0, 0, 0) → '#000000'
+```
+
+More converters (HSL, RGB, palette generation, contrast checks) in [color-utilities.md](references/color-utilities.md).
 
 ## Positioning New Boards
 
@@ -191,6 +225,225 @@ newBoard.resize(375, 812);
 - Use 200px+ gap between different sections/flows
 - Align boards vertically (same y) for visual organization
 - Group related screens horizontally in user flow order
+
+## Shape Operations
+
+Beyond `createBoard()`, `createRectangle()`, `createText()`:
+
+| Method | Returns | Purpose |
+|-|-|-|
+| `penpot.createEllipse()` | Ellipse | Circle/oval shapes |
+| `penpot.createPath()` | Path | Custom vector paths |
+| `penpot.createBoolean(type, shapes)` | Boolean | Union, difference, intersection, exclude |
+| `penpot.createShapeFromSvg(svgString)` | Group | Import SVG as shapes |
+| `penpot.group(shapes)` | Group | Group shapes together |
+| `penpot.ungroup(group)` | void | Ungroup |
+| `shape.clone()` | Shape | Duplicate a shape |
+| `shape.remove()` | void | Delete a shape |
+| `shape.rotate(angle, center?)` | void | Rotate in degrees |
+| `shape.export(config)` | Promise\<Uint8Array\> | Programmatic export |
+
+### Z-Ordering & Alignment
+
+```javascript
+shape.bringToFront();    // top of stack
+shape.bringForward();    // one step up
+shape.sendToBack();      // bottom of stack
+shape.sendBackward();    // one step down
+
+penpot.alignHorizontal(shapes, 'center'); // 'left' | 'center' | 'right'
+penpot.alignVertical(shapes, 'top');      // 'top' | 'center' | 'bottom'
+penpot.distributeHorizontal(shapes);      // even spacing
+penpot.distributeVertical(shapes);
+```
+
+## Grid Layout
+
+Boards support grid layout in addition to flex:
+
+```javascript
+const board = penpot.createBoard();
+board.resize(600, 400);
+const grid = board.addGridLayout();
+
+// Add tracks — types: "flex", "fixed", "percent", "auto"
+grid.addColumn('fixed', 200);  // sidebar
+grid.addColumn('flex', 1);     // main content
+grid.addRow('fixed', 64);      // header
+grid.addRow('flex', 1);        // body
+
+// Place children at specific row/column
+grid.appendChild(sidebar, 0, 0);   // row 0, col 0
+grid.appendChild(header, 0, 1);    // row 0, col 1
+grid.appendChild(content, 1, 1);   // row 1, col 1
+```
+
+Grid shares the same padding/gap/sizing properties as flex (`rowGap`, `columnGap`, `horizontalPadding`, etc.).
+
+## Effects
+
+```javascript
+// Drop shadow
+shape.shadows = [{
+  style: 'drop-shadow', offsetX: 0, offsetY: 4,
+  blur: 12, spread: 0,
+  color: { color: '#000000', opacity: 0.15 }
+}];
+
+// Inner shadow
+shape.shadows = [{ style: 'inner-shadow', offsetX: 0, offsetY: 2, blur: 4, spread: 0, color: { color: '#000000', opacity: 0.1 } }];
+
+// Blur
+shape.blur = { type: 'layer-blur', value: 8 };
+
+// Strokes
+shape.strokes = [{
+  strokeColor: '#D1D5DB', strokeOpacity: 1,
+  strokeStyle: 'solid',  // 'solid' | 'dotted' | 'dashed'
+  strokeWidth: 1,
+  strokeAlignment: 'inner' // 'center' | 'inner' | 'outer'
+}];
+```
+
+Blend modes: `normal`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `color-dodge`, `color-burn`, `hard-light`, `soft-light`, `difference`, `exclusion`, `hue`, `saturation`, `color`, `luminosity`
+
+## Text & Typography
+
+```javascript
+// Create styled text
+const text = penpot.createText('Hello World');
+text.fontFamily = 'Inter';
+text.fontSize = '24';
+text.fontWeight = '600';
+text.align = 'center';
+
+// Per-character styling with TextRange
+const range = text.getRange(0, 5); // "Hello"
+range.fontWeight = '700';
+range.fills = [{ fillColor: '#3B82F6' }];
+
+// Apply library typography
+const typo = penpot.library.local.typographies.find(t => t.name === 'Heading');
+if (typo) text.applyTypography(typo);
+
+// Font discovery
+const inter = penpot.fonts.findByName('Inter');
+const allFonts = penpot.fonts.all;
+```
+
+## Library Management
+
+```javascript
+// Create library color
+const libColor = penpot.library.local.createColor();
+libColor.name = 'Primary';
+libColor.path = 'Brand';
+libColor.color = '#3B82F6';
+
+// Use library colors as fills/strokes
+shape.fills = [libColor.asFill()];
+shape.strokes = [libColor.asStroke()];
+
+// Create library typography
+const libTypo = penpot.library.local.createTypography();
+libTypo.name = 'Body';
+const font = penpot.fonts.findByName('Inter');
+if (font) libTypo.setFont(font);
+libTypo.fontSize = '16';
+
+// Create component from shapes
+const component = penpot.library.local.createComponent([shape1, shape2]);
+const instance = component.instance(); // create instance
+
+// Color operations
+const colors = penpot.shapesColors(penpot.selection); // discover colors
+penpot.replaceColor(penpot.selection, { color: '#FF0000' }, { color: '#3B82F6' }); // swap
+```
+
+## Design Tokens API
+
+Penpot has a built-in design tokens system (17 token types):
+
+```javascript
+const catalog = penpot.library.local.tokens;
+
+// Create a token set
+const set = catalog.addSet({ name: 'Brand/Colors' }); // path separator: /
+
+// Add tokens — 17 types: borderRadius, shadow, color, dimension, fontFamilies,
+// fontSizes, fontWeights, letterSpacing, number, opacity, rotation,
+// sizing, spacing, borderWidth, textCase, textDecoration, typography
+set.addToken({ type: 'color', name: 'primary', value: '#3B82F6' });
+set.addToken({ type: 'spacing', name: 'md', value: '16' });
+set.addToken({ type: 'borderRadius', name: 'lg', value: '12' });
+
+// Create and activate themes
+const theme = catalog.addTheme({ group: '', name: 'Light' });
+theme.addSet(set);
+theme.toggleActive();
+
+// Apply token to shape
+const token = set.tokens.find(t => t.name === 'primary');
+shape.applyToken(token, ['fill']); // TokenColorProps: 'fill' | 'strokeColor'
+```
+
+See [penpot-api-reference.md](references/penpot-api-reference.md) for full token type details.
+
+## Page, Viewport & Events
+
+```javascript
+// Page management
+const page = penpot.createPage();
+page.name = 'Settings';
+penpot.openPage(page);
+
+// Find shapes on current page (built-in — no penpotUtils needed)
+const buttons = penpot.currentPage.findShapes({ nameLike: 'btn-' });
+const boards = penpot.currentPage.findShapes({ type: 'board' });
+const shape = penpot.currentPage.getShapeById('some-id');
+
+// Viewport control
+penpot.viewport.zoomIntoView(shapes);  // zoom to fit shapes
+penpot.viewport.zoomToFitAll();        // zoom to fit all
+penpot.viewport.zoom = 1.5;           // set zoom level (1 = 100%)
+
+// Events
+const id = penpot.on('selectionchange', (ids) => { /* shape IDs */ });
+penpot.off(id); // remove listener
+// Events: pagechange, filechange, selectionchange, themechange, shapechange, contentsave
+
+// History — batch operations as single undo step
+const blockId = penpot.history.undoBlockBegin();
+// ... multiple operations ...
+penpot.history.undoBlockFinish(blockId);
+
+// Upload media
+const imgData = await penpot.uploadMediaUrl('logo', 'https://example.com/logo.png');
+```
+
+## Prototyping
+
+Add interactive behaviors for view mode. See [prototyping-interactions.md](references/prototyping-interactions.md) for full guide.
+
+```javascript
+// Navigate on click
+shape.addInteraction('click', {
+  type: 'navigate-to', destination: targetBoard,
+  animation: { type: 'slide', direction: 'left', duration: 300, easing: 'ease-in-out' }
+});
+
+// Open overlay modal
+shape.addInteraction('click', {
+  type: 'open-overlay', destination: modalBoard,
+  position: 'center', closeWhenClickOutside: true, addBackgroundOverlay: true
+});
+
+// Triggers: 'click' | 'mouse-enter' | 'mouse-leave' | 'after-delay'
+// Actions: navigate-to | open-overlay | toggle-overlay | close-overlay | previous-screen | open-url
+
+// Create a flow entry point
+penpot.currentPage.createFlow('Main Flow', startBoard);
+```
 
 ## Default Design Tokens
 
