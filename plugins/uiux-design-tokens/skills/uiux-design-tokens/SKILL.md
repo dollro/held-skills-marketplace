@@ -322,6 +322,35 @@ Every semantic color pair (background + foreground) should document its contrast
 
 AA = 4.5:1 (normal text), AAA = 7:1. This is a documentation practice, not a token type — it prevents accessibility regressions when updating color primitives.
 
+## Theming & Modes
+
+### Standard Modes
+
+SOTA 2025 requires at minimum three modes:
+
+| Mode | Purpose |
+|-|-|
+| Light | Default — light backgrounds, dark text |
+| Dark | Inverted neutral scale, adjusted feedback colors |
+| High Contrast | Maximum contrast ratios, bolder borders, no transparency — WCAG AAA and `forced-colors` support |
+
+### Dark Mode Swap Rules
+
+Only swap primitive values — semantic aliases stay untouched. When you swap `color.neutral.50` from `#fafafa` to `#0a0a0a`, every semantic token referencing it updates automatically.
+
+Key adjustments beyond simple inversion:
+
+- Shadows need higher opacity (dark surfaces don't reveal subtle shadows)
+- Feedback backgrounds shift to 900–950 end of hue scale instead of 50
+- Feedback text shifts to 300 end instead of 700 for readability on dark surfaces
+- Primary interactive colors shift 1–2 stops lighter to maintain contrast
+
+### High-Contrast Mode
+
+Semantic tokens remap to maximum-contrast primitives. No intermediate grays, bolder borders, no transparency. Maps to Windows High Contrast / CSS `forced-colors` media query.
+
+> For Tailwind v4 dark mode implementation (ThemeProvider, `@custom-variant`, OKLCH), see the `uiux-design-tailwindv4` skill and its `references/dark-mode.md`.
+
 ## Decision Framework
 
 Use these guidelines to make consistent tokenization decisions across your team.
