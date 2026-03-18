@@ -278,6 +278,50 @@ Each category below covers the primitive scale, semantic patterns, key conventio
 
 **Pitfall:** If you find yourself creating many opacity tokens, reconsider whether you should be using color tokens with alpha channels instead (e.g. `rgba(0,0,0,0.5)` as a color primitive rather than a separate opacity token applied to a solid color).
 
+## Accessibility Tokens
+
+SOTA 2025 embeds accessibility at the token level — driven by WCAG 2.2 requirements and the European Accessibility Act (EAA, effective June 2025). Define these tokens once; every component inherits compliance.
+
+### Focus Ring
+
+Every interactive element needs a visible focus indicator.
+
+- `color.border.focus-ring` — focus ring color (must meet 3:1 contrast ratio per WCAG 2.4.7/2.4.13)
+- `border.width.focus-ring` — ring width (minimum 2px recommended)
+- `space.focus-ring.offset` — gap between element and ring (2px typical)
+
+These are semantic tokens referencing primitives. They participate in theming — dark mode shifts focus ring color for contrast, high-contrast mode makes it bolder.
+
+### Touch Target Size
+
+WCAG 2.5.8 (Level AA) requires interactive targets of at least 24×24 CSS pixels.
+
+- `size.touch-target.min` — 24px (AA minimum)
+- `size.touch-target.comfortable` — 44px (AAA / Apple HIG recommended)
+
+Apply to buttons, links, checkboxes, radio buttons, and any tappable element.
+
+### Reduced Motion
+
+A semantic token that gates all animation:
+
+- `motion.reduce` — `false` default / `true` when `prefers-reduced-motion: reduce` active
+
+When active, all `motion.duration.*` tokens resolve to `0ms`. WCAG Level A requires motion over 5 seconds can be paused.
+
+**Convention:** Implement via a CSS custom property that flips at the media query boundary, so components do not need individual `@media prefers-reduced-motion` blocks.
+
+### Contrast Pair Documentation
+
+Every semantic color pair (background + foreground) should document its contrast ratio. Maintain a contrast matrix:
+
+| Pair | Light | Dark | WCAG |
+|-|-|-|-|
+| `color.bg.surface` / `color.text.primary` | 12.1:1 | 11.4:1 | AAA |
+| `color.bg.brand` / `color.text.on-brand` | 5.2:1 | 5.2:1 | AA |
+
+AA = 4.5:1 (normal text), AAA = 7:1. This is a documentation practice, not a token type — it prevents accessibility regressions when updating color primitives.
+
 ## Decision Framework
 
 Use these guidelines to make consistent tokenization decisions across your team.
