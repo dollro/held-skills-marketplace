@@ -1,0 +1,5 @@
+{
+  "name": "uiux-design-tokens",
+  "description": "Guide coding agents on design token best practices: 3-tier hierarchy, naming taxonomy, W3C DTCG format, and platform mapping. Adds a /uiux-design-tokens skill.",
+  "version": "1.0.0"
+}
