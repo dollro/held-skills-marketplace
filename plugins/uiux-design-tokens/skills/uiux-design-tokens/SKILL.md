@@ -351,6 +351,40 @@ Semantic tokens remap to maximum-contrast primitives. No intermediate grays, bol
 
 > For Tailwind v4 dark mode implementation (ThemeProvider, `@custom-variant`, OKLCH), see the `uiux-design-tailwindv4` skill and its `references/dark-mode.md`.
 
+## Component Token Patterns
+
+### State Matrix
+
+Every interactive component needs tokens for these 5 states:
+
+| State | Visual Treatment | Token Pattern |
+|-|-|-|
+| Default | Base colors | `{component}.color.{property}.{variant}` |
+| Hover | Darker/lighter background | `{component}.color.{property}.{variant}.hover` |
+| Focus | Focus ring applied | Uses `color.border.focus-ring` token |
+| Active | Pressed visual shift | `{component}.color.{property}.{variant}.active` |
+| Disabled | Reduced opacity, no interaction | `{component}.color.{property}.{variant}.disabled` |
+
+### Common Patterns
+
+Only create component tokens when diverging from semantics:
+
+**Button:**
+- `button.color.background.primary.default` → `{color.interactive.default}`
+- `button.color.background.primary.hover` → `{color.interactive.hover}`
+- `button.color.background.primary.active` → `{color.interactive.active}`
+- `button.color.background.primary.disabled` → `{color.interactive.disabled}`
+- `button.color.text.primary` → `{color.text.on-primary}`
+- `button.radius` → `{radius.interactive}`
+- `button.space.padding-x` → `{space.inline.md}`
+- `button.space.padding-y` → `{space.inset.sm}`
+
+**Input:**
+- `input.color.border.default` → `{color.border.default}`
+- `input.color.border.focus` → `{color.border.focus-ring}`
+- `input.color.border.error` → `{color.feedback.danger}`
+- `input.radius` → `{radius.interactive}`
+
 ## Decision Framework
 
 Use these guidelines to make consistent tokenization decisions across your team.
