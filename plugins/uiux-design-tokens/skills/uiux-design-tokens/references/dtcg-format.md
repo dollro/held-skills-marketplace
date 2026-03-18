@@ -46,6 +46,11 @@ The DTCG spec defines both simple (single-value) and composite (multi-value) tok
 | `number` | JSON number | `1.5` |
 | `string` | JSON string | `"block"` |
 
+**Unit guidance for `dimension` type:**
+- Font sizes: always use `rem` — enables user text scaling (WCAG 1.4.4). Example: `{ "value": 1, "unit": "rem" }` not `{ "value": 16, "unit": "px" }`.
+- Spacing and sizing: prefer `rem` for consistency with font scaling. `px` is acceptable for borders, shadows, and values that should not scale with font size.
+- Border widths and shadow offsets: use `px` — these are visual details that should remain constant regardless of text size.
+
 ### Composite Types
 
 Composite types combine multiple sub-values into a single token. Each sub-value corresponds to a simple type.
