@@ -49,6 +49,17 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
     "line-height": {
       "$type": "number",
       "tight": { "$value": 1.25 }, "normal": { "$value": 1.5 }, "relaxed": { "$value": 1.75 }
+    },
+    "letter-spacing": {
+      "$type": "dimension",
+      "tight": { "$value": { "value": -0.025, "unit": "em" } },
+      "normal": { "$value": { "value": 0, "unit": "em" } },
+      "wide": { "$value": { "value": 0.025, "unit": "em" } }
+    },
+    "paragraph-spacing": {
+      "$type": "dimension",
+      "none": { "$value": { "value": 0, "unit": "rem" } },
+      "md": { "$value": { "value": 1, "unit": "rem" } }
     }
   },
   "space": {
@@ -64,6 +75,11 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
       "1": { "$value": { "value": 1, "unit": "px" } },
       "2": { "$value": { "value": 2, "unit": "px" } },
       "4": { "$value": { "value": 4, "unit": "px" } }
+    },
+    "style": {
+      "$type": "strokeStyle",
+      "solid": { "$value": "solid" },
+      "dashed": { "$value": "dashed" }
     }
   },
   "radius": {
@@ -100,6 +116,19 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
     "$type": "number",
     "subtle": { "$value": 0.15 }, "medium": { "$value": 0.5 },
     "strong": { "$value": 0.75 }, "opaque": { "$value": 1.0 }
+  },
+  "size": {
+    "$type": "dimension",
+    "icon": {
+      "sm": { "$value": { "value": 1, "unit": "rem" } },
+      "md": { "$value": { "value": 1.25, "unit": "rem" } },
+      "lg": { "$value": { "value": 1.5, "unit": "rem" } }
+    },
+    "avatar": {
+      "sm": { "$value": { "value": 2, "unit": "rem" } },
+      "md": { "$value": { "value": 2.5, "unit": "rem" } },
+      "lg": { "$value": { "value": 3, "unit": "rem" } }
+    }
   }
 }
 ```
@@ -124,7 +153,8 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
     },
     "border": {
       "$type": "color",
-      "default": { "$value": "{color.neutral.200}" }, "strong": { "$value": "{color.neutral.400}" }, "interactive": { "$value": "{color.primary.500}" }
+      "default": { "$value": "{color.neutral.200}" }, "strong": { "$value": "{color.neutral.400}" }, "interactive": { "$value": "{color.primary.500}" },
+      "focus-ring": { "$value": "{color.primary.500}" }
     },
     "interactive": {
       "$type": "color",
@@ -139,18 +169,18 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
   "font": {
     "heading": {
       "$type": "typography",
-      "xl": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.bold}", "lineHeight": "{font.line-height.tight}" } },
-      "lg": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}" } },
-      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}" } }
+      "xl": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.bold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" } },
+      "lg": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" } },
+      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" } }
     },
     "body": {
       "$type": "typography",
-      "default": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.normal}" } },
-      "small": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.normal}" } }
+      "default": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.normal}", "letterSpacing": "{font.letter-spacing.normal}" } },
+      "small": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.normal}", "letterSpacing": "{font.letter-spacing.normal}" } }
     },
     "caption": {
       "$type": "typography",
-      "default": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.100}", "fontWeight": "{font.weight.medium}", "lineHeight": "{font.line-height.normal}" } }
+      "default": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.100}", "fontWeight": "{font.weight.medium}", "lineHeight": "{font.line-height.normal}", "letterSpacing": "{font.letter-spacing.normal}" } }
     }
   },
   "space": {
@@ -175,6 +205,38 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
   "opacity": {
     "disabled": { "$type": "number", "$value": "{opacity.medium}" },
     "overlay": { "$type": "number", "$value": "{opacity.strong}" }
+  },
+  "border": {
+    "focus-ring": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.border.focus-ring}",
+        "width": { "value": 2, "unit": "px" },
+        "style": "solid"
+      }
+    }
+  },
+  "size": {
+    "touch-target": {
+      "$type": "dimension",
+      "min": { "$value": { "value": 24, "unit": "px" } },
+      "comfortable": { "$value": { "value": 44, "unit": "px" } }
+    }
+  },
+  "z": {
+    "$type": "number",
+    "base": { "$value": 0 },
+    "dropdown": { "$value": 1000 },
+    "sticky": { "$value": 1100 },
+    "modal": { "$value": 1300 },
+    "toast": { "$value": 1400 }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "sm": { "$value": { "value": 640, "unit": "px" } },
+    "md": { "$value": { "value": 768, "unit": "px" } },
+    "lg": { "$value": { "value": 1024, "unit": "px" } },
+    "xl": { "$value": { "value": 1280, "unit": "px" } }
   }
 }
 ```
