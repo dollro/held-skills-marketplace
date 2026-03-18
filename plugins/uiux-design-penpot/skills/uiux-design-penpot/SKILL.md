@@ -73,6 +73,25 @@ Add to `settings.json`:
 | Tools not appearing in client | Restart VS Code/Claude completely after config changes |
 | Tool execution fails/times out | Ensure Penpot plugin UI is open and shows "Connected" |
 | "WebSocket connection failed" | Check firewall allows ports 4400, 4401, 4402 |
+| "No Penpot plugin instances are currently connected" | Plugin disconnected — reopen plugin panel in Penpot, click "Connect to MCP server" again. There is no auto-reconnect |
+| Plugin disconnects during token/theme operations | See "Connection Stability" section below |
+
+### Connection Stability (as of Penpot 2.13.x — newer versions may resolve these)
+
+The MCP plugin communicates via WebSocket (port 4402). There is **no automatic reconnection** — if the connection drops, you must manually reconnect from the plugin UI.
+
+**Common disconnect triggers:**
+- **Plugin UI panel closed** (even accidentally) — immediately kills the connection
+- **30-second execution timeout** — the bridge auto-rejects long-running tasks
+- **Async property propagation** — operations like `theme.toggleActive()` and `set.toggleActive()` trigger internal async updates. Reading properties immediately after can cause race conditions or crashes
+- **Heavy token/theme operations** in a single `execute_code` call
+
+**Workarounds:**
+- **Keep the plugin UI panel visible** at all times — closing it kills the connection
+- **Split token/theme operations across multiple `execute_code` calls** — don't create tokens, activate themes, and read results in one call
+- **Don't read properties immediately after toggling** — the async state hasn't propagated yet. A `waitForSync()` API has been proposed ([penpot-mcp #27](https://github.com/penpot/penpot-mcp/issues/27)) but is not yet available
+- **If disconnected**: reopen plugin panel → click "Connect to MCP server" → retry the failed operation
+- **Verify connection**: access `http://localhost:4403/` (REPL server) to test WebSocket connectivity independently
 
 ## Quick Reference
 
@@ -167,6 +186,7 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 - After `text.resize()`, reset `growType` to `"auto-width"` or `"auto-height"`
 - Grid `appendChild(child, row, column)` requires row/column — unlike flex's `appendChild(child)`
 - `"fill"` token property maps to `fillColor` of the first fill, not the fills array
+- **Async property updates** (Penpot ≤2.13.x) — after `toggleActive()`, `resize()`, or `growType` changes, computed properties (e.g. `height`) update async (~100ms). Don't read them in the same `execute_code` call — use a follow-up call instead
 
 ### OKLCH to Hex (inline helper)
 
