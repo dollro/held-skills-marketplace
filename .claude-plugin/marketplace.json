@@ -121,7 +121,7 @@
       "name": "uiux-design-penpot",
       "source": "./plugins/uiux-design-penpot",
       "description": "Comprehensive guide for creating professional UI/UX designs in Penpot using MCP tools. Covers full Plugin API (90+ interfaces), color conversion utilities, design tokens, prototyping, layouts, effects, and accessibility. Adds a /uiux-design-penpot skill.",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "category": "development",
       "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp"],
       "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
@@ -157,7 +157,7 @@
       "name": "uiux-image2design",
       "source": "./plugins/uiux-image2design",
       "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot via MCP. Orchestrates uiux-design-tokens and uiux-design-penpot skills. Adds a /uiux-image2design skill.",
-      "version": "1.0.0",
+      "version": "2.1.0",
       "category": "development",
       "tags": ["penpot", "screenshots", "design-system", "vision", "mcp", "tokens", "components"],
       "keywords": ["screenshots", "image to design", "reverse-engineer UI", "extract design", "design from images", "penpot", "design system"]
