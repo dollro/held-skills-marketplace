@@ -121,7 +121,7 @@
       "name": "uiux-design-penpot",
       "source": "./plugins/uiux-design-penpot",
       "description": "Comprehensive guide for creating professional UI/UX designs in Penpot using MCP tools. Covers full Plugin API (90+ interfaces), color conversion utilities, design tokens, prototyping, layouts, effects, and accessibility. Adds a /uiux-design-penpot skill.",
-      "version": "2.2.0",
+      "version": "2.3.1",
       "category": "development",
       "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp"],
       "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
