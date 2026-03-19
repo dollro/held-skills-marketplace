@@ -22,7 +22,7 @@
       "name": "prompt-engineering",
       "source": "./plugins/prompt-engineering",
       "description": "Design, optimize, and manage LLM prompts with focus on reliability, efficiency, and measurable outcomes. Includes /prompt-engineering skill and prompt-engineer agent.",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "ai-agent-dev-tools",
       "tags": ["prompts", "llm", "optimization", "evaluation"],
       "keywords": ["prompt", "llm", "optimization", "engineering"]
@@ -67,7 +67,7 @@
       "name": "code-review",
       "source": "./plugins/code-review",
       "description": "Comprehensive technical code review covering completeness, security, performance, and best practices. Includes /code-review skill and code-reviewer agent.",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "workflows",
       "tags": ["review", "security", "performance", "quality"],
       "keywords": ["code-review", "review", "security", "quality"]
@@ -85,7 +85,7 @@
       "name": "electron-dev",
       "source": "./plugins/electron-dev",
       "description": "Build secure, performant cross-platform desktop applications with Electron. Includes /electron-development skill and electron-developer agent.",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "development",
       "tags": ["electron", "desktop", "cross-platform", "native"],
       "keywords": ["electron", "desktop", "app", "cross-platform"]
@@ -94,7 +94,7 @@
       "name": "fullstack-dev",
       "source": "./plugins/fullstack-dev",
       "description": "End-to-end feature delivery from database to UI with seamless integration. Includes /fullstack-development skill and fullstack-developer agent.",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "development",
       "tags": ["fullstack", "frontend", "backend", "database", "integration"],
       "keywords": ["fullstack", "frontend", "backend", "full-stack"]
