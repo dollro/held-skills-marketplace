@@ -152,6 +152,15 @@
       "category": "development",
       "tags": ["design-system", "tokens", "css", "theming", "ui"],
       "keywords": ["design tokens", "design system", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "primitives", "semantic tokens"]
+    },
+    {
+      "name": "uiux-image2design",
+      "source": "./plugins/uiux-image2design",
+      "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot via MCP. Orchestrates uiux-design-tokens and uiux-design-penpot skills. Adds a /uiux-image2design skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["penpot", "screenshots", "design-system", "vision", "mcp", "tokens", "components"],
+      "keywords": ["screenshots", "image to design", "reverse-engineer UI", "extract design", "design from images", "penpot", "design system"]
     }
   ]
 }
