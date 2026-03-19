@@ -1,7 +1,7 @@
 # Board Layouts Reference
 
 Standard page structure, board dimensions, and positioning conventions for the
-uiux-image2design workflow.
+design-from-screenshots workflow.
 
 ## Page Structure
 
@@ -28,33 +28,8 @@ The plugin creates three pages in the Penpot file:
 
 ## Board Positioning
 
-### Horizontal Flow
-
-Boards on the same page are laid out left-to-right with consistent gaps.
-
-```
-┌──────────┐  100px  ┌──────────┐  100px  ┌──────────┐
-│  Colors  │ ◄─────► │ Typo     │ ◄─────► │ Spacing  │
-│          │  gap    │          │  gap    │          │
-└──────────┘         └──────────┘         └──────────┘
-     x=0                x=W₁+100            x=W₁+W₂+200
-```
-
-- **Same-page gap:** 100px between related boards
-- **All boards aligned at y=0** (top-aligned)
-- **Always calculate position** from existing boards — never hardcode x positions
-
-### Page Navigation
-
-```javascript
-// Check if page exists, create if not
-let page = penpot.currentFile.pages?.find(p => p.name === 'Design System');
-if (!page) {
-  page = penpot.createPage();
-  page.name = 'Design System';
-}
-penpot.openPage(page);
-```
+For board positioning (horizontal flow with 100px gaps) and page navigation code,
+see `uiux-design-penpot/SKILL.md` → "Positioning New Boards" and "Page, Viewport & Events".
 
 ## Design System Board Dimensions
 
