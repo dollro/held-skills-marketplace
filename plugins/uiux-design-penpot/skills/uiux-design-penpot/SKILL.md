@@ -98,12 +98,15 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 | Task | Reference File |
 |-|-|
 | MCP server installation & troubleshooting | [setup-troubleshooting.md](references/setup-troubleshooting.md) |
+| MCP API known issues & workarounds | [mcp-known-issues.md](references/mcp-known-issues.md) |
+| Penpot design system implementation (pages, frames, naming, assets) | [penpot-design-system-guide.md](references/penpot-design-system-guide.md) |
 | Component specs (buttons, forms, nav) | [component-patterns.md](references/component-patterns.md) |
 | Accessibility (contrast, touch targets) | [accessibility.md](references/accessibility.md) |
 | Screen sizes & platform specs | [platform-guidelines.md](references/platform-guidelines.md) |
 | Full Penpot Plugin API reference | [penpot-api-reference.md](references/penpot-api-reference.md) |
 | Color conversion utilities (OKLCH→hex, HSL→hex) | [color-utilities.md](references/color-utilities.md) |
 | Prototyping, interactions & animations | [prototyping-interactions.md](references/prototyping-interactions.md) |
+| Reusable execute_code generation templates | [generation-recipes.md](references/generation-recipes.md) |
 
 ## Core Design Principles
 
@@ -186,6 +189,13 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 - After `text.resize()`, reset `growType` to `"auto-width"` or `"auto-height"`
 - Grid `appendChild(child, row, column)` requires row/column — unlike flex's `appendChild(child)`
 - `"fill"` token property maps to `fillColor` of the first fill, not the fills array
+- **`createText('')` returns null** — empty strings produce null, not a Text shape. Always guard: `if (!content?.trim()) return null`. Spaces (`'  '`) work fine
+- **Slash normalization** — `board.name = 'atoms/button'` becomes `'atoms / button'` (spaces injected). Use `.includes()` for name matching, never exact `===`
+- **`createComponent` doubles the name** — prepends shape name to component name. Fix after registration by trimming the duplicate prefix. See [mcp-known-issues.md](references/mcp-known-issues.md)
+- **`comp.name` returns leaf only** — use `comp.mainInstance().name` for the full slash-separated path
+- **`openPage()` context switch** — on upstream Penpot, `openPage()` may not switch the plugin execution context. Branch fix available. See [mcp-known-issues.md](references/mcp-known-issues.md)
+- **`layoutChild` is null before parenting** — always `parent.appendChild(child)` first, then access `child.layoutChild`
+- **Token API uses positional args** — `addSet("name")`, `addToken("type", "name", "value")`, `addTheme("group", "name")`. Object signatures from `penpot_api_info` don't work. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **Async property updates** (Penpot ≤2.13.x) — after `toggleActive()`, `resize()`, or `growType` changes, computed properties (e.g. `height`) update async (~100ms). Don't read them in the same `execute_code` call — use a follow-up call instead
 
 ### OKLCH to Hex (inline helper)
@@ -382,32 +392,40 @@ penpot.replaceColor(penpot.selection, { color: '#FF0000' }, { color: '#3B82F6' }
 
 ## Design Tokens API
 
-Penpot has a built-in design tokens system (17 token types):
+Penpot has a built-in design tokens system (17 token types). **Important:** the API uses positional arguments, not object signatures. See [mcp-known-issues.md](references/mcp-known-issues.md) for full details.
 
 ```javascript
 const catalog = penpot.library.local.tokens;
 
-// Create a token set
-const set = catalog.addSet({ name: 'Brand/Colors' }); // path separator: /
+// Create a token set — POSITIONAL args (not { name: ... })
+catalog.addSet("Brand/Colors"); // path separator: /
 
-// Add tokens — 17 types: borderRadius, shadow, color, dimension, fontFamilies,
-// fontSizes, fontWeights, letterSpacing, number, opacity, rotation,
-// sizing, spacing, borderWidth, textCase, textDecoration, typography
-set.addToken({ type: 'color', name: 'primary', value: '#3B82F6' });
-set.addToken({ type: 'spacing', name: 'md', value: '16' });
-set.addToken({ type: 'borderRadius', name: 'lg', value: '12' });
+// Read back for reliable proxy (addSet return value may have empty id)
+const set = catalog.sets.find(s => s.name === "Brand/Colors");
 
-// Create and activate themes
-const theme = catalog.addTheme({ group: '', name: 'Light' });
-theme.addSet(set);
-theme.toggleActive();
+// Add tokens — POSITIONAL args: (type, name, value)
+// 17 types (use EXACT strings): borderRadius, borderWidth, color,
+// dimension, fontFamilies (NOT fontFamily), fontSizes (NOT fontSize),
+// fontWeights, letterSpacing, number, opacity, rotation, shadow,
+// sizing, spacing, textCase, textDecoration, typography
+set.addToken("color", "primary", "#3B82F6");
+set.addToken("spacing", "md", "16");          // string, not number
+set.addToken("borderRadius", "lg", "12");     // string, not number
+set.addToken("spacing", "ref", "{spacing.md}"); // references work
+
+// Activate set
+if (!set.active) set.toggleActive();
+
+// Create and activate themes — POSITIONAL args: (group, name)
+catalog.addTheme("Mode", "Light");
+catalog.addTheme("Mode", "Dark");
 
 // Apply token to shape
-const token = set.tokens.find(t => t.name === 'primary');
+const token = set.tokens.find(t => t.name === "primary");
 shape.applyToken(token, ['fill']); // TokenColorProps: 'fill' | 'strokeColor'
 ```
 
-See [penpot-api-reference.md](references/penpot-api-reference.md) for full token type details.
+**Gotchas:** `catalog.sets` crashes on files with no tokens — create a set first. Duplicate token names silently return `undefined`. See [mcp-known-issues.md](references/mcp-known-issues.md) for the full working flow and all workarounds.
 
 ## Page, Viewport & Events
 
