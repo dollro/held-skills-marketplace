@@ -195,7 +195,8 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 - **`comp.name` returns leaf only** — use `comp.mainInstance().name` for the full slash-separated path
 - **`openPage()` context switch** — on upstream Penpot, `openPage()` may not switch the plugin execution context. Branch fix available. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **`layoutChild` is null before parenting** — always `parent.appendChild(child)` first, then access `child.layoutChild`
-- **Token API uses positional args** — `addSet("name")`, `addToken("type", "name", "value")`, `addTheme("group", "name")`. Object signatures from `penpot_api_info` don't work. See [mcp-known-issues.md](references/mcp-known-issues.md)
+- **Token API arg style is version-dependent** — object form (`addSet({ name: "x" })`) and positional form (`addSet("x")`) swap behavior between Penpot versions. Test both at project start. See [mcp-known-issues.md](references/mcp-known-issues.md)
+- **Child positioning is page-absolute** — after `board.appendChild(child)`, `child.x = N` sets page coordinates, not board-relative. Use `penpotUtils.setParentXY(child, relX, relY)` or flex/grid layouts. Nested boards need recursive fixing. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **Async property updates** (Penpot ≤2.13.x) — after `toggleActive()`, `resize()`, or `growType` changes, computed properties (e.g. `height`) update async (~100ms). Don't read them in the same `execute_code` call — use a follow-up call instead
 
 ### OKLCH to Hex (inline helper)
@@ -392,18 +393,18 @@ penpot.replaceColor(penpot.selection, { color: '#FF0000' }, { color: '#3B82F6' }
 
 ## Design Tokens API
 
-Penpot has a built-in design tokens system (17 token types). **Important:** the API uses positional arguments, not object signatures. See [mcp-known-issues.md](references/mcp-known-issues.md) for full details.
+Penpot has a built-in design tokens system (17 token types). **Important:** the arg style (object vs positional) is version-dependent — test both at project start. See [mcp-known-issues.md](references/mcp-known-issues.md) for full details.
 
 ```javascript
 const catalog = penpot.library.local.tokens;
 
-// Create a token set — POSITIONAL args (not { name: ... })
-catalog.addSet("Brand/Colors"); // path separator: /
+// Create a token set — test both arg styles at project start
+catalog.addSet("Brand/Colors"); // positional — OR: addSet({ name: "Brand/Colors" })
 
 // Read back for reliable proxy (addSet return value may have empty id)
 const set = catalog.sets.find(s => s.name === "Brand/Colors");
 
-// Add tokens — POSITIONAL args: (type, name, value)
+// Add tokens — (type, name, value) or ({ type, name, value })
 // 17 types (use EXACT strings): borderRadius, borderWidth, color,
 // dimension, fontFamilies (NOT fontFamily), fontSizes (NOT fontSize),
 // fontWeights, letterSpacing, number, opacity, rotation, shadow,

@@ -134,7 +134,7 @@ Read them fresh — the user may have updated them since the last run.
 
 For Penpot token API patterns and async sequencing rules, read `uiux-design-penpot/SKILL.md`
 (sections: "Design Tokens API" and "Connection Stability") and
-`uiux-design-penpot/references/mcp-known-issues.md` (token API positional args, working flow).
+`uiux-design-penpot/references/mcp-known-issues.md` (token API arg style testing, working flow).
 The unique sequencing for this workflow is:
 
 | Call | Operation |
@@ -258,7 +258,7 @@ See `uiux-design-penpot/references/mcp-known-issues.md` for comprehensive API wo
 **Connection lost:** Tell user to reconnect plugin. Resume from failed operation.
 **Timeout:** Split into smaller calls. One variant row per call for large boards.
 **Visual mismatch:** Find shape via `penpotUtils.findShapes()`, fix, re-export.
-**Token API errors:** Use positional args (`addSet("name")`, `addToken("type", "name", "value")`). Always read back sets after creation. See known issues for full working flow.
+**Token API errors:** Arg style (object vs positional) is version-dependent — test both at project start. Always read back sets after creation. See known issues for full working flow.
 **Token async failures:** Never chain creates + activates in one call. Sequence:
 create set → add tokens → create theme → activate (4 separate calls).
 **Name matching failures:** Use `.includes()` for name matching — slashes get normalized with spaces.

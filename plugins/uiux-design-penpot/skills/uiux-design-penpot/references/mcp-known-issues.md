@@ -16,17 +16,22 @@
 
 ---
 
-## Critical: Token API Uses Positional Arguments
+## Critical: Token API Argument Style — Version-Dependent
 
 **Status: UPSTREAM**
 
-The `penpot_api_info` tool documents TypeScript-style object signatures that **don't work**. The actual API uses positional arguments:
+> **WARNING:** The correct argument style (object vs positional) has **flipped between Penpot versions**.
+> Do NOT assume either form works — test both at the start of every project.
 
-| Method | Documented (BROKEN) | Actual (WORKS) |
+The `penpot_api_info` tool documents TypeScript-style object signatures. In some Penpot versions the object form fails and positional works; in others the **opposite** is true — the object form returns a usable proxy with a valid ID while the positional form creates a ghost set that can't be found via `catalog.sets.find()`.
+
+| Method | Object form | Positional form |
 |-|-|-|
-| `catalog.addSet` | `addSet({ name: string })` → `undefined` | `addSet("name")` → `TokenSetProxy` |
-| `set.addToken` | `addToken({ type, name, value })` → `undefined` | `addToken("type", "name", "value")` → `TokenSetProxy` |
-| `catalog.addTheme` | `addTheme({ group, name })` → `undefined` | `addTheme("group", "name")` → `TokenThemeProxy` |
+| `catalog.addSet` | `addSet({ name: "x" })` | `addSet("x")` |
+| `set.addToken` | `addToken({ type: "color", name: "x", value: "#FFF" })` | `addToken("color", "x", "#FFF")` |
+| `catalog.addTheme` | `addTheme({ group: "Mode", name: "Light" })` | `addTheme("Mode", "Light")` |
+
+**Always test at project start:** Create a throwaway set with each form, read it back via `catalog.sets.find()`, and use whichever returns a valid proxy. Delete the test set afterward.
 
 ### catalog.sets Crash on Empty Catalog
 
@@ -82,13 +87,20 @@ All 17 Penpot token types. `$type` must match these exact strings.
 ```javascript
 const catalog = penpot.library.local.tokens;
 
+// 0. TEST which arg style works on this Penpot version
+//    Try object form first (newer versions), fall back to positional
+catalog.addSet({ name: "___test___" });
+let testSet = catalog.sets.find(s => s.name === "___test___");
+const useObjectArgs = !!testSet;
+// Clean up test set, then proceed with the style that worked
+
 // 1. Create set (ignore returned proxy — may be broken)
-catalog.addSet("primitives");
+catalog.addSet("primitives"); // or addSet({ name: "primitives" })
 
 // 2. Read back to get reliable proxy
 const primSet = catalog.sets.find(s => s.name === "primitives");
 
-// 3. Add tokens with POSITIONAL args
+// 3. Add tokens — use whichever arg style tested working
 primSet.addToken("color", "color.blue.500", "#2563EB");
 primSet.addToken("dimension", "dimension.4", "16");
 primSet.addToken("borderRadius", "borderRadius.md", "8");
@@ -103,7 +115,7 @@ const semSet = catalog.sets.find(s => s.name === "semantic");
 semSet.addToken("color", "bg.body", "{color.white}");
 if (!semSet.active) semSet.toggleActive();
 
-// 6. Themes (positional args)
+// 6. Themes
 catalog.addTheme("Mode", "Light");
 catalog.addTheme("Mode", "Dark");
 ```
@@ -253,6 +265,50 @@ penpotUtils.findShape(s => s.name.includes('atoms') && s.name.includes('button')
 
 ---
 
+## Absolute vs Relative Positioning — Children Outside Board Bounds
+
+**Status: BY DESIGN**
+
+After `board.appendChild(child)`, setting `child.x = 32` uses **absolute page coordinates**, not board-relative coordinates. If the board is positioned at x=1000, the child ends up at page x=32 — roughly 1000px to the left of its parent, invisible.
+
+```javascript
+// WRONG — absolute coordinates, child appears outside board:
+board.appendChild(child);
+child.x = 32;   // page-absolute → child is at page x=32, not board x=32
+child.y = 100;
+
+// CORRECT — relative positioning via utility:
+board.appendChild(child);
+penpotUtils.setParentXY(child, 32, 100);  // positions relative to parent board
+
+// BEST — use flex/grid layouts (never has this issue):
+board.addFlexLayout();
+board.appendChild(child);  // layout handles positioning automatically
+```
+
+### Recursive Fix for Nested Boards
+
+The first positioning fix may only correct direct children of top-level boards. Nested boards (e.g., input fields inside an inputs board) have their own misplaced children. A recursive fix is required:
+
+```javascript
+function fixBoard(board) {
+  for (const child of board.children || []) {
+    // Re-apply relative positioning
+    const relX = child.x - board.x;
+    const relY = child.y - board.y;
+    penpotUtils.setParentXY(child, relX, relY);
+    // Recurse into nested boards
+    if (child.type === 'board' && child.children?.length) {
+      fixBoard(child);
+    }
+  }
+}
+```
+
+**Best practice:** Use flex/grid layouts wherever possible — they handle positioning automatically and never exhibit this issue. Only use manual positioning for absolute-positioned overlays (e.g., badges, tooltips).
+
+---
+
 ## layoutChild Null Before Parenting
 
 **Status: BY DESIGN**
@@ -312,12 +368,14 @@ for (const o of orphans) o.remove();
 
 | Pitfall | Correct Pattern |
 |-|-|
-| Object args for token API | Use positional: `addSet("name")`, `addToken("type", "name", "value")` |
+| Assuming token API arg style | Test both object and positional forms at project start — behavior is version-dependent |
 | Using `addSet()` return value | Read back: `catalog.sets.find(s => s.name === "x")` |
 | `catalog.sets` on empty file | Create any set first, then access `.sets` |
 | Exact name match after slash | Use `.includes()` — slashes get normalized with spaces |
 | `createText('')` | Guard: check content non-empty before calling |
 | `layoutChild` before parenting | Always `parent.appendChild(child)` first |
 | Setting `width`/`height` | Use `shape.resize(w, h)` |
+| `child.x = N` inside board | Use `penpotUtils.setParentXY(child, relX, relY)` — `.x`/`.y` are page-absolute |
+| Fixing only top-level children | Use recursive `fixBoard()` — nested boards have the same issue |
 | Cross-page shape creation | Use `penpot.openPage(targetPage)` first (requires branch fix) |
 | Reading props after toggle | Split into separate `execute_code` calls |
