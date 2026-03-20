@@ -16,21 +16,22 @@ Analyze UI screenshots, extract a design system, confirm it with the user, then 
 everything in Penpot: tokens, design system boards, reusable components, and a sample screen.
 
 This skill orchestrates two knowledge skills:
-- `uiux-design-tokens` — token format, naming, hierarchy, W3C DTCG spec
-- `uiux-design-penpot` — Penpot MCP API, component patterns, accessibility
+- `uiux-design-system` — design system architecture, token format, naming, hierarchy, W3C DTCG spec, component naming, UX patterns
+- `uiux-design-penpot` — Penpot MCP API, component patterns, accessibility, known issues
 
 ## Step 0: Verify Dependencies
 
 Run ALL checks before starting. Stop if any fail.
 
-**0a. Find `uiux-design-tokens` skill.**
+**0a. Find `uiux-design-system` skill.**
 Search for its SKILL.md in the project's plugin directories. Confirm it exists along
-with its references: `dtcg-format.md`, `starter-template.md`, `platform-mapping.md`.
+with its references: `design-system-template.md`, `dtcg-format.md`, `starter-template.md`, `platform-mapping.md`.
 If missing, tell the user to install it and stop.
 
 **0b. Find `uiux-design-penpot` skill.**
 Search for its SKILL.md and references: `penpot-api-reference.md`, `component-patterns.md`,
-`color-utilities.md`, `prototyping-interactions.md`, `generation-recipes.md`.
+`color-utilities.md`, `prototyping-interactions.md`, `generation-recipes.md`,
+`mcp-known-issues.md`, `penpot-design-system-guide.md`.
 If missing, tell the user to install it and stop.
 
 **0c. Test Penpot MCP connection.**
@@ -124,16 +125,17 @@ Do NOT proceed to Phase 3 without explicit confirmation.
 ## Phase 3: Token Generation
 
 **Read these now** (paths verified in Step 0):
-- `uiux-design-tokens/SKILL.md`
-- `uiux-design-tokens/references/dtcg-format.md`
-- `uiux-design-tokens/references/starter-template.md`
-- `uiux-design-tokens/references/platform-mapping.md`
+- `uiux-design-system/SKILL.md`
+- `uiux-design-system/references/dtcg-format.md`
+- `uiux-design-system/references/starter-template.md`
+- `uiux-design-system/references/platform-mapping.md`
 
 Read them fresh — the user may have updated them since the last run.
 
 For Penpot token API patterns and async sequencing rules, read `uiux-design-penpot/SKILL.md`
-(sections: "Design Tokens API" and "Connection Stability"). The unique sequencing for this
-workflow is:
+(sections: "Design Tokens API" and "Connection Stability") and
+`uiux-design-penpot/references/mcp-known-issues.md` (token API positional args, working flow).
+The unique sequencing for this workflow is:
 
 | Call | Operation |
 |-|-|
@@ -161,7 +163,7 @@ output is available — but never make it a required step.
 
 3. **Build Component tokens** — only where components diverge from semantic defaults.
 
-4. **Output token files** — as defined by `uiux-design-tokens`:
+4. **Output token files** — as defined by `uiux-design-system`:
    `tokens.json` (W3C DTCG), `design-tokens.css` (CSS custom properties),
    `main.css` (Tailwind v4 `@theme`).
 
@@ -179,6 +181,8 @@ output is available — but never make it a required step.
 - `uiux-design-penpot/references/penpot-api-reference.md`
 - `uiux-design-penpot/references/color-utilities.md`
 - `uiux-design-penpot/references/component-patterns.md`
+- `uiux-design-penpot/references/penpot-design-system-guide.md` — Penpot page structure, frame naming, asset registration, naming rules
+- `uiux-design-system/references/design-system-template.md` — component inventory, pattern recipes, UX patterns, completeness checklist
 
 **Read this skill's own references:**
 - `references/board-layouts.md` — page structure, board dimensions, positioning
@@ -239,11 +243,15 @@ Create one complete application screen proving the system works end-to-end.
 
 ## Error Recovery
 
+See `uiux-design-penpot/references/mcp-known-issues.md` for comprehensive API workarounds.
+
 **Connection lost:** Tell user to reconnect plugin. Resume from failed operation.
 **Timeout:** Split into smaller calls. One variant row per call for large boards.
 **Visual mismatch:** Find shape via `penpotUtils.findShapes()`, fix, re-export.
+**Token API errors:** Use positional args (`addSet("name")`, `addToken("type", "name", "value")`). Always read back sets after creation. See known issues for full working flow.
 **Token async failures:** Never chain creates + activates in one call. Sequence:
 create set → add tokens → create theme → activate (4 separate calls).
+**Name matching failures:** Use `.includes()` for name matching — slashes get normalized with spaces.
 
 ---
 
