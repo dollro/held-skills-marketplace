@@ -120,8 +120,8 @@
     {
       "name": "uiux-design-penpot",
       "source": "./plugins/uiux-design-penpot",
-      "description": "Comprehensive guide for creating professional UI/UX designs in Penpot using MCP tools. Covers full Plugin API (90+ interfaces), color conversion utilities, design tokens, prototyping, layouts, effects, and accessibility. Adds a /uiux-design-penpot skill.",
-      "version": "2.3.1",
+      "description": "Comprehensive guide for creating professional UI/UX designs in Penpot using MCP tools. Covers full Plugin API (90+ interfaces), color conversion utilities, design tokens, prototyping, layouts, effects, accessibility, MCP known issues, and Penpot design system implementation patterns. Adds a /uiux-design-penpot skill.",
+      "version": "2.5.0",
       "category": "development",
       "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp"],
       "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
@@ -145,19 +145,19 @@
       "keywords": ["vue", "vue3", "vuejs", "composition-api", "options-api", "pinia", "vue-router", "composables"]
     },
     {
-      "name": "uiux-design-tokens",
-      "source": "./plugins/uiux-design-tokens",
-      "description": "Guide coding agents on design token best practices: 3-tier hierarchy, naming taxonomy, W3C DTCG format, accessibility tokens, theming modes, component patterns, and platform mapping. Adds a /uiux-design-tokens skill.",
-      "version": "2.0.0",
+      "name": "uiux-design-system",
+      "source": "./plugins/uiux-design-system",
+      "description": "Comprehensive design system architecture guide: 3-tier token hierarchy, W3C DTCG format, component naming and inventory, UX decision patterns, content and voice, layout and responsive rules, motion, accessibility standards, and completeness checklists. Adds a /uiux-design-system skill.",
+      "version": "3.0.0",
       "category": "development",
-      "tags": ["design-system", "tokens", "css", "theming", "ui"],
-      "keywords": ["design tokens", "design system", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "primitives", "semantic tokens"]
+      "tags": ["design-system", "tokens", "css", "theming", "ui", "component-architecture", "ux-patterns"],
+      "keywords": ["design system", "design tokens", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "component naming", "UX patterns", "design architecture"]
     },
     {
       "name": "uiux-image2design",
       "source": "./plugins/uiux-image2design",
-      "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot via MCP. Orchestrates uiux-design-tokens and uiux-design-penpot skills. Adds a /uiux-image2design skill.",
-      "version": "2.1.0",
+      "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot via MCP. Orchestrates uiux-design-system and uiux-design-penpot skills. Adds a /uiux-image2design skill.",
+      "version": "2.2.0",
       "category": "development",
       "tags": ["penpot", "screenshots", "design-system", "vision", "mcp", "tokens", "components"],
       "keywords": ["screenshots", "image to design", "reverse-engineer UI", "extract design", "design from images", "penpot", "design system"]

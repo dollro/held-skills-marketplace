@@ -18,7 +18,7 @@ plugins/<name>/
 
 - **ai-agent-dev-tools** — ai-dev, prompt-engineering
 - **workflows** — agent-team, braindump2spec, brainstorming, branch, code-review, spec2plan
-- **development** — electron-dev, fullstack-dev, pencil-pen-generator, uiux-design-penpot, uiux-design-tailwindv4, uiux-design-vue3, uiux-design-tokens
+- **development** — electron-dev, fullstack-dev, pencil-pen-generator, uiux-design-penpot, uiux-design-tailwindv4, uiux-design-vue3, uiux-design-system, uiux-image2design
 - **analysis** — equity-research
 
 ## Conventions
