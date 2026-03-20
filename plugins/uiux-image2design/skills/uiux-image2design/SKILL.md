@@ -51,8 +51,8 @@ Refer them to `uiux-design-penpot/references/setup-troubleshooting.md`.
 Phase 1: Screenshot Analysis ──→ Design Inventory
 Phase 2: User Confirmation   ──→ Confirmed Spec
 Phase 3: Token Generation     ──→ Token files + Penpot tokens
-Phase 4: Board Generation     ──→ Design system + component pages
-Phase 5: Sample Screen        ──→ Complete application screen
+Phase 4: Board Generation     ──→ Pages per guide (cover, foundations, atoms, molecules, organisms, screens-*)
+Phase 5: Screen Pages          ──→ screens-* pages from Confirmed Spec
 ```
 
 Each phase completes before the next begins.
@@ -185,19 +185,29 @@ output is available — but never make it a required step.
 - `uiux-design-system/references/design-system-template.md` — component inventory, pattern recipes, UX patterns, completeness checklist
 
 **Read this skill's own references:**
-- `references/board-layouts.md` — page structure, board dimensions, positioning
+- `references/board-layouts.md` — board dimensions, positioning, layout patterns
 - `references/component-recipes.md` — workflow orchestration for component generation
 - `uiux-design-penpot/references/generation-recipes.md` — Penpot MCP execute_code templates
 
 ### Page Structure
 
-Create three pages (unless they already exist):
+Follow the page structure in `penpot-design-system-guide.md` § "Page Structure & Naming".
+Create pages from the Confirmed Spec inventory. Not all pages are always needed.
 
-| Page | Content |
-|------|---------|
-| Design System | Colors, typography, spacing, radius, shadows boards |
-| Components | All component boards (variants × states) |
-| Sample Screen | Complete application screen (Phase 5) |
+| Page | When to create | Content |
+|-|-|-|
+| `cover` | Always | 1390×930 frame, version, date, status, component/token counts |
+| `foundations` | Always | colors/primitives, colors/semantic, typography/scale, spacing/scale, elevation/levels, borders, icons |
+| `atoms` | Always | button, input, badge-tag, avatar, toggle-checkbox-radio, divider, tooltip, spinner |
+| `molecules` | If Confirmed Spec includes composed components | form-field, card, nav-item, dropdown-select, toast-alert, search-bar, pagination |
+| `organisms` | If Confirmed Spec includes complex compositions | header-navbar, sidebar-navigation, data-table, modal-dialog, footer, command-palette |
+| `patterns` | If layout patterns identified | layout-templates, section compositions, state patterns (empty/loading/error) |
+| `screens-*` | At least one (Phase 5) | Real content screens — name by app type (e.g. `screens-dashboard`, `screens-landing`) |
+
+Use the guide's naming conventions:
+- Page names: lowercase with hyphens, no number prefixes
+- Frame names: `{page-context}/{frame-purpose}` (e.g. `colors/primitives`, `button/variants`, `button/anatomy`)
+- Component names: `{page-context}/{component-name}/{variant-property}/{variant-value}`
 
 ### Execution Constraints
 
@@ -219,11 +229,11 @@ Register each component's default variant via `penpot.library.local.createCompon
 
 ---
 
-## Phase 5: Sample Screen
+## Phase 5: Screen Pages
 
 Create one complete application screen proving the system works end-to-end.
 
-1. Create/find "Sample Screen" page
+1. Create/find the appropriate screens-* page (e.g. screens-dashboard, screens-landing)
 2. Create main board at target device size (from Confirmed Spec layout)
 3. Build layout structure — header, content, navigation
 4. Instantiate registered components from library

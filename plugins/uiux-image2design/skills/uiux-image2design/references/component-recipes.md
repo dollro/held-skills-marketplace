@@ -8,21 +8,26 @@ For the actual `execute_code` templates, read:
 
 Build boards in this dependency order — composite components may instantiate atomic ones:
 
-1. **Design System page** (no dependencies)
-   - Colors board
-   - Typography board
-   - Spacing board
-   - Border Radius board (if applicable)
-   - Shadows board (if applicable)
+1. **cover page** (no dependencies)
+   - Version-info board (1390×930)
 
-2. **Components page** (depends on registered library colors/typographies)
-   - Atomic: buttons, badges, tags
-   - Form: inputs, selects, checkboxes, toggles
-   - Composite: cards (contain buttons, badges)
-   - Navigation: nav bars (contain buttons, icons)
-   - Complex: modals, dropdowns (contain multiple atomic elements)
+2. **foundations page** (no dependencies)
+   - colors/primitives board
+   - colors/semantic board
+   - typography/scale board
+   - spacing/scale board
+   - elevation/levels board (if applicable)
 
-3. **Sample Screen page** (depends on registered components)
+3. **atoms page** (depends on registered library colors/typographies)
+   - buttons, badges, tags, inputs, toggles, checkboxes, radio, avatar, divider, tooltip, spinner
+
+4. **molecules page** (depends on registered atoms)
+   - form-fields, cards, nav-items, dropdown-selects, toast-alerts, search-bar, pagination
+
+5. **organisms page** (depends on registered atoms + molecules)
+   - header-navbar, sidebar-navigation, data-table, modal-dialog, footer, command-palette
+
+6. **screens-* pages** (depends on registered components)
 
 ## Mapping Confirmed Spec → Recipe Placeholders
 

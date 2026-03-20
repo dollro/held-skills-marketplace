@@ -1,30 +1,30 @@
 # Board Layouts Reference
 
-Standard page structure, board dimensions, and positioning conventions for the
+Standard board dimensions, positioning conventions, and layout patterns for the
 design-from-screenshots workflow.
 
-## Page Structure
+## Page-to-Board Mapping
 
-The plugin creates three pages in the Penpot file:
+Page structure follows `penpot-design-system-guide.md`. Boards within each page:
 
 ```
-📄 Design System
-  ├── 🎨 Colors          (token swatches)
-  ├── 🔤 Typography       (text style samples)
-  ├── ⬜ Spacing          (spacing blocks)
-  ├── ⬜ Border Radius    (radius samples)
-  └── 🔲 Shadows          (elevation samples)
-
-📄 Components
-  ├── 🔘 Buttons          (all variants × states)
-  ├── 📝 Form Inputs      (text, select, checkbox, toggle, radio)
-  ├── 🃏 Cards            (content card, metric card, etc.)
-  ├── 🧭 Navigation       (top bar, sidebar, bottom nav)
-  └── 📦 [Dynamic]        (any additional from Confirmed Spec)
-
-📄 Sample Screen
-  └── 📱 Home Screen      (or primary screen from screenshots)
+cover              → version-info (1390×930)
+foundations        → colors/primitives, colors/semantic, colors/dark-mode,
+                     typography/scale, typography/pairings,
+                     spacing/scale, spacing/grid, elevation/levels, icons/grid
+atoms              → button/variants, button/anatomy, input/variants, input/anatomy,
+                     badge/variants, avatar/variants, toggle/variants, ...
+molecules          → form-field/variants, card/variants, nav-item/variants,
+                     dropdown-select/variants, toast-alert/variants, ...
+organisms          → header-navbar/variants, header-navbar/responsive,
+                     data-table/variants, modal-dialog/variants, ...
+patterns           → layout/sidebar-content, section-hero/variant-a,
+                     state-empty/default, state-loading/default, ...
+screens-*          → {context}/desktop, {context}/mobile
+                     (e.g. landing/desktop, dashboard/main)
 ```
+
+Not all pages required. Create based on Confirmed Spec. Minimum: cover, foundations, atoms, one screens-* page.
 
 ## Board Positioning
 
@@ -252,28 +252,37 @@ focusRing.borderRadius = componentRadius + 2;
 ### Recommended Board Creation Order
 
 ```
-1. Switch to "Design System" page
-   ├── Create Colors board           (1-2 execute_code calls)
-   ├── Create Typography board       (1 call)
-   ├── Create Spacing board          (1 call)
-   ├── Create Border Radius board    (1 call)
-   └── Create Shadows board          (1 call)
+1. Create "cover" page
+   └── Create version-info board              (1 call)
 
-2. Switch to "Components" page
-   ├── Create Button variants        (1 call per variant×state = ~12 calls)
-   ├── Assemble Button board         (1 call)
-   ├── Register Button components    (1 call)
-   ├── Create Input variants         (similar pattern)
-   ├── Create Toggle variants        (similar pattern)
-   ├── Create Card variants          (similar pattern)
-   ├── Create Navigation             (1-2 calls)
-   └── Create any additional comps   (varies)
+2. Switch to "foundations" page
+   ├── Create colors/primitives board          (1-2 calls)
+   ├── Create colors/semantic board            (1 call)
+   ├── Create typography/scale board           (1 call)
+   ├── Create spacing/scale board              (1 call)
+   └── Create elevation/levels board           (1 call)
 
-3. Switch to "Sample Screen" page
-   ├── Create main board             (1 call)
-   ├── Build layout structure        (1-2 calls)
-   ├── Instantiate components        (1-2 calls)
-   └── Apply content and final style (1-2 calls)
+3. Switch to "atoms" page
+   ├── Create button/variants board            (1 call per variant×state)
+   ├── Assemble + register button components   (1 call)
+   ├── Create input/variants board             (similar pattern)
+   ├── Create toggle/variants board            (similar pattern)
+   └── ...per Confirmed Spec
+
+4. Switch to "molecules" page (if needed)
+   ├── Create card/variants board
+   ├── Create form-field/variants board
+   └── ...per Confirmed Spec
+
+5. Switch to "organisms" page (if needed)
+   ├── Create header-navbar/variants board
+   └── ...per Confirmed Spec
+
+6. Switch to "screens-*" page
+   ├── Create main board                       (1 call)
+   ├── Build layout structure                  (1-2 calls)
+   ├── Instantiate components                  (1-2 calls)
+   └── Apply content and final style           (1-2 calls)
 ```
 
 **Total estimated calls:** 25–40 `execute_code` calls for a typical design system
@@ -293,67 +302,39 @@ Use `mcp__penpot__export_shape` with the board ID to get a PNG for inspection.
 
 ## Naming Conventions
 
-### Page Names
+### Page Names (from penpot-design-system-guide.md)
+
+cover, foundations, atoms, molecules, organisms, patterns, screens-*
+
+### Frame Names
+
+Follow `{page-context}/{frame-purpose}`:
 
 ```
-Design System
-Components
-Sample Screen
+foundations:    colors/primitives, colors/semantic, typography/scale, spacing/scale
+atoms:         button/variants, button/anatomy, input/variants
+molecules:     card/variants, form-field/variants
+organisms:     header-navbar/variants, data-table/variants
+screens-*:     dashboard/main, landing/hero
 ```
 
-### Board Names
+### Component Registration Names
+
+Follow `{page-context}/{component-name}/{variant-property}/{variant-value}`:
 
 ```
-Colors
-Typography
-Spacing
-Border Radius
-Shadows
-Buttons
-Form Inputs
-Cards
-Navigation
-[Component Name]    (for additional detected components)
-Home Screen         (or descriptive name for sample screen)
+atoms/button/appearance/primary
+atoms/button/appearance/secondary
+atoms/button/appearance/ghost
+atoms/input/state/default
+atoms/input/state/error
+molecules/card/type/content
+molecules/card/type/metric
 ```
 
-### Shape Names
+### Asset Names
 
-Follow a consistent naming pattern within boards:
+Color assets (slash-separated):  `primitives/blue-50`, `semantic/bg-body`, `semantic/action-primary-bg`
+Typography assets:               `heading/h1`, `body/md`, `caption/default`, `label/sm`
 
-```
-Buttons board:
-  btn-primary-default
-  btn-primary-hover
-  btn-primary-active
-  btn-primary-disabled
-  btn-secondary-default
-  ...
-
-Form Inputs board:
-  input-default
-  input-focus
-  input-error
-  input-disabled
-  select-default
-  select-open
-  checkbox-unchecked
-  checkbox-checked
-  toggle-off
-  toggle-on
-
-Cards board:
-  card-content
-  card-metric
-  card-[type]
-
-Navigation board:
-  nav-top
-  nav-bottom
-  nav-sidebar
-```
-
-This consistent naming enables:
-- Easy lookup via `penpotUtils.findShapes(s => s.name.startsWith('btn-'))`
-- Component registration by name
-- Future automation and scripting
+Shape lookup: `penpotUtils.findShapes(s => s.name.includes('button/'))`

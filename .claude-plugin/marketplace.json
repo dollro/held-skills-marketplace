@@ -157,7 +157,7 @@
       "name": "uiux-image2design",
       "source": "./plugins/uiux-image2design",
       "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot via MCP. Orchestrates uiux-design-system and uiux-design-penpot skills. Adds a /uiux-image2design skill.",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "category": "development",
       "tags": ["penpot", "screenshots", "design-system", "vision", "mcp", "tokens", "components"],
       "keywords": ["screenshots", "image to design", "reverse-engineer UI", "extract design", "design from images", "penpot", "design system"]

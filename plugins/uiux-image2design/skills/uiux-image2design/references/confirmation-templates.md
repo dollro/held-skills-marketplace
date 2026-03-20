@@ -222,7 +222,7 @@ Present this clean summary after all adjustments. Require explicit "go ahead" be
 
 ### Output Plan
 - Token files: tokens.json, design-tokens.css, main.css
-- Penpot pages: Design System, Components, Sample Screen
+- Penpot pages: cover, foundations, atoms [+ molecules, organisms, patterns, screens-* as needed]
 - Estimated MCP calls: ~[N]
 
 Shall I proceed with generation?
