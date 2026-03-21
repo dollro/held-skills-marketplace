@@ -1,7 +1,7 @@
 # Token Binding for Penpot Design Systems
 
 **Date:** 2026-03-21
-**Status:** Draft
+**Status:** Reviewed
 **Plugins affected:** `uiux-design-penpot` (v2.5.2), `uiux-image2design` (v2.3.1)
 
 ---
@@ -72,12 +72,23 @@ function initTokenResolver() {
 }
 ```
 
-**Toggle guard detail:** The `applySafe` function must verify the token is not already
-applied to the target property before calling `applyToken()`. The exact mechanism for
-reading existing bindings needs validation against the Penpot API (check if
-`shape.appliedTokens` or similar exists). If no read API exists, maintain a session-local
-set of `(shapeId, tokenId, property)` tuples to track what was applied in the current
-execution.
+**Toggle guard detail:** The Penpot API exposes `shape.tokens` (readonly object) which
+contains current token bindings for the shape. The `applySafe` function reads
+`shape.tokens` to check if the target token is already bound to the given property
+before calling `applyToken()`. This prevents accidental unbinding.
+
+```javascript
+applySafe(shape, token, properties) {
+  if (!token) return false;
+  // Read existing bindings from shape.tokens
+  const existing = shape.tokens || {};
+  // Check if this token is already bound to the target property
+  // If so, skip — applyToken() is a toggle and would unbind it
+  // (exact key structure of shape.tokens to be verified at implementation)
+  shape.applyToken(token, properties);
+  return true;
+}
+```
 
 ### 1b. Reverse Map Builder (for brownfield)
 
@@ -99,7 +110,29 @@ function buildReverseMap() {
 ```
 
 `resolveTokenValue` follows reference chains (`{color.blue.500}` → `#2563EB`) to get
-final values. Must handle multi-level references.
+final values. Must handle multi-level references. Implementation must walk all token sets
+to resolve references since the API's `token.value` returns the raw string (which may be
+a `{reference}`), not the resolved value:
+
+```javascript
+function resolveTokenValue(token, catalog) {
+  let value = token.value;
+  const seen = new Set(); // cycle guard
+  while (value && value.startsWith('{') && value.endsWith('}')) {
+    const refName = value.slice(1, -1);
+    if (seen.has(refName)) break;
+    seen.add(refName);
+    let found = null;
+    for (const set of catalog.sets) {
+      found = set.tokens.find(t => t.name === refName);
+      if (found) break;
+    }
+    if (!found) break;
+    value = found.value;
+  }
+  return value;
+}
+```
 
 ### 1c. Confidence Scorer
 
@@ -176,8 +209,8 @@ const TR = initTokenResolver();
 const rect = penpot.createRectangle();
 rect.fills = [{ fillColor: tokenMap['bg.interactive'], fillOpacity: 1 }];
 rect.borderRadius = parseInt(tokenMap['radius.md']);
-TR.applySafe(rect, TR.resolve('semantic', 'bg.interactive'), ['fill']);
-TR.applySafe(rect, TR.resolve('semantic', 'radius.md'), undefined); // 'all' for radius
+TR.applySafe(rect, TR.resolve('semantic', 'bg.interactive'), 'fill');
+TR.applySafe(rect, TR.resolve('semantic', 'radius.md')); // omit → defaults to 'all'
 ```
 
 The visual value (`fillColor`, `borderRadius`) is set from `tokenMap` so the shape
@@ -227,7 +260,10 @@ renders correctly. The `applyToken` call binds the token so changes propagate.
 
 ### 3a. Sweep Engine (in token-binding.md)
 
-A recipe that processes one page at a time:
+A recipe that processes one page at a time. **Each page must be a separate
+`execute_code` call** — do not iterate pages in a single call. This avoids
+WASM renderer crashes from bulk property changes combined with page switches
+(see `mcp-known-issues.md` § "WASM Renderer Crash").
 
 ```
 1. Init resolver + build reverse map
@@ -333,12 +369,20 @@ Add a section to the penpot skill:
 
 ## Open Questions
 
-1. **Toggle guard API** — does `shape.appliedTokens` (or similar) exist for reading
-   existing bindings? If not, session-local tracking is the fallback. Needs Penpot API
-   verification.
+1. ~~**Toggle guard API**~~ **RESOLVED.** `shape.tokens` (readonly object) exists in the
+   API and exposes current token bindings. The toggle guard reads this before applying.
+   Exact key structure of the object (property names, token ID format) needs verification
+   at implementation time.
 2. **Component instance inheritance** — do instances created via `component.instance()`
    inherit token bindings from the main component? If yes, Phase 5 screen assembly
-   doesn't need to rebind instances. Needs verification.
-3. **Reference token resolution** — when building the reverse map, do reference tokens
-   (e.g., `{color.blue.500}`) expose their resolved value via the API, or must we follow
-   the chain manually? Needs verification.
+   doesn't need to rebind instances. If no, Phase 5 scope increases significantly.
+   **Must verify before implementation.**
+3. ~~**Reference token resolution**~~ **RESOLVED.** `token.value` returns the raw string
+   (may be a `{reference}`). The `resolveTokenValue` helper follows reference chains
+   manually. Implementation included in Deliverable 1b.
+4. **`applyToken` property strings for non-color types** — the API documents
+   `TokenColorProps` (`"fill"` | `"strokeColor"`) but does not document property strings
+   for borderRadius, spacing, shadow, or typography tokens. Omitting `properties`
+   defaults to `"all"` which works for single-property token types. **Verify during
+   implementation** that `"all"` correctly binds radius to all 4 corners, shadow to
+   the shadow stack, etc.
