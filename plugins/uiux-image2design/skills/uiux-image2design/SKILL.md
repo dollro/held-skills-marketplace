@@ -1,19 +1,21 @@
 ---
 name: uiux-image2design
 description: >
-  Analyze UI screenshots, extract a full design system, and generate it in Penpot.
+  Analyze UI screenshots, extract a full design system, and generate it in Penpot or Figma.
   ALWAYS use this skill when: (1) The user provides UI screenshots or images and wants
   a design system built from them, (2) The user wants to reverse-engineer a visual style
-  into Penpot components and tokens, (3) The user says "create a design from these images",
+  into design tool components and tokens, (3) The user says "create a design from these images",
   "extract the style", "build a design system from these screenshots", or similar.
   Trigger keywords: image to design, screenshot to design system, extract design, reverse
-  engineer UI, visual reference to Penpot, design from images, image2design.
+  engineer UI, visual reference to Penpot, visual reference to Figma, design from images, image2design.
 ---
 
 # Image to Design System
 
 Analyze UI screenshots, extract a design system, confirm it with the user, then generate
-everything in Penpot: tokens, design system boards, reusable components, and a sample screen.
+everything in Penpot or Figma: tokens, design system boards, reusable components, and
+a sample screen. Detects the available design tool at startup and delegates tool-specific
+work to the corresponding plugin.
 
 This skill orchestrates shared knowledge and a tool-specific plugin:
 - `uiux-design-system` — design system architecture, token format, naming, hierarchy, W3C DTCG spec, component naming, UX patterns, component patterns, accessibility, platform guidelines, color utilities
@@ -40,29 +42,37 @@ If `uiux-design-figma` is found, confirm its references exist:
 `variable-binding.md`, `figma-design-system-guide.md`.
 If neither is found, tell the user to install one and stop.
 
-**0c. Test Penpot MCP connection.**
-Call `mcp__penpot__penpot_api_info`. If it fails, tell the user to ensure:
-1. MCP server is running (ports 4400, 4401, 4402)
-2. A Penpot design file is open
-3. The plugin panel shows "Connected"
-Refer them to `uiux-design-penpot/references/setup-troubleshooting.md`.
+**0c. Test design tool MCP connection.**
+Based on which tool skill was found in 0b, test the corresponding MCP connection:
 
-**0d. Report readiness.** Confirm all three checks passed, then ask for screenshots.
+- **Penpot:** Call `mcp__penpot__penpot_api_info`. If it fails, refer to
+  `uiux-design-penpot/references/setup-troubleshooting.md`.
+- **Figma:** Call `mcp__figma__figma_get_status`. If it fails, refer to
+  `uiux-design-figma/references/setup-troubleshooting.md`.
+
+If both tool skills exist, prefer whichever has a working MCP connection. If both
+connect, ask the user which tool to target.
+
+Set `TOOL = 'penpot' | 'figma'` for the rest of the workflow.
+
+**0d. Report readiness.** Confirm all checks passed, report detected tool, ask for screenshots.
 
 ---
 
-## The 5-Phase Workflow
+## The 6-Phase Workflow
 
 ```
-Phase 1: Screenshot Analysis ──→ Design Inventory
-Phase 2: User Confirmation   ──→ Confirmed Spec
-Phase 3: Token Generation     ──→ Token files + Penpot tokens
-Phase 4: Board Generation     ──→ Pages per guide (cover, foundations, atoms, molecules, organisms, screens-*)
-Phase 5: Screen Pages          ──→ screens-* pages from Confirmed Spec
+Phase 1: Screenshot Analysis    ──→ Design Inventory
+Phase 2: User Confirmation      ──→ Confirmed Spec
+Phase 3: Token Generation       ──→ Token files + design tool tokens/variables + tokenMap
+Phase 4: Board Generation       ──→ Pages (cover, foundations, atoms, molecules, organisms, screens-*)
+Phase 5: Screen Pages           ──→ screens-* pages from Confirmed Spec
+Phase 6: Token Binding Audit    ──→ All shapes bound to tokens, coverage report
 ```
 
 Each phase completes before the next begins.
 Drive forward autonomously — only pause at Phase 2 for user confirmation.
+Phases 3-6 delegate tool-specific work to the detected tool plugin (Penpot or Figma).
 
 ---
 
@@ -138,24 +148,16 @@ Do NOT proceed to Phase 3 without explicit confirmation.
 
 Read them fresh — the user may have updated them since the last run.
 
-For Penpot token API patterns and async sequencing rules, read `uiux-design-penpot/SKILL.md`
-(sections: "Design Tokens API" and "Connection Stability") and
-`uiux-design-penpot/references/mcp-known-issues.md` (token API arg style testing, working flow).
-The unique sequencing for this workflow is:
-
-| Call | Operation |
-|-|-|
-| 1 | Create token sets |
-| 2 | Add primitive tokens (~20 per call; split if >50) |
-| 3 | Add semantic tokens |
-| 4 | Create theme, add sets |
-| 5 | Activate theme |
-| 6 | Verify (read back) |
+**Read tool-specific token API patterns:**
+- If TOOL=penpot: read `uiux-design-penpot/SKILL.md` (sections: "Design Tokens API",
+  "Token Binding", "Connection Stability") and `uiux-design-penpot/references/mcp-known-issues.md`
+- If TOOL=figma: read `uiux-design-figma/SKILL.md` (sections: "Variable/Collection Model",
+  "Variable Binding") and `uiux-design-figma/references/variable-mapping.md`
 
 ### Framework-Agnostic Principle
 
-Token and Penpot output is independent of any frontend framework. The design system works
-whether the user implements in Vue, React, Svelte, or plain HTML. If the user has
+Token and design tool output is independent of any frontend framework. The design system
+works whether the user implements in Vue, React, Svelte, or plain HTML. If the user has
 framework-specific skills installed (e.g. Tailwind CSS v4), mention that CSS/Tailwind
 output is available — but never make it a required step.
 
@@ -173,27 +175,38 @@ output is available — but never make it a required step.
    `tokens.json` (W3C DTCG), `design-tokens.css` (CSS custom properties),
    `main.css` (Tailwind v4 `@theme`).
 
-5. **Apply tokens in Penpot** — follow the 6-call sequencing table above.
-   Split across multiple `execute_code` calls.
+5. **Apply tokens/variables in design tool** — delegate to the detected tool plugin.
+   Follow its sequencing rules and API patterns for token creation.
 
-6. **Register library colors and typographies** — for Penpot's color picker and text styles.
+6. **Register library colors and typographies** — using the tool's library API.
+
+7. **Build token map** — construct a `tokenMap` object mapping every semantic token name
+   to its resolved hex/string value. This map is used by Phases 4, 5, and 6 for both
+   visual rendering and token binding. Include all semantic color, spacing, radius,
+   shadow, and typography tokens. See `uiux-design-system/references/token-binding-strategy.md`
+   for the tokenMap pattern.
 
 ---
 
 ## Phase 4: Board & Component Generation
 
-**Read these now** (paths verified in Step 0):
-- `uiux-design-penpot/SKILL.md`
-- `uiux-design-penpot/references/penpot-api-reference.md`
+**Read shared design knowledge** (paths verified in Step 0):
 - `uiux-design-system/references/color-utilities.md`
 - `uiux-design-system/references/component-patterns.md`
-- `uiux-design-penpot/references/penpot-design-system-guide.md` — Penpot page structure, frame naming, asset registration, naming rules
 - `uiux-design-system/references/design-system-template.md` — component inventory, pattern recipes, UX patterns, completeness checklist
+- `uiux-design-system/references/token-binding-strategy.md` — greenfield binding pattern
+
+**Read tool-specific references:**
+- If TOOL=penpot: `uiux-design-penpot/SKILL.md`, `references/penpot-api-reference.md`,
+  `references/penpot-design-system-guide.md`, `references/generation-recipes.md`,
+  `references/token-binding.md`
+- If TOOL=figma: `uiux-design-figma/SKILL.md`, `references/figma-api-reference.md`,
+  `references/figma-design-system-guide.md`, `references/generation-recipes.md`,
+  `references/variable-binding.md`
 
 **Read this skill's own references:**
 - `references/board-layouts.md` — board dimensions, positioning, layout patterns
 - `references/component-recipes.md` — workflow orchestration for component generation
-- `uiux-design-penpot/references/generation-recipes.md` — Penpot MCP execute_code templates
 
 ### Page Structure
 
@@ -217,10 +230,13 @@ Use the guide's naming conventions:
 
 ### Execution Constraints
 
-1. **One board per `execute_code` call.** 30-second timeout.
-2. **Structure first, populate second.** Board → layout → children → register.
-3. **Check existing boards** before creating to avoid overlap.
-4. **Validate visually** — `mcp__penpot__export_shape` after each major board.
+1. **One board per code execution call.** Respect tool timeout limits (Penpot: 30s, Figma: 5-30s).
+2. **Structure first, populate second.** Board/frame → layout → children → register.
+3. **Check existing boards/frames** before creating to avoid overlap.
+4. **Validate visually** after each major board.
+5. **Bind tokens inline** — after creating each shape, immediately bind its tokens using
+   the tool's binding API. Use the `tokenMap` from Phase 3 for visual values AND token binding.
+   See the tool plugin's generation recipes and token-binding reference for the exact pattern.
 
 ### Component Generation Order
 
@@ -231,7 +247,7 @@ Build in dependency order so composite components can instantiate atomic ones:
 4. Navigation — nav bars (contain buttons, icons)
 5. Complex — modals, dropdowns (contain multiple atomic elements)
 
-Register each component's default variant via `penpot.library.local.createComponent()`.
+Register each component's default variant using the tool's component API.
 
 ---
 
@@ -240,12 +256,13 @@ Register each component's default variant via `penpot.library.local.createCompon
 Create one complete application screen proving the system works end-to-end.
 
 1. Create/find the appropriate screens-* page (e.g. screens-dashboard, screens-landing)
-2. Create main board at target device size (from Confirmed Spec layout)
+2. Create main board/frame at target device size (from Confirmed Spec layout)
 3. Build layout structure — header, content, navigation
 4. Instantiate registered components from library
-5. Apply final styling — fills, text content, spacing
-6. Optionally add prototyping interactions
-7. Export and validate visually
+5. Apply final styling — fills, text content, spacing — using `tokenMap` values
+6. **Bind tokens inline** — every shape gets its tokens bound at creation time
+7. Optionally add prototyping interactions (tool-specific)
+8. Export and validate visually
 
 **Validation checklist:**
 - Colors match Confirmed Spec
@@ -254,20 +271,47 @@ Create one complete application screen proving the system works end-to-end.
 - Components match their board definitions
 - Touch targets ≥ 44px
 - Layout matches original screenshot intent
+- **Token bindings are applied** (not just visual values)
+
+---
+
+## Phase 6: Token Binding Audit
+
+**Read:**
+- `uiux-design-system/references/token-binding-strategy.md` — confidence scoring, sweep algorithm
+- Tool-specific binding reference: `uiux-design-penpot/references/token-binding.md` or
+  `uiux-design-figma/references/variable-binding.md`
+
+Run the binding sweep for each page in order:
+`foundations → atoms → molecules → organisms → patterns → screens-*`
+
+After each page, report to the user:
+- Bindings applied (high/medium confidence): count and summary
+- Items needing input (low confidence): list with shape name, property,
+  candidate tokens, and why confidence is low
+
+Collect user decisions for low-confidence items. Apply confirmed bindings.
+
+**Final summary:** total bindings before/after, coverage percentage per page.
+Target: >90% of shapes with at least one token binding on foundations and atoms pages,
+>70% on screen pages.
+
+**Standalone usage:** Phase 6 can be triggered independently on any existing design file.
+The user says "bind my tokens", "audit token bindings", or "wire up tokens" and the
+sweep runs without needing Phases 1-5.
 
 ---
 
 ## Error Recovery
 
-See `uiux-design-penpot/references/mcp-known-issues.md` for comprehensive API workarounds.
+See the detected tool plugin's known-issues reference for comprehensive API workarounds.
 
-**Connection lost:** Tell user to reconnect plugin. Resume from failed operation.
+**Connection lost:** Tell user to reconnect. Resume from failed operation.
 **Timeout:** Split into smaller calls. One variant row per call for large boards.
-**Visual mismatch:** Find shape via `penpotUtils.findShapes()`, fix, re-export.
-**Token API errors:** Arg style (object vs positional) is version-dependent — test both at project start. Always read back sets after creation. See known issues for full working flow.
-**Token async failures:** Never chain creates + activates in one call. Sequence:
-create set → add tokens → create theme → activate (4 separate calls).
-**Name matching failures:** Use `.includes()` for name matching — slashes get normalized with spaces.
+**Visual mismatch:** Find shape, fix, re-export.
+**Token/variable API errors:** Follow the tool plugin's documented workarounds.
+**Token binding failures:** If inline binding fails during Phases 4-5, Phase 6
+will catch unbound shapes in the sweep. Don't block on individual binding failures.
 
 ---
 
