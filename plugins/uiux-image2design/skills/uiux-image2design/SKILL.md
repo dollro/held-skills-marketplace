@@ -210,7 +210,7 @@ output is available — but never make it a required step.
 
 ### Page Structure
 
-Follow the page structure in `penpot-design-system-guide.md` § "Page Structure & Naming".
+Follow the page structure from the tool plugin's design system guide.
 Create pages from the Confirmed Spec inventory. Not all pages are always needed.
 
 | Page | When to create | Content |
@@ -222,6 +222,19 @@ Create pages from the Confirmed Spec inventory. Not all pages are always needed.
 | `organisms` | If Confirmed Spec includes complex compositions | header-navbar, sidebar-navigation, data-table, modal-dialog, footer, command-palette |
 | `patterns` | If layout patterns identified | layout-templates, section compositions, state patterns (empty/loading/error) |
 | `screens-*` | At least one (Phase 5) | Real content screens — name by app type (e.g. `screens-dashboard`, `screens-landing`) |
+
+**How to decide between organisms, patterns, and screens:**
+
+- **Organism** = a self-contained, reusable UI component registered in the library.
+  Test: "Can I instantiate this as a component in another context?" If yes → organism.
+  Examples: header-navbar, data-table, modal-dialog, sidebar-navigation.
+- **Pattern** = a layout blueprint or state variation — not a component itself, but a
+  recipe for arranging components. Not registered in the library.
+  Test: "Is this a structural template or a state that applies to many contexts?" If yes → pattern.
+  Examples: sidebar+content layout, empty state (icon + message + CTA), loading skeleton, error state.
+- **Screen** = a real application page with real content, proving the system works end-to-end.
+  Composes organisms into patterns with actual data.
+  Test: "Does this represent a full page a user would see?" If yes → screen.
 
 Use the guide's naming conventions:
 - Page names: lowercase with hyphens, no number prefixes
