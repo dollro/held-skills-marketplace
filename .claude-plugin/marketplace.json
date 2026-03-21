@@ -121,7 +121,7 @@
       "name": "uiux-design-penpot",
       "source": "./plugins/uiux-design-penpot",
       "description": "Professional UI/UX design in Penpot using MCP tools. Covers Plugin API, design tokens with inline binding, generation recipes, prototyping, and known issues. References shared design knowledge from uiux-design-system. Adds a /uiux-design-penpot skill.",
-      "version": "2.6.0",
+      "version": "2.6.1",
       "category": "development",
       "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp", "token-binding"],
       "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
@@ -157,7 +157,7 @@
       "name": "uiux-image2design",
       "source": "./plugins/uiux-image2design",
       "description": "Analyze UI screenshots with vision, extract a design system, confirm with the user, then generate tokens, component boards, and sample screens in Penpot or Figma via MCP. Detects available tool and delegates to the corresponding plugin. Adds a /uiux-image2design skill.",
-      "version": "3.0.0",
+      "version": "3.0.1",
       "category": "development",
       "tags": ["penpot", "figma", "screenshots", "design-system", "vision", "mcp", "tokens", "components", "token-binding"],
       "keywords": ["screenshots", "image to design", "reverse-engineer UI", "extract design", "design from images", "penpot", "figma", "design system"]
