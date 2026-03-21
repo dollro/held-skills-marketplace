@@ -197,6 +197,7 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 - **`comp.name` returns leaf only** — use `comp.mainInstance().name` for the full slash-separated path
 - **`openPage()` context switch** — on upstream Penpot, `openPage()` may not switch the plugin execution context. Branch fix available. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **`layoutChild` is null before parenting** — always `parent.appendChild(child)` first, then access `child.layoutChild`
+- **`applyToken()` with explicit properties silently fails** for some non-color token types (confirmed: `fontFamilies`). Only pass `'fill'`/`'strokeColor'` for color tokens. For all other types, **omit the properties arg**. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **Token API arg style is version-dependent** — object form (`addSet({ name: "x" })`) and positional form (`addSet("x")`) swap behavior between Penpot versions. Test both at project start. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **Child positioning is page-absolute** — after `board.appendChild(child)`, `child.x = N` sets page coordinates, not board-relative. Use `penpotUtils.setParentXY(child, relX, relY)` or flex/grid layouts. Nested boards need recursive fixing. See [mcp-known-issues.md](references/mcp-known-issues.md)
 - **Async property updates** (Penpot ≤2.13.x) — after `toggleActive()`, `resize()`, or `growType` changes, computed properties (e.g. `height`) update async (~100ms). Don't read them in the same `execute_code` call — use a follow-up call instead

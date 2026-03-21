@@ -364,10 +364,90 @@ for (const o of orphans) o.remove();
 
 ---
 
+## WASM Renderer Crash on Bulk Font Changes + Page Switch
+
+**Status: UPSTREAM**
+
+Bulk `fontFamily` changes across multiple pages in a single `execute_code` call can crash the WASM renderer. The crash trace:
+
+```
+_set_shape_text_content → fonts_from_text_content → set_object → initialize_viewport
+```
+
+The crash occurs in the WASM text rendering pipeline when initializing the viewport after a page switch (`open-page-context` in the event trail). The renderer tries to resolve fonts for text content it can't handle after rapid `update-text-attrs` commits followed by page navigation.
+
+**Note:** The `openPage()` branch fix makes this more reachable — `openPage` now works and triggers `initialize-viewport` with the new page's shapes, whereas before it silently did nothing.
+
+**Data is safe** — WASM crashes are rendering-side only. Reload the file to verify.
+
+**Workaround:** Don't combine bulk `fontFamily` changes across multiple pages in a single `execute_code` call. Split into one page per call:
+
+```javascript
+// WRONG — bulk font changes + page switch in one call:
+for (const page of pages) {
+  penpot.openPage(page);
+  for (const text of getTexts(page)) {
+    text.fontFamily = 'Inter';  // rapid update-text-attrs
+  }
+}
+
+// CORRECT — one page per execute_code call:
+// Call 1:
+penpot.openPage(page1);
+for (const text of getTexts(page1)) {
+  text.fontFamily = 'Inter';
+}
+return { done: 'page1' }; // let renderer settle
+
+// Call 2 (separate execute_code):
+penpot.openPage(page2);
+for (const text of getTexts(page2)) {
+  text.fontFamily = 'Inter';
+}
+return { done: 'page2' };
+```
+
+---
+
+## applyToken() Silent Failure with Explicit Properties
+
+**Status: UPSTREAM**
+
+`applyToken(token, properties)` silently fails for some token types when passing the `properties` argument explicitly. Confirmed with `fontFamilies` — may affect other types.
+
+```javascript
+// BROKEN — silent failure, token not bound:
+shape.applyToken(token, 'fontFamilies');   // nothing happens
+shape.applyToken(token, ['fontFamilies']); // nothing happens
+
+// WORKS — omit properties, let Penpot use the default:
+shape.applyToken(token);  // binds correctly
+```
+
+**Safe pattern:** Always try without explicit properties first. Only pass `'fill'` or `'strokeColor'` for color tokens where you need to disambiguate fill vs stroke. For all other token types (fontFamilies, fontSizes, fontWeights, borderRadius, shadow, spacing, sizing, etc.), **omit the properties argument**.
+
+```javascript
+// Color tokens — explicit property needed to disambiguate:
+shape.applyToken(colorToken, 'fill');        // bind to fill
+shape.applyToken(colorToken, 'strokeColor'); // bind to stroke
+
+// All other token types — omit properties:
+shape.applyToken(radiusToken);      // binds to borderRadius
+shape.applyToken(shadowToken);      // binds to shadow
+shape.applyToken(fontFamilyToken);  // binds to fontFamily
+shape.applyToken(fontSizeToken);    // binds to fontSize
+shape.applyToken(spacingToken);     // binds to spacing/sizing
+```
+
+**Reminder:** `applyToken()` is a **toggle** — calling it on a shape that already has the same token bound will **unbind** it. Always check `shape.tokens` before applying.
+
+---
+
 ## Quick Reference: Common Pitfalls
 
 | Pitfall | Correct Pattern |
 |-|-|
+| `applyToken` with explicit properties | Omit properties for non-color tokens — explicit args silently fail for some types. Only use `'fill'`/`'strokeColor'` for color tokens |
 | Assuming token API arg style | Test both object and positional forms at project start — behavior is version-dependent |
 | Using `addSet()` return value | Read back: `catalog.sets.find(s => s.name === "x")` |
 | `catalog.sets` on empty file | Create any set first, then access `.sets` |
@@ -379,3 +459,4 @@ for (const o of orphans) o.remove();
 | Fixing only top-level children | Use recursive `fixBoard()` — nested boards have the same issue |
 | Cross-page shape creation | Use `penpot.openPage(targetPage)` first (requires branch fix) |
 | Reading props after toggle | Split into separate `execute_code` calls |
+| Bulk font changes + page switch | One page per `execute_code` call — WASM renderer crashes on rapid `update-text-attrs` + `initialize-viewport` |

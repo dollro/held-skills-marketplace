@@ -830,7 +830,10 @@ Every recipe in this file follows the same pattern:
 
 **Property mapping for `applyToken()`:**
 - Color → `'fill'` (maps to first fill) or `'strokeColor'`
-- borderRadius, shadow, spacing, sizing, typography → omit properties (defaults to `'all'`)
+- **All other types → omit properties entirely** (borderRadius, shadow, spacing, sizing,
+  fontFamilies, fontSizes, fontWeights, etc.). Passing explicit properties silently fails
+  for some types. See [token-binding.md](token-binding.md) and
+  [mcp-known-issues.md](mcp-known-issues.md) § "applyToken() Silent Failure"
 
 **If no tokenMap is available** (standalone recipe use), the recipes still work with hardcoded fallback values. Token binding simply won't occur. See [token-binding.md](token-binding.md) for the brownfield sweep approach to bind tokens after the fact.
 

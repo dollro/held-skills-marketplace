@@ -62,15 +62,23 @@ TR.applySafe(rect, TR.resolve('semantic', 'bg.interactive'), 'fill');
 
 ### Property Strings by Token Type
 
+> **CRITICAL:** `applyToken(token, properties)` **silently fails** for some non-color
+> token types when passing explicit properties. Only pass `'fill'` or `'strokeColor'`
+> for color tokens. For ALL other types, **omit the properties argument entirely**.
+> See `mcp-known-issues.md` § "applyToken() Silent Failure" for details.
+
 | Token type | `properties` arg | Notes |
 |-|-|-|
 | Color (fill) | `'fill'` | Maps to `fillColor` of the FIRST fill |
 | Color (stroke) | `'strokeColor'` | Maps to first stroke color |
-| borderRadius | omit (defaults to `'all'`) | |
-| shadow | omit | |
-| spacing | omit | |
-| sizing | omit | |
-| typography | omit | |
+| borderRadius | **omit** | Explicit arg may silently fail |
+| shadow | **omit** | |
+| spacing | **omit** | |
+| sizing | **omit** | |
+| fontFamilies | **omit** | Confirmed: explicit `'fontFamilies'` silently fails |
+| fontSizes | **omit** | |
+| fontWeights | **omit** | |
+| All other types | **omit** | Safe default — let Penpot resolve the property |
 
 ---
 
