@@ -33,6 +33,15 @@ Read the reference files in this skill's `references/` directory as needed:
 - **`references/starter-template.md`** — A minimal but complete DTCG token set covering all categories. Use as scaffolding when starting a new project with no existing tokens. Adapt to project needs, don't copy verbatim.
 - **`references/platform-mapping.md`** — How to output tokens to CSS custom properties, Tailwind, SCSS, and other platforms. Consult when transforming tokens into platform-specific code.
 
+### Shared Design Knowledge (tool-agnostic)
+
+These references are used by tool-specific plugins (`uiux-design-penpot`, `uiux-design-figma`) and workflow orchestrators (`uiux-image2design`). **Tool plugins MUST read these from here** — they are not duplicated into tool-specific plugins.
+
+- **`references/component-patterns.md`** — UI component specs: buttons, forms, navigation, cards, modals, data tables. Covers variants, states, accessibility requirements, and best practices. **Read when creating or reviewing any UI component.**
+- **`references/accessibility.md`** — WCAG 2.2 AA standards: color contrast, touch targets, focus management, screen reader patterns, motion preferences. **Read when designing any user-facing interface.**
+- **`references/platform-guidelines.md`** — Screen sizes, safe areas, and platform-specific specs for iOS, Android, Material Design, and desktop. **Read when targeting a specific platform or device.**
+- **`references/color-utilities.md`** — Pure-math color converters (OKLCH→hex, HSL→hex, RGB→hex), palette generation, and WCAG contrast ratio calculation. No tool dependencies. **Read when converting colors between formats or validating contrast.**
+
 ## The 3-Tier Token Hierarchy
 
 Design tokens are organized into three tiers. Each tier builds on the one below it, creating a layered abstraction from raw values to component-specific decisions.

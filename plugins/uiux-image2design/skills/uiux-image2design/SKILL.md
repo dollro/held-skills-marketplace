@@ -15,9 +15,9 @@ description: >
 Analyze UI screenshots, extract a design system, confirm it with the user, then generate
 everything in Penpot: tokens, design system boards, reusable components, and a sample screen.
 
-This skill orchestrates two knowledge skills:
-- `uiux-design-system` — design system architecture, token format, naming, hierarchy, W3C DTCG spec, component naming, UX patterns
-- `uiux-design-penpot` — Penpot MCP API, component patterns, accessibility, known issues
+This skill orchestrates shared knowledge and a tool-specific plugin:
+- `uiux-design-system` — design system architecture, token format, naming, hierarchy, W3C DTCG spec, component naming, UX patterns, component patterns, accessibility, platform guidelines, color utilities
+- Tool plugin (detected at Step 0): `uiux-design-penpot` or `uiux-design-figma` — tool-specific MCP API, generation recipes, known issues
 
 ## Step 0: Verify Dependencies
 
@@ -25,14 +25,20 @@ Run ALL checks before starting. Stop if any fail.
 
 **0a. Find `uiux-design-system` skill.**
 Search for its SKILL.md in the project's plugin directories. Confirm it exists along
-with its references: `design-system-template.md`, `dtcg-format.md`, `starter-template.md`, `platform-mapping.md`.
+with its references: `design-system-template.md`, `dtcg-format.md`, `starter-template.md`,
+`platform-mapping.md`, `component-patterns.md`, `accessibility.md`, `platform-guidelines.md`,
+`color-utilities.md`.
 If missing, tell the user to install it and stop.
 
-**0b. Find `uiux-design-penpot` skill.**
-Search for its SKILL.md and references: `penpot-api-reference.md`, `component-patterns.md`,
-`color-utilities.md`, `prototyping-interactions.md`, `generation-recipes.md`,
-`mcp-known-issues.md`, `penpot-design-system-guide.md`.
-If missing, tell the user to install it and stop.
+**0b. Find a tool-specific skill.**
+Search for `uiux-design-penpot` or `uiux-design-figma` SKILL.md in the project's plugin
+directories. If `uiux-design-penpot` is found, confirm its references exist:
+`penpot-api-reference.md`, `penpot-color-patterns.md`, `prototyping-interactions.md`,
+`generation-recipes.md`, `mcp-known-issues.md`, `penpot-design-system-guide.md`.
+If `uiux-design-figma` is found, confirm its references exist:
+`figma-api-reference.md`, `generation-recipes.md`, `variable-mapping.md`,
+`variable-binding.md`, `figma-design-system-guide.md`.
+If neither is found, tell the user to install one and stop.
 
 **0c. Test Penpot MCP connection.**
 Call `mcp__penpot__penpot_api_info`. If it fails, tell the user to ensure:
@@ -179,8 +185,8 @@ output is available — but never make it a required step.
 **Read these now** (paths verified in Step 0):
 - `uiux-design-penpot/SKILL.md`
 - `uiux-design-penpot/references/penpot-api-reference.md`
-- `uiux-design-penpot/references/color-utilities.md`
-- `uiux-design-penpot/references/component-patterns.md`
+- `uiux-design-system/references/color-utilities.md`
+- `uiux-design-system/references/component-patterns.md`
 - `uiux-design-penpot/references/penpot-design-system-guide.md` — Penpot page structure, frame naming, asset registration, naming rules
 - `uiux-design-system/references/design-system-template.md` — component inventory, pattern recipes, UX patterns, completeness checklist
 

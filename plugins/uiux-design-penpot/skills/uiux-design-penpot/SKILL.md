@@ -100,11 +100,12 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 | MCP server installation & troubleshooting | [setup-troubleshooting.md](references/setup-troubleshooting.md) |
 | MCP API known issues & workarounds | [mcp-known-issues.md](references/mcp-known-issues.md) |
 | Penpot design system implementation (pages, frames, naming, assets) | [penpot-design-system-guide.md](references/penpot-design-system-guide.md) |
-| Component specs (buttons, forms, nav) | [component-patterns.md](references/component-patterns.md) |
-| Accessibility (contrast, touch targets) | [accessibility.md](references/accessibility.md) |
-| Screen sizes & platform specs | [platform-guidelines.md](references/platform-guidelines.md) |
+| Component specs (buttons, forms, nav) | `uiux-design-system/references/component-patterns.md` |
+| Accessibility (contrast, touch targets) | `uiux-design-system/references/accessibility.md` |
+| Screen sizes & platform specs | `uiux-design-system/references/platform-guidelines.md` |
 | Full Penpot Plugin API reference | [penpot-api-reference.md](references/penpot-api-reference.md) |
-| Color conversion utilities (OKLCH→hex, HSL→hex) | [color-utilities.md](references/color-utilities.md) |
+| Color conversion utilities (OKLCH→hex, HSL→hex) | `uiux-design-system/references/color-utilities.md` |
+| Penpot color API patterns (fills, gradients, library) | [penpot-color-patterns.md](references/penpot-color-patterns.md) |
 | Prototyping, interactions & animations | [prototyping-interactions.md](references/prototyping-interactions.md) |
 | Reusable execute_code generation templates | [generation-recipes.md](references/generation-recipes.md) |
 
@@ -175,11 +176,11 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 
 - Use the default tokens below as a starting point
 - Offer to help establish consistent patterns
-- Reference specs in [component-patterns.md](references/component-patterns.md)
+- Reference specs in `uiux-design-system/references/component-patterns.md`
 
 ## Key Penpot API Gotchas
 
-- **Penpot only accepts hex colors** (`#RRGGBB`) — CSS functions like `oklch()`, `hsl()`, `rgb()` do NOT work. See [color-utilities.md](references/color-utilities.md) for converters
+- **Penpot only accepts hex colors** (`#RRGGBB`) — CSS functions like `oklch()`, `hsl()`, `rgb()` do NOT work. See `uiux-design-system/references/color-utilities.md` for converters
 - **No DOM in execute_code** — `document`, `window`, `getComputedStyle` are undefined. All code must be pure JavaScript math
 - `width`/`height` are READ-ONLY → use `shape.resize(w, h)`
 - `rotation` is READ-ONLY → use `shape.rotate(angle, center?)`
@@ -221,7 +222,8 @@ function oklchToHex(L, C, H) {
 // oklchToHex(1, 0, 0) → '#FFFFFF'  |  oklchToHex(0, 0, 0) → '#000000'
 ```
 
-More converters (HSL, RGB, palette generation, contrast checks) in [color-utilities.md](references/color-utilities.md).
+More converters (HSL, RGB, palette generation, contrast checks) in `uiux-design-system/references/color-utilities.md`.
+Penpot-specific color API patterns (fills, gradients, library) in [penpot-color-patterns.md](references/penpot-color-patterns.md).
 
 ## Positioning New Boards
 
