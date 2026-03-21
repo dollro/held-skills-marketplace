@@ -29,11 +29,14 @@ function initTokenResolver() {
     },
     applySafe(shape, token, properties) {
       if (!token) return false;
-      // Toggle guard: applyToken() is a toggle — calling twice unbinds
-      // Read shape.tokens to check if already bound
+      // Toggle guard: applyToken() is a toggle — calling twice UNBINDS
+      // Read shape.tokens to check if already bound before applying
       const existing = shape.tokens || {};
-      // If the token appears to already be bound, skip
-      // (exact key structure of shape.tokens needs runtime verification)
+      // TODO: verify shape.tokens key structure at runtime, then add:
+      //   const propKey = properties || 'all';
+      //   if (existing[propKey]?.id === token.id) return false; // already bound
+      // Until verified, this is safe for greenfield (first-time binding)
+      // but risky for brownfield re-runs. For brownfield, verify manually.
       shape.applyToken(token, properties);
       return true;
     }

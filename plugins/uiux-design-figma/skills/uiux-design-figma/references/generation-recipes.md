@@ -10,6 +10,11 @@ in Figma. Adapt placeholder values to match your project's design system.
 > - Always `return` a result to confirm success
 > - **Bind variables to nodes** — see [variable-binding.md](variable-binding.md)
 > - After creation, validate with `figma_take_screenshot`
+>
+> **Coverage note:** This file covers core recipes (color swatches, typography, spacing,
+> button, text input, card). For components not covered here (toggle, metric card, bottom
+> nav, etc.), adapt the patterns from these recipes — the structure is the same:
+> create frame → auto-layout → children → bind variables.
 
 ## Shared Helpers
 

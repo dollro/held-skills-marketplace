@@ -1,8 +1,11 @@
 # Variable Binding — Figma Implementation
 
-Figma-specific patterns for binding design variables to nodes. Use inside
-`figma_execute` calls to connect visual properties to variables from the
-Variables panel.
+Figma-specific patterns for binding design variables to nodes. Implements the
+strategies defined in `uiux-design-system/references/token-binding-strategy.md`
+(greenfield/brownfield patterns, confidence scoring, coverage reporting).
+
+Use inside `figma_execute` calls to connect visual properties to variables from
+the Variables panel.
 
 > **Key advantage over Penpot:** `setBoundVariable()` is **idempotent** — calling it
 > on an already-bound node simply re-sets the binding. There is no toggle behavior,

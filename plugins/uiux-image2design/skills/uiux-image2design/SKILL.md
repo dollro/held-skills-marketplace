@@ -151,7 +151,7 @@ Read them fresh — the user may have updated them since the last run.
 **Read tool-specific token API patterns:**
 - If TOOL=penpot: read `uiux-design-penpot/SKILL.md` (sections: "Design Tokens API",
   "Token Binding", "Connection Stability") and `uiux-design-penpot/references/mcp-known-issues.md`
-- If TOOL=figma: read `uiux-design-figma/SKILL.md` (sections: "Variable/Collection Model",
+- If TOOL=figma: read `uiux-design-figma/SKILL.md` (sections: "Variable / Token Management",
   "Variable Binding") and `uiux-design-figma/references/variable-mapping.md`
 
 ### Framework-Agnostic Principle
