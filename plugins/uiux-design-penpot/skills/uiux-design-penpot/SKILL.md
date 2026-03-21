@@ -106,6 +106,7 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 | Full Penpot Plugin API reference | [penpot-api-reference.md](references/penpot-api-reference.md) |
 | Color conversion utilities (OKLCH→hex, HSL→hex) | `uiux-design-system/references/color-utilities.md` |
 | Penpot color API patterns (fills, gradients, library) | [penpot-color-patterns.md](references/penpot-color-patterns.md) |
+| Token binding (resolver, toggle guard, brownfield sweep) | [token-binding.md](references/token-binding.md) |
 | Prototyping, interactions & animations | [prototyping-interactions.md](references/prototyping-interactions.md) |
 | Reusable execute_code generation templates | [generation-recipes.md](references/generation-recipes.md) |
 
@@ -425,10 +426,22 @@ catalog.addTheme("Mode", "Dark");
 
 // Apply token to shape
 const token = set.tokens.find(t => t.name === "primary");
-shape.applyToken(token, ['fill']); // TokenColorProps: 'fill' | 'strokeColor'
+shape.applyToken(token, 'fill'); // TokenColorProps: 'fill' | 'strokeColor'
 ```
 
 **Gotchas:** `catalog.sets` crashes on files with no tokens — create a set first. Duplicate token names silently return `undefined`. See [mcp-known-issues.md](references/mcp-known-issues.md) for the full working flow and all workarounds.
+
+### Token Binding
+
+**Every shape should be bound to its semantic token** — not just have a hardcoded hex value. Without binding, changing a token value won't propagate to shapes.
+
+- **Greenfield** (creating new shapes): bind tokens inline during creation. See [generation-recipes.md](references/generation-recipes.md) for the `initTokenResolver()` + `tokenMap` pattern.
+- **Brownfield** (existing file with unbound tokens): run the binding sweep from [token-binding.md](references/token-binding.md). Auto-applies high-confidence bindings, surfaces ambiguous ones for user confirmation.
+- **Strategy & confidence scoring**: see `uiux-design-system/references/token-binding-strategy.md` for the tool-agnostic methodology.
+
+**Trigger phrases:** "bind tokens to shapes", "wire up tokens", "audit token bindings", "tokens aren't applied", "tokens aren't working".
+
+**Critical:** `applyToken()` is a **toggle** in Penpot — calling it on an already-bound shape unbinds the token. Always check `shape.tokens` before applying. See [token-binding.md](references/token-binding.md) for the `applySafe()` toggle guard.
 
 ## Page, Viewport & Events
 

@@ -41,6 +41,7 @@ These references are used by tool-specific plugins (`uiux-design-penpot`, `uiux-
 - **`references/accessibility.md`** — WCAG 2.2 AA standards: color contrast, touch targets, focus management, screen reader patterns, motion preferences. **Read when designing any user-facing interface.**
 - **`references/platform-guidelines.md`** — Screen sizes, safe areas, and platform-specific specs for iOS, Android, Material Design, and desktop. **Read when targeting a specific platform or device.**
 - **`references/color-utilities.md`** — Pure-math color converters (OKLCH→hex, HSL→hex, RGB→hex), palette generation, and WCAG contrast ratio calculation. No tool dependencies. **Read when converting colors between formats or validating contrast.**
+- **`references/token-binding-strategy.md`** — Tool-agnostic strategy for binding tokens to shapes: greenfield (inline), brownfield (sweep with confidence scoring), token map pattern, reverse map builder, and coverage reporting. Tool plugins implement the API-specific calls. **Read when implementing or auditing token binding in any design tool.**
 
 ## The 3-Tier Token Hierarchy
 

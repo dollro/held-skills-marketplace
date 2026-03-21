@@ -10,6 +10,9 @@ to match your project's design system or Confirmed Spec.
 > - Split complex components across multiple calls
 > - Don't read properties immediately after toggle/resize operations
 > - Always use hex colors (no CSS functions like oklch/hsl)
+> - **Always bind tokens to shapes** — every shape with a hardcoded value must also get
+>   its token bound via `applyToken()`. See [token-binding.md](token-binding.md) for the
+>   resolver utility and toggle-guard pattern
 
 ## Shared Helpers
 
@@ -31,6 +34,47 @@ function createLabel(parent, text, x, y, fontSize, fontWeight, color) {
   label.y = y;
   return label;
 }
+```
+
+### Token Resolver + Token Map
+
+Include at the top of any `execute_code` call that creates shapes. The `tokenMap` object
+is built by the orchestrator (e.g., image2design Phase 3) and passed into each recipe.
+See [token-binding.md](token-binding.md) for full details.
+
+```javascript
+// tokenMap — provided by orchestrator, maps semantic token names → hex values
+// Example: { 'bg.surface': '#FFFFFF', 'bg.interactive': '#3B82F6', 'text.primary': '#171717' }
+
+// Token resolver — load once per execute_code call
+function initTokenResolver() {
+  const catalog = penpot.library.local.tokens;
+  const sets = catalog.sets;
+  const _cache = {};
+  return {
+    resolve(setName, tokenName) {
+      const key = setName + '/' + tokenName;
+      if (_cache[key]) return _cache[key];
+      const set = sets.find(s => s.name === setName);
+      if (!set) return null;
+      const token = set.tokens.find(t => t.name === tokenName);
+      _cache[key] = token || null;
+      return _cache[key];
+    },
+    applySafe(shape, token, properties) {
+      if (!token) return false;
+      shape.applyToken(token, properties);
+      return true;
+    }
+  };
+}
+const TR = initTokenResolver();
+```
+
+**Usage pattern** — set visual value from tokenMap, then bind via resolver:
+```javascript
+rect.fills = [{ fillColor: tokenMap['bg.interactive'], fillOpacity: 1 }];
+TR.applySafe(rect, TR.resolve('semantic', 'bg.interactive'), 'fill');
 ```
 
 ### Position After Existing Boards
@@ -55,23 +99,24 @@ Generates a grid of color swatches with hex labels.
 
 ```javascript
 // Configuration — replace with your design system values
+// Each swatch includes tokenName for binding (matches token in the corresponding set)
 const colors = {
   'Primitives': [
-    { name: 'Neutral 50',  hex: '#FAFAFA' },
-    { name: 'Neutral 100', hex: '#F5F5F5' },
-    { name: 'Neutral 200', hex: '#E5E5E5' },
+    { name: 'Neutral 50',  hex: '#FAFAFA', tokenName: 'color.neutral.50' },
+    { name: 'Neutral 100', hex: '#F5F5F5', tokenName: 'color.neutral.100' },
+    { name: 'Neutral 200', hex: '#E5E5E5', tokenName: 'color.neutral.200' },
     // ... full scale
-    { name: 'Primary 500', hex: '#3B82F6' },
-    { name: 'Primary 600', hex: '#2563EB' },
-    { name: 'Primary 700', hex: '#1D4ED8' },
+    { name: 'Primary 500', hex: '#3B82F6', tokenName: 'color.primary.500' },
+    { name: 'Primary 600', hex: '#2563EB', tokenName: 'color.primary.600' },
+    { name: 'Primary 700', hex: '#1D4ED8', tokenName: 'color.primary.700' },
   ],
   'Semantic': [
-    { name: 'BG Surface',      hex: '#FAFAFA' },
-    { name: 'BG Primary',      hex: '#3B82F6' },
-    { name: 'Text Primary',    hex: '#171717' },
-    { name: 'Text Secondary',  hex: '#525252' },
-    { name: 'Border Default',  hex: '#E5E5E5' },
-    { name: 'Interactive',     hex: '#3B82F6' },
+    { name: 'BG Surface',      hex: '#FAFAFA', tokenName: 'bg.surface' },
+    { name: 'BG Primary',      hex: '#3B82F6', tokenName: 'bg.interactive' },
+    { name: 'Text Primary',    hex: '#171717', tokenName: 'text.primary' },
+    { name: 'Text Secondary',  hex: '#525252', tokenName: 'text.secondary' },
+    { name: 'Border Default',  hex: '#E5E5E5', tokenName: 'border.default' },
+    { name: 'Interactive',     hex: '#3B82F6', tokenName: 'text.interactive' },
   ]
 };
 
@@ -116,7 +161,7 @@ for (const [groupName, swatches] of Object.entries(colors)) {
     const x = 24 + col * (SWATCH_SIZE + GAP);
     const y = yOffset + row * (SWATCH_SIZE + LABEL_HEIGHT + GAP);
 
-    // Color rectangle
+    // Color rectangle — bind token to fill
     const rect = penpot.createRectangle();
     rect.resize(SWATCH_SIZE, SWATCH_SIZE);
     rect.fills = [{ fillColor: color.hex, fillOpacity: 1 }];
@@ -125,6 +170,11 @@ for (const [groupName, swatches] of Object.entries(colors)) {
     board.appendChild(rect);
     rect.x = x;
     rect.y = y;
+    // Bind token: color.tokenName is the token name (e.g., 'color.blue.500' or 'bg.surface')
+    if (color.tokenName) {
+      const setName = groupName.toLowerCase(); // 'primitives' or 'semantic'
+      TR.applySafe(rect, TR.resolve(setName, color.tokenName), 'fill');
+    }
 
     // Label
     const label = penpot.createText(color.name + '\n' + color.hex);
@@ -202,15 +252,16 @@ return 'Typography board created with ' + styles.length + ' styles';
 ### Spacing Board
 
 ```javascript
+// Include tokenName for binding to spacing tokens
 const spacings = [
-  { name: 'space-1',  value: 4,  label: '4px / 0.25rem' },
-  { name: 'space-2',  value: 8,  label: '8px / 0.5rem' },
-  { name: 'space-3',  value: 12, label: '12px / 0.75rem' },
-  { name: 'space-4',  value: 16, label: '16px / 1rem' },
-  { name: 'space-6',  value: 24, label: '24px / 1.5rem' },
-  { name: 'space-8',  value: 32, label: '32px / 2rem' },
-  { name: 'space-12', value: 48, label: '48px / 3rem' },
-  { name: 'space-16', value: 64, label: '64px / 4rem' },
+  { name: 'space-1',  value: 4,  label: '4px / 0.25rem', tokenName: 'spacing.1' },
+  { name: 'space-2',  value: 8,  label: '8px / 0.5rem',  tokenName: 'spacing.2' },
+  { name: 'space-3',  value: 12, label: '12px / 0.75rem', tokenName: 'spacing.3' },
+  { name: 'space-4',  value: 16, label: '16px / 1rem',    tokenName: 'spacing.4' },
+  { name: 'space-6',  value: 24, label: '24px / 1.5rem',  tokenName: 'spacing.6' },
+  { name: 'space-8',  value: 32, label: '32px / 2rem',    tokenName: 'spacing.8' },
+  { name: 'space-12', value: 48, label: '48px / 3rem',    tokenName: 'spacing.12' },
+  { name: 'space-16', value: 64, label: '64px / 4rem',    tokenName: 'spacing.16' },
 ];
 
 const BLOCK_COLOR = '#3B82F6';
@@ -223,7 +274,7 @@ board.y = 0;
 
 let y = 24;
 spacings.forEach(sp => {
-  // Spacing block
+  // Spacing block — bind spacing token to width
   const rect = penpot.createRectangle();
   rect.resize(sp.value, 24);
   rect.fills = [{ fillColor: BLOCK_COLOR, fillOpacity: 0.3 }];
@@ -231,6 +282,9 @@ spacings.forEach(sp => {
   board.appendChild(rect);
   rect.x = 24;
   rect.y = y;
+  // Bind spacing token (controls the width of the demo block)
+  const TR = initTokenResolver();
+  if (sp.tokenName) TR.applySafe(rect, TR.resolve('primitives', sp.tokenName));
 
   // Label
   const label = penpot.createText(`${sp.name}  —  ${sp.label}`);
@@ -273,25 +327,38 @@ const PADDING_X = 24;
 const PADDING_Y = 12;
 const MIN_HEIGHT = 44; // Touch target
 
-// Variant × State color map
+// Variant × State color map — use tokenMap values, include token names for binding
+// tokenMap is provided by the orchestrator (e.g., image2design Phase 3)
 const BUTTON_STYLES = {
   primary: {
-    default:  { bg: '#3B82F6', text: '#FFFFFF', border: null },
-    hover:    { bg: '#2563EB', text: '#FFFFFF', border: null },
-    active:   { bg: '#1D4ED8', text: '#FFFFFF', border: null },
-    disabled: { bg: '#3B82F6', text: '#FFFFFF', border: null, opacity: 0.5 },
+    default:  { bg: tokenMap['bg.interactive'] || '#3B82F6', text: tokenMap['text.on-interactive'] || '#FFFFFF', border: null,
+                tokens: { bg: 'bg.interactive', text: 'text.on-interactive' } },
+    hover:    { bg: tokenMap['bg.interactive.hover'] || '#2563EB', text: tokenMap['text.on-interactive'] || '#FFFFFF', border: null,
+                tokens: { bg: 'bg.interactive.hover', text: 'text.on-interactive' } },
+    active:   { bg: tokenMap['bg.interactive.active'] || '#1D4ED8', text: tokenMap['text.on-interactive'] || '#FFFFFF', border: null,
+                tokens: { bg: 'bg.interactive.active', text: 'text.on-interactive' } },
+    disabled: { bg: tokenMap['bg.interactive'] || '#3B82F6', text: tokenMap['text.on-interactive'] || '#FFFFFF', border: null, opacity: 0.5,
+                tokens: { bg: 'bg.interactive', text: 'text.on-interactive' } },
   },
   secondary: {
-    default:  { bg: 'transparent', text: '#3B82F6', border: '#3B82F6' },
-    hover:    { bg: '#EFF6FF',     text: '#2563EB', border: '#2563EB' },
-    active:   { bg: '#DBEAFE',     text: '#1D4ED8', border: '#1D4ED8' },
-    disabled: { bg: 'transparent', text: '#3B82F6', border: '#3B82F6', opacity: 0.5 },
+    default:  { bg: 'transparent', text: tokenMap['text.interactive'] || '#3B82F6', border: tokenMap['border.interactive'] || '#3B82F6',
+                tokens: { text: 'text.interactive', border: 'border.interactive' } },
+    hover:    { bg: tokenMap['bg.interactive.subtle'] || '#EFF6FF', text: tokenMap['text.interactive'] || '#2563EB', border: tokenMap['border.interactive'] || '#2563EB',
+                tokens: { bg: 'bg.interactive.subtle', text: 'text.interactive', border: 'border.interactive' } },
+    active:   { bg: tokenMap['bg.interactive.subtle'] || '#DBEAFE', text: tokenMap['text.interactive'] || '#1D4ED8', border: tokenMap['border.interactive'] || '#1D4ED8',
+                tokens: { bg: 'bg.interactive.subtle', text: 'text.interactive', border: 'border.interactive' } },
+    disabled: { bg: 'transparent', text: tokenMap['text.interactive'] || '#3B82F6', border: tokenMap['border.interactive'] || '#3B82F6', opacity: 0.5,
+                tokens: { text: 'text.interactive', border: 'border.interactive' } },
   },
   ghost: {
-    default:  { bg: 'transparent', text: '#3B82F6', border: null },
-    hover:    { bg: '#EFF6FF',     text: '#2563EB', border: null },
-    active:   { bg: '#DBEAFE',     text: '#1D4ED8', border: null },
-    disabled: { bg: 'transparent', text: '#3B82F6', border: null, opacity: 0.5 },
+    default:  { bg: 'transparent', text: tokenMap['text.interactive'] || '#3B82F6', border: null,
+                tokens: { text: 'text.interactive' } },
+    hover:    { bg: tokenMap['bg.interactive.subtle'] || '#EFF6FF', text: tokenMap['text.interactive'] || '#2563EB', border: null,
+                tokens: { bg: 'bg.interactive.subtle', text: 'text.interactive' } },
+    active:   { bg: tokenMap['bg.interactive.subtle'] || '#DBEAFE', text: tokenMap['text.interactive'] || '#1D4ED8', border: null,
+                tokens: { bg: 'bg.interactive.subtle', text: 'text.interactive' } },
+    disabled: { bg: 'transparent', text: tokenMap['text.interactive'] || '#3B82F6', border: null, opacity: 0.5,
+                tokens: { text: 'text.interactive' } },
   },
 };
 
@@ -342,6 +409,14 @@ label.fills = [{ fillColor: style.text, fillOpacity: 1 }];
 if (TEXT_TRANSFORM === 'uppercase') label.textTransform = 'uppercase';
 label.growType = 'auto-width';
 btn.appendChild(label);
+
+// Bind tokens to button shapes
+const TR = initTokenResolver();
+if (style.tokens?.bg) TR.applySafe(btn, TR.resolve('semantic', style.tokens.bg), 'fill');
+if (style.tokens?.border) TR.applySafe(btn, TR.resolve('semantic', style.tokens.border), 'strokeColor');
+if (style.tokens?.text) TR.applySafe(label, TR.resolve('semantic', style.tokens.text), 'fill');
+// Bind radius token
+TR.applySafe(btn, TR.resolve('semantic', 'radius.md'));
 
 // Position in parent board (adjust x/y as needed for the variant×state grid)
 // The orchestrating code should position this within the component board
@@ -744,6 +819,20 @@ ITEMS.forEach(item => {
 
 return { id: nav.id, name: nav.name };
 ```
+
+---
+
+## Token Binding Summary
+
+Every recipe in this file follows the same pattern:
+1. Set the visual value from `tokenMap` (or hardcoded fallback): `rect.fills = [{ fillColor: tokenMap['bg.surface'] || '#FFFFFF' }]`
+2. Bind the token via resolver: `TR.applySafe(rect, TR.resolve('semantic', 'bg.surface'), 'fill')`
+
+**Property mapping for `applyToken()`:**
+- Color → `'fill'` (maps to first fill) or `'strokeColor'`
+- borderRadius, shadow, spacing, sizing, typography → omit properties (defaults to `'all'`)
+
+**If no tokenMap is available** (standalone recipe use), the recipes still work with hardcoded fallback values. Token binding simply won't occur. See [token-binding.md](token-binding.md) for the brownfield sweep approach to bind tokens after the fact.
 
 ---
 
