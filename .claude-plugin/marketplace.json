@@ -121,7 +121,7 @@
       "name": "uiux-design-penpot",
       "source": "./plugins/uiux-design-penpot",
       "description": "Professional UI/UX design in Penpot using MCP tools. Covers Plugin API, design tokens with inline binding, generation recipes, prototyping, and known issues. References shared design knowledge from uiux-design-system. Adds a /uiux-design-penpot skill.",
-      "version": "2.6.1",
+      "version": "2.7.0",
       "category": "development",
       "tags": ["penpot", "design", "ui-ux", "accessibility", "component-patterns", "mcp", "token-binding"],
       "keywords": ["penpot", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system"]
@@ -148,7 +148,7 @@
       "name": "uiux-design-system",
       "source": "./plugins/uiux-design-system",
       "description": "Comprehensive design system architecture guide: 3-tier token hierarchy, W3C DTCG format, component naming and inventory, UX decision patterns, content and voice, layout and responsive rules, motion, accessibility standards, and completeness checklists. Adds a /uiux-design-system skill.",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "category": "development",
       "tags": ["design-system", "tokens", "css", "theming", "ui", "component-architecture", "ux-patterns", "token-binding"],
       "keywords": ["design system", "design tokens", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "component naming", "UX patterns", "design architecture"]

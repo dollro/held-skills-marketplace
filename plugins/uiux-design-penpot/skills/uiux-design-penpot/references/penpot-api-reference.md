@@ -367,10 +367,20 @@ Available on any shape inside a flex/grid container via `shape.layoutChild`:
 | `rightMargin` | number | |
 | `bottomMargin` | number | |
 | `leftMargin` | number | |
-| `maxWidth` | number \| null | |
-| `maxHeight` | number \| null | |
-| `minWidth` | number \| null | |
-| `minHeight` | number \| null | |
+| `maxWidth` | number \| null | Cap growth on wide screens — set with `horizontalSizing='fill'` |
+| `maxHeight` | number \| null | Cap vertical growth — set with `verticalSizing='fill'` |
+| `minWidth` | number \| null | Prevent collapse below readable width |
+| `minHeight` | number \| null | Prevent collapse below usable height |
+
+**Responsive constraint pattern:** Set sizing to `"fill"` so the child expands to use available space, then set `maxWidth`/`maxHeight` to cap growth. This creates fluid elements that fill mobile screens but stay bounded on desktop — without breakpoints.
+
+```javascript
+// Card fills container but caps at 400px wide
+board.appendChild(card);
+card.layoutChild.horizontalSizing = 'fill';
+card.layoutChild.maxWidth = 400;
+card.layoutChild.minWidth = 200;
+```
 
 ### Grid Cell Properties
 

@@ -304,6 +304,8 @@ Each category below covers the primitive scale, semantic patterns, key conventio
 
 **Convention:** Grid tokens are inherently responsive — define values per breakpoint. They bridge spacing tokens (gaps between elements) and layout structure (column arrangement). Follow the 8-point grid: all spacing and sizing dimensions are multiples of 8, with 4px for fine adjustments.
 
+**Layout method selection:** Choosing between CSS Flexbox and CSS Grid is a structural design decision — not a personal preference. Use Flex for 1D content flow (rows, columns, wrapping tags). Use Grid when the parent must enforce equal sizing or control 2D structure. See **[`references/layout-patterns.md`](references/layout-patterns.md)** for the full decision matrix, patterns (equal card grids, button-at-bottom alignment, responsive auto-fit, nested layouts), and fluid-design-without-breakpoints philosophy.
+
 **Pitfall:** Don't over-tokenize the grid. Most systems need 3–4 breakpoint configurations. The grid is structural scaffolding, not a design decision that changes frequently.
 
 ## Accessibility Tokens

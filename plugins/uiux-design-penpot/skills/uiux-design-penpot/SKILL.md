@@ -108,6 +108,7 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 | Penpot color API patterns (fills, gradients, library) | [penpot-color-patterns.md](references/penpot-color-patterns.md) |
 | Token binding (resolver, toggle guard, brownfield sweep) | [token-binding.md](references/token-binding.md) |
 | Prototyping, interactions & animations | [prototyping-interactions.md](references/prototyping-interactions.md) |
+| Flex vs Grid layout decision (**read before step 5**) | [generation-recipes.md § Layout Selection Guide](references/generation-recipes.md) + `uiux-design-system/references/layout-patterns.md` |
 | Reusable execute_code generation templates | [generation-recipes.md](references/generation-recipes.md) |
 
 ## Core Design Principles
@@ -134,7 +135,12 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 2. **Understand the page**: Call `mcp__penpot__execute_code` with `penpotUtils.shapeStructure()` to see hierarchy
 3. **Find elements**: Use `penpotUtils.findShapes()` or `penpot.currentPage.findShapes({name, type})` to locate elements
 4. **Create/modify**: Use `penpot.createBoard()`, `createRectangle()`, `createEllipse()`, `createText()`, `createPath()`, `createShapeFromSvg()` etc.
-5. **Apply layout**: Use `addFlexLayout()` or `addGridLayout()` for responsive containers
+5. **Apply layout**: Choose the right layout method for each container:
+   - **Flex** (`addFlexLayout()`): 1D content flow — items in a row/column, wrapping tags, nav items. Items size to their content
+   - **Grid** (`addGridLayout()`): 2D structure or parent-controlled equal sizing — card grids (`'flex', 1` tracks), dashboards, page layouts (sidebar + header + main)
+   - **Nested**: Grid for outer structure, flex for inner component layout (e.g., grid of cards where each card uses flex column internally)
+   - **Rule of thumb**: If you're setting properties on *children* to fix sizing, use Grid instead (parent controls layout)
+   - **Before generating**: Read `generation-recipes.md` § "Layout Selection Guide" for concrete Penpot API patterns. Do not default to flex for everything
 6. **Add effects**: Apply shadows, blur, strokes, blend modes as needed
 7. **Set up prototyping**: Add interactions, flows, overlays for click-through prototypes
 8. **Validate**: Call `mcp__penpot__export_shape` to visually check your work

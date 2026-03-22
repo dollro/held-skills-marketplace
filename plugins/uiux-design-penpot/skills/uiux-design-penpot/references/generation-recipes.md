@@ -91,6 +91,184 @@ existingBoards.forEach(b => {
 
 ---
 
+## Layout Selection Guide
+
+**Read this before generating any layout.** Choose the right method for each container.
+For the CSS theory behind these patterns, see `uiux-design-system/references/layout-patterns.md`.
+
+### When to use Flex
+
+Use `addFlexLayout()` for **1D content flow** — items that size to their content and flow
+in one direction.
+
+| Use case | Code pattern |
+|-|-|
+| Items in a row (nav, toolbar, breadcrumbs) | `flex.dir = 'row'` |
+| Items in a column (card internals, sidebar nav) | `flex.dir = 'column'` |
+| Tags/chips that wrap | `flex.dir = 'row'; flex.wrap = 'wrap'` |
+| Center a single child | `flex.alignItems = 'center'; flex.justifyContent = 'center'` |
+| Push last item to bottom (button in card) | Middle child `layoutChild.verticalSizing = 'fill'` |
+
+### When to use Grid
+
+Use `addGridLayout()` for **equal sizing**, **2D structure**, or when the **parent**
+should control layout without per-child rules.
+
+| Use case | Code pattern |
+|-|-|
+| Equal-width card columns | `N × addColumn('flex', 1)` |
+| Page layout (sidebar + main) | `addColumn('fixed', 240); addColumn('flex', 1)` |
+| Header + body + footer | `addRow('auto'); addRow('flex', 1); addRow('auto')` |
+| Dashboard grid | Combine column + row tracks |
+| Component specimen board | Variant rows × state columns |
+
+### When to nest (Grid + Flex)
+
+Complex UIs combine both. Grid for outer structure, flex for inner content flow.
+
+```javascript
+// Page layout: grid with sidebar + main
+const page = penpot.createBoard();
+page.resize(1440, 900);
+const pageGrid = page.addGridLayout();
+pageGrid.addColumn('fixed', 240);  // sidebar
+pageGrid.addColumn('flex', 1);     // main area
+pageGrid.addRow('flex', 1);
+pageGrid.columnGap = 0;
+
+// Sidebar: flex column for nav items
+const sidebar = penpot.createBoard();
+sidebar.name = 'sidebar';
+sidebar.fills = [{ fillColor: '#F9FAFB', fillOpacity: 1 }];
+const sidebarFlex = sidebar.addFlexLayout();
+sidebarFlex.dir = 'column';
+sidebarFlex.rowGap = 4;
+sidebarFlex.verticalPadding = 16;
+sidebarFlex.horizontalPadding = 12;
+sidebar.horizontalSizing = 'fill';
+sidebar.verticalSizing = 'fill';
+pageGrid.appendChild(sidebar, 0, 0);
+```
+
+### Equal-column card grid
+
+```javascript
+// 3 equal-width cards — parent controls sizing, not children
+const container = penpot.createBoard();
+container.name = 'card-grid';
+const grid = container.addGridLayout();
+grid.addColumn('flex', 1);  // all columns get equal share
+grid.addColumn('flex', 1);
+grid.addColumn('flex', 1);
+grid.addRow('auto');
+grid.columnGap = 24;
+grid.rowGap = 24;
+grid.horizontalPadding = 24;
+grid.verticalPadding = 24;
+container.horizontalSizing = 'fill';
+container.verticalSizing = 'auto';
+
+// Each card is a flex column internally
+function createCard(title, desc) {
+  const card = penpot.createBoard();
+  card.name = 'card-' + title.toLowerCase().replace(/\s/g, '-');
+  card.borderRadius = 12;
+  card.fills = [{ fillColor: '#FFFFFF', fillOpacity: 1 }];
+  card.shadows = [{ style: 'drop-shadow', offsetX: 0, offsetY: 2, blur: 8, spread: -2, color: { color: '#000000', opacity: 0.1 } }];
+
+  const flex = card.addFlexLayout();
+  flex.dir = 'column';
+  flex.rowGap = 12;
+  flex.horizontalPadding = 20;
+  flex.verticalPadding = 20;
+  card.horizontalSizing = 'fill';  // fill grid cell
+  card.verticalSizing = 'fill';    // all cards same height
+
+  const h = penpot.createText(title);
+  h.fontFamily = 'Inter'; h.fontSize = '18'; h.fontWeight = '600';
+  h.fills = [{ fillColor: '#171717', fillOpacity: 1 }];
+  h.growType = 'auto-width';
+  card.appendChild(h);
+
+  const p = penpot.createText(desc);
+  p.fontFamily = 'Inter'; p.fontSize = '14'; p.fontWeight = '400';
+  p.fills = [{ fillColor: '#525252', fillOpacity: 1 }];
+  p.growType = 'auto-width';
+  card.appendChild(p);
+  // Text fills remaining space — pushes anything below it to bottom
+  p.layoutChild.verticalSizing = 'fill';
+
+  return card;
+}
+```
+
+### Button-at-bottom card (grid rows approach)
+
+```javascript
+// Alternative to flex column — grid rows give explicit structure
+const card = penpot.createBoard();
+card.name = 'card-with-cta';
+card.borderRadius = 12;
+card.fills = [{ fillColor: '#FFFFFF', fillOpacity: 1 }];
+
+const grid = card.addGridLayout();
+grid.addColumn('flex', 1);
+grid.addRow('auto');     // heading — takes only what it needs
+grid.addRow('flex', 1);  // body text — fills remaining space
+grid.addRow('auto');     // button — takes only what it needs
+grid.rowGap = 12;
+grid.horizontalPadding = 20;
+grid.verticalPadding = 20;
+card.horizontalSizing = 'fill';
+card.verticalSizing = 'fill';
+
+// Heading (row 0)
+const heading = penpot.createText('Feature Title');
+heading.fontFamily = 'Inter'; heading.fontSize = '18'; heading.fontWeight = '600';
+heading.fills = [{ fillColor: '#171717', fillOpacity: 1 }];
+heading.growType = 'auto-width';
+grid.appendChild(heading, 0, 0);
+
+// Body (row 1) — stretches to fill
+const body = penpot.createText('Description text of varying length across cards.');
+body.fontFamily = 'Inter'; body.fontSize = '14'; body.fontWeight = '400';
+body.fills = [{ fillColor: '#525252', fillOpacity: 1 }];
+body.growType = 'auto-width';
+grid.appendChild(body, 1, 0);
+
+// Button (row 2) — always at bottom
+const btn = penpot.createBoard();
+btn.name = 'btn-cta';
+btn.resize(120, 40);
+btn.borderRadius = 8;
+btn.fills = [{ fillColor: '#3B82F6', fillOpacity: 1 }];
+const btnFlex = btn.addFlexLayout();
+btnFlex.dir = 'row';
+btnFlex.alignItems = 'center';
+btnFlex.justifyContent = 'center';
+btn.horizontalSizing = 'fill';
+btn.verticalSizing = 'auto';
+const btnLabel = penpot.createText('Learn More');
+btnLabel.fontFamily = 'Inter'; btnLabel.fontSize = '14'; btnLabel.fontWeight = '600';
+btnLabel.fills = [{ fillColor: '#FFFFFF', fillOpacity: 1 }];
+btnLabel.growType = 'auto-width';
+btn.appendChild(btnLabel);
+grid.appendChild(btn, 2, 0);
+```
+
+### Responsive constraints (max/min sizing)
+
+```javascript
+// Card fills its container but caps at 400px wide
+board.appendChild(card);
+card.layoutChild.horizontalSizing = 'fill';
+card.layoutChild.maxWidth = 400;
+card.layoutChild.minWidth = 200;
+// Fills mobile screens, stays bounded on desktop — no breakpoints needed
+```
+
+---
+
 ## Design System Boards
 
 ### Color Swatches Board

@@ -1,5 +1,5 @@
 {
   "name": "uiux-design-system",
   "description": "Comprehensive design system architecture guide: 3-tier token hierarchy, W3C DTCG format, component naming and inventory, UX decision patterns, content and voice, layout and responsive rules, motion, accessibility standards, and completeness checklists. Adds a /uiux-design-system skill.",
-  "version": "3.1.0"
+  "version": "3.2.0"
 }

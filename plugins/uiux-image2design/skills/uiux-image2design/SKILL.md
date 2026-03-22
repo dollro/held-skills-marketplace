@@ -245,9 +245,10 @@ Use the guide's naming conventions:
 
 1. **One board per code execution call.** Respect tool timeout limits (Penpot: 30s, Figma: 5-30s).
 2. **Structure first, populate second.** Board/frame → layout → children → register.
-3. **Check existing boards/frames** before creating to avoid overlap.
-4. **Validate visually** after each major board.
-5. **Bind tokens inline** — after creating each shape, immediately bind its tokens using
+3. **Choose flex vs grid deliberately** — read `generation-recipes.md` § "Layout Selection Guide" before applying layouts. Use grid for equal-column cards, 2D page structure, specimen boards. Use flex for 1D content flow, wrapping tags, inner component layout. Do not default to flex for everything.
+4. **Check existing boards/frames** before creating to avoid overlap.
+5. **Validate visually** after each major board.
+6. **Bind tokens inline** — after creating each shape, immediately bind its tokens using
    the tool's binding API. Use the `tokenMap` from Phase 3 for visual values AND token binding.
    See the tool plugin's generation recipes and token-binding reference for the exact pattern.
 
