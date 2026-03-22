@@ -99,6 +99,7 @@ Create professional, user-centered designs in Figma using the `figma-console-mcp
 | Token binding strategy | `uiux-design-system/references/token-binding-strategy.md` |
 | Figma MCP tool catalog | [figma-api-reference.md](references/figma-api-reference.md) |
 | Figma design system guide | [figma-design-system-guide.md](references/figma-design-system-guide.md) |
+| Layout decision guide (**read before step 5**) | [generation-recipes.md § Layout Selection Guide](references/generation-recipes.md) + `uiux-design-system/references/layout-patterns.md` |
 | Reusable figma_execute templates | [generation-recipes.md](references/generation-recipes.md) |
 | DTCG to Figma variable mapping | [variable-mapping.md](references/variable-mapping.md) |
 | Variable binding (resolver, sweep) | [variable-binding.md](references/variable-binding.md) |
@@ -128,7 +129,12 @@ Create professional, user-centered designs in Figma using the `figma-console-mcp
 2. **Understand the file**: Use `figma_get_file_data` or `figma_get_file_for_plugin` to see page structure
 3. **Find elements**: Use `figma_search_components` for library components, or `figma_execute` with `figma.currentPage.findAll()` to locate nodes
 4. **Create/modify**: Use `figma_execute` with the Figma Plugin API, or dedicated tools like `figma_set_fills`, `figma_set_text`
-5. **Apply layout**: Use auto-layout properties via `figma_execute` (see Auto Layout Patterns)
+5. **Apply layout**: Choose the right auto-layout pattern for each container:
+   - **Horizontal** auto-layout: items in a row (nav, toolbar). For equal-width columns, set `layoutSizingHorizontal = 'FILL'` on every child
+   - **Vertical** auto-layout: items in a column (card internals, sidebar). For push-to-bottom, set middle child `layoutSizingVertical = 'FILL'`
+   - **Wrap** (`layoutWrap = 'WRAP'`): tags, chip lists, responsive card grids that reflow
+   - **Nested**: outer `HORIZONTAL` (sidebar + main), inner `VERTICAL` (content stacking) — this is how Figma achieves 2D page structure
+   - **Before generating**: Read `generation-recipes.md` § "Layout Selection Guide" for concrete patterns. Do not use auto-layout VERTICAL for everything
 6. **Set up variables**: Use `figma_setup_design_tokens` or `figma_batch_create_variables`
 7. **Validate**: `figma_take_screenshot` for visual check, `figma_lint_design` for accessibility
 
@@ -162,7 +168,7 @@ return {
 - **Session-specific nodeIds** — IDs become stale after plugin restarts; re-search before reusing
 - **Font loading is mandatory** — `await figma.loadFontAsync({family, style})` before setting `text.characters` or `text.fontName`
 - **Colors use 0-1 normalized RGB** — `{ r: 0.23, g: 0.51, b: 0.96 }` not `{ r: 59, g: 130, b: 245 }`. Helper: `r/255, g/255, b/255`
-- **Auto Layout properties**: `layoutMode`, `primaryAxisSizingMode`, `counterAxisSizingMode`, `itemSpacing`, `paddingLeft/Right/Top/Bottom`, `primaryAxisAlignItems`, `counterAxisAlignItems`
+- **Auto Layout properties**: `layoutMode`, `layoutWrap` (`'WRAP'`/`'NO_WRAP'`), `primaryAxisSizingMode`, `counterAxisSizingMode`, `itemSpacing`, `counterAxisSpacing` (wrap row gap), `paddingLeft/Right/Top/Bottom`, `primaryAxisAlignItems`, `counterAxisAlignItems`
 - **Variables require a collection first** — create collection, then variables within it
 - **`figma_execute` default timeout is 5s (max 30s)** — keep operations focused, split large tasks
 - **Enterprise plan needed for REST Variables API** — Plugin API (via Desktop Bridge) works on all plans
@@ -343,6 +349,11 @@ child.layoutSizingHorizontal = 'FILL';  // 'FIXED' | 'HUG' | 'FILL'
 child.layoutSizingVertical = 'HUG';
 
 // Alignment: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN'
+
+// Wrap (responsive grid-like behavior)
+frame.layoutWrap = 'WRAP';           // 'WRAP' | 'NO_WRAP'
+frame.counterAxisSpacing = 16;       // gap between wrapped rows
+// Children with minWidth will wrap when container narrows
 ```
 
 ## Component Patterns

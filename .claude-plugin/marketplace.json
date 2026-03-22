@@ -166,7 +166,7 @@
       "name": "uiux-design-figma",
       "source": "./plugins/uiux-design-figma",
       "description": "Professional UI/UX design in Figma using figma-console-mcp. Covers 57+ tools, variable/collection tokens, auto-layout, component variants, variable binding, and design system implementation. Adds a /uiux-design-figma skill.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "development",
       "tags": ["figma", "design", "ui-ux", "accessibility", "component-patterns", "mcp", "variables", "token-binding"],
       "keywords": ["figma", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system", "variables"]
