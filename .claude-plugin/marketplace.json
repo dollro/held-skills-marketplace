@@ -147,11 +147,11 @@
     {
       "name": "uiux-design-system",
       "source": "./plugins/uiux-design-system",
-      "description": "Comprehensive design system architecture guide: 3-tier token hierarchy, W3C DTCG format, component naming and inventory, UX decision patterns, content and voice, layout and responsive rules, motion, accessibility standards, and completeness checklists. Adds a /uiux-design-system skill.",
-      "version": "3.2.0",
+      "description": "Comprehensive design system architecture guide: component hierarchy (atoms/molecules/organisms/patterns/screens), 3-tier token system, W3C DTCG format, naming conventions, UX decision patterns, layout decisions, content voice, responsive rules, accessibility standards, and visual reference structuring. Adds a /uiux-design-system skill.",
+      "version": "3.3.0",
       "category": "development",
-      "tags": ["design-system", "tokens", "css", "theming", "ui", "component-architecture", "ux-patterns", "token-binding"],
-      "keywords": ["design system", "design tokens", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "component naming", "UX patterns", "design architecture"]
+      "tags": ["design-system", "tokens", "css", "theming", "ui", "component-architecture", "ux-patterns", "token-binding", "atomic-design"],
+      "keywords": ["design system", "design tokens", "DTCG", "W3C", "CSS variables", "theme", "token naming", "style dictionary", "component naming", "UX patterns", "design architecture", "atomic design", "visual reference", "screenshot naming"]
     },
     {
       "name": "uiux-image2design",

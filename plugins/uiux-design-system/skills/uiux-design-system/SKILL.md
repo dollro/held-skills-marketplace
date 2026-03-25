@@ -1,51 +1,176 @@
 ---
 name: uiux-design-system
 description: >
-  Comprehensive design system architecture guide: 3-tier token hierarchy, W3C DTCG format,
-  component naming and inventory, UX decision patterns, content and voice, layout and
-  responsive rules, motion, accessibility standards, and completeness checklists.
-  ALWAYS use this skill when: building or modifying a design system, creating theme
-  configurations, working with token files (.tokens, .tokens.json), defining CSS custom
-  properties for theming, structuring design variables, naming components, establishing
-  UX patterns, defining content voice, or architecting a design system from scratch.
-  Also trigger when the user mentions: design tokens, token naming, DTCG, design system,
-  theme tokens, primitive/semantic/component tokens, token hierarchy, style dictionary,
-  design variables, component naming, variant system, design system architecture,
-  UX patterns, content voice, design template.
-  Trigger keywords: design system, design tokens, token naming, DTCG, W3C, theme tokens,
-  CSS variables, style dictionary, primitives, semantic tokens, component tokens,
-  token hierarchy, design variables, theming, component naming, UX patterns,
-  design architecture, design template, component library, variant system.
+  Comprehensive design system architecture guide: component hierarchy (atoms/molecules/organisms/patterns/screens),
+  3-tier token system (primitive/semantic/component), W3C DTCG format, naming conventions, UX decision patterns,
+  layout decisions (Flex vs Grid), content voice, responsive rules, accessibility standards, and visual reference
+  structuring. ALWAYS use this skill when: building or modifying a design system, creating theme configurations,
+  working with token files (.tokens, .tokens.json), defining CSS custom properties for theming, structuring
+  design variables, naming or organizing components, establishing UX patterns, organizing screenshots or
+  visual references for a design system, choosing layout approaches, or architecting a design system from scratch.
+  Also trigger when the user mentions: design tokens, token naming, DTCG, design system, theme tokens,
+  primitive/semantic/component tokens, token hierarchy, style dictionary, design variables, component naming,
+  variant system, design system architecture, UX patterns, content voice, design template, atomic design,
+  screenshot structure, visual references, component inventory.
+  Trigger keywords: design system, design tokens, token naming, DTCG, W3C, theme tokens, CSS variables,
+  style dictionary, primitives, semantic tokens, component tokens, token hierarchy, design variables,
+  theming, component naming, UX patterns, design architecture, design template, component library,
+  variant system, atoms, molecules, organisms, patterns, visual reference, screenshot naming.
 ---
 
 # Design System Architecture
 
-Comprehensive guide for architecting production design systems — from token foundations through component architecture, UX patterns, and accessibility standards. Follows W3C DTCG standards and industry best practices.
+Comprehensive guide for architecting production design systems — from component hierarchy and token foundations through UX patterns, layout decisions, and accessibility standards. Follows W3C DTCG standards, atomic design methodology, and industry best practices.
 
-Design tokens are the atomic values of a design system — colors, spacing, typography, shadows, and more — stored as platform-agnostic data. They bridge the gap between design tools and code, ensuring consistency across platforms and products. But a complete design system extends beyond tokens to include component architecture, naming conventions, UX decision patterns, content voice, and accessibility standards.
+A complete design system covers:
+- **Component architecture** — atomic tiers, naming, variants, composition rules
+- **Design tokens** — the value layer (colors, spacing, typography) that components consume
+- **Patterns & screens** — reusable layout recipes, section templates, product page compositions
+- **UX decisions** — form behavior, feedback patterns, data display choices
+- **Content & voice** — tone, grammar, terminology consistency
+- **Accessibility** — WCAG 2.2 AA compliance baked into tokens and components
+- **Responsive behavior** — breakpoints, layout adaptation, platform-specific rules
 
-## Before You Start
+## Reference Files
 
-Read the reference files in this skill's `references/` directory as needed:
+Read on demand based on your current task:
 
-- **`references/design-system-template.md`** — Complete, tool-agnostic design system architecture template. Covers component naming/inventory/variants/annotations, typography scale, layout/grid, motion/animation, pattern recipes, UX decision patterns, product screen patterns, content/voice, icon specs, responsive rules, accessibility standards (WCAG 2.2 AA), and completeness checklist. **Start here when architecting a new design system from scratch.**
-- **`references/dtcg-format.md`** — W3C DTCG JSON format specification. Consult when creating or reading `.tokens` or `.tokens.json` files. Covers all token types, alias syntax, group nesting, and validation rules.
-- **`references/starter-template.md`** — A minimal but complete DTCG token set covering all categories. Use as scaffolding when starting a new project with no existing tokens. Adapt to project needs, don't copy verbatim.
-- **`references/platform-mapping.md`** — How to output tokens to CSS custom properties, Tailwind, SCSS, and other platforms. Consult when transforming tokens into platform-specific code.
+### Architecture & Components
+- **`references/design-system-template.md`** — Full design system template: complete component inventory (all atoms/molecules/organisms with every variant and state listed out), typography scale, layout/grid specs, motion/animation, full pattern recipe lists, UX decision pattern tables, product screen compositions, content/voice guidelines with terminology glossary, icon specs, responsive rules, accessibility standards, and completeness checklist. **Start here when architecting a new design system from scratch.**
+- **`references/componentization-guide.md`** — When to componentize, granularity decisions (split vs monolithic), variant architecture (multi-axis vs split), token binding through the hierarchy, instance vs fresh build, composition patterns (flat, slot-based, responsive), scaling to 100+ screens, anti-patterns checklist, and decision trees. **Read when deciding component boundaries or reviewing component quality.**
+
+### Token Implementation
+- **`references/dtcg-format.md`** — W3C DTCG JSON format specification: all simple and composite token types, alias syntax, group nesting, type inheritance, validation rules. **Read when creating or validating `.tokens` / `.tokens.json` files.**
+- **`references/starter-template.md`** — Minimal but complete DTCG token set (primitives + semantics) ready to adapt. **Use as scaffolding for new projects with no existing tokens.**
+- **`references/platform-mapping.md`** — Outputting tokens to CSS custom properties, Tailwind v4 `@theme`, SCSS, Style Dictionary, React Native, iOS Swift, Android. **Read when transforming tokens into platform-specific code.**
 
 ### Shared Design Knowledge (tool-agnostic)
+These are used by tool-specific plugins (`uiux-design-penpot`, `uiux-design-figma`) and workflow orchestrators (`uiux-image2design`). **Tool plugins MUST read these from here** — they are not duplicated into tool-specific plugins.
 
-These references are used by tool-specific plugins (`uiux-design-penpot`, `uiux-design-figma`) and workflow orchestrators (`uiux-image2design`). **Tool plugins MUST read these from here** — they are not duplicated into tool-specific plugins.
+- **`references/component-patterns.md`** — UI component specs: buttons, forms, navigation, cards, modals, dashboards, empty/loading states. Variants, states, accessibility, best practices. **Read when creating or reviewing any UI component.**
+- **`references/accessibility.md`** — WCAG 2.2 AA: color contrast, touch targets, focus management, screen reader patterns, keyboard navigation, ARIA quick reference. **Read when designing any user-facing interface.**
+- **`references/platform-guidelines.md`** — Screen sizes, safe areas, platform-specific specs for iOS HIG, Android Material Design, responsive web, desktop. **Read when targeting a specific platform or device.**
+- **`references/color-utilities.md`** — Pure-math color converters (OKLCH→hex, HSL→hex, RGB→hex), palette generation, WCAG contrast ratio calculation. No dependencies. **Read when converting colors between formats or validating contrast.**
+- **`references/layout-patterns.md`** — Flex vs Grid decision matrix with 5 patterns: equal-size grids, button-at-bottom alignment, responsive wrap, nested layouts, fluid design without breakpoints. **Read when choosing layout approach for a specific UI.**
+- **`references/token-binding-strategy.md`** — Binding tokens to shapes in design tools: greenfield (inline at creation), brownfield (sweep with confidence scoring), token map pattern, reverse map builder, coverage reporting. Tool-agnostic strategy — tool plugins implement API calls. **Read when implementing or auditing token binding.**
 
-- **`references/component-patterns.md`** — UI component specs: buttons, forms, navigation, cards, modals, data tables. Covers variants, states, accessibility requirements, and best practices. **Read when creating or reviewing any UI component.**
-- **`references/accessibility.md`** — WCAG 2.2 AA standards: color contrast, touch targets, focus management, screen reader patterns, motion preferences. **Read when designing any user-facing interface.**
-- **`references/platform-guidelines.md`** — Screen sizes, safe areas, and platform-specific specs for iOS, Android, Material Design, and desktop. **Read when targeting a specific platform or device.**
-- **`references/color-utilities.md`** — Pure-math color converters (OKLCH→hex, HSL→hex, RGB→hex), palette generation, and WCAG contrast ratio calculation. No tool dependencies. **Read when converting colors between formats or validating contrast.**
-- **`references/token-binding-strategy.md`** — Tool-agnostic strategy for binding tokens to shapes: greenfield (inline), brownfield (sweep with confidence scoring), token map pattern, reverse map builder, and coverage reporting. Tool plugins implement the API-specific calls. **Read when implementing or auditing token binding in any design tool.**
+You don't need to load all references at once. If you're advising on naming, hierarchy, or reviewing existing tokens, this SKILL.md alone is sufficient.
+
+---
+
+## Component Architecture
+
+Design systems organize UI into tiers of increasing complexity using **atomic design** — the industry standard shared by Figma, Penpot, and code-based systems.
+
+### The 5 Tiers
+
+| Tier | What it is | Examples |
+|-|-|-|
+| **Atoms** | Smallest meaningful UI unit. Has states, no sub-components | button, input, badge, avatar, toggle, checkbox, radio, divider, tooltip, spinner |
+| **Molecules** | Small group of atoms functioning as a unit | form-field, card, nav-item, dropdown, toast, alert, search-bar, pagination |
+| **Organisms** | Complex UI sections composed of molecules + atoms | header, sidebar, data-table, modal, footer, command-palette |
+| **Patterns** | Reusable layout/section/state recipes (not registered as components) | layout templates, section recipes (hero, pricing), state patterns (empty, loading, error) |
+| **Screens** | Full-page compositions at specific breakpoints | landing/desktop, dashboard/default, settings/profile, auth/login |
+
+### Component Naming Convention
+
+Slash-separated hierarchy creates nested groups in asset panels:
+
+```
+{tier}/{component}/{variant-type}/{variant-value}
+```
+
+```
+atoms/button/primary/default       atoms/input/text/focus
+atoms/button/primary/hover         atoms/badge/status/success
+atoms/button/secondary/disabled    atoms/avatar/image/lg
+molecules/card/content/default     molecules/form-field/error
+molecules/dropdown/single/open     molecules/toast/success
+organisms/header/desktop/default   organisms/sidebar/expanded/default
+organisms/header/mobile/menu-open  organisms/data-table/empty
+organisms/modal/confirm/default    organisms/footer/mega/default
+```
+
+For components with multiple variant axes, prefer **variant properties** over encoding everything in the slash-name:
+
+```
+Component: atoms/button
+Variant properties:
+  - style:  primary | secondary | outline | ghost | danger
+  - size:   sm | md | lg
+  - state:  default | hover | active | disabled | loading
+```
+
+### Responsive Variants
+
+Breakpoints are component variants, not separate trees:
+
+```
+organisms/header/desktop/default
+organisms/header/tablet/default
+organisms/header/mobile/menu-open
+```
+
+Each organism and pattern should have frames at standard breakpoints (1440px desktop, 768px tablet, 375px mobile).
+
+### Key Componentization Rules
+
+- **Register when**: used 3+ times, has interactive states, represents enforced design decision, or needs change propagation
+- **Keep as one-off when**: used once or twice, purely compositional, or >50% overrides needed
+- **Split sub-components when**: parts are independently reusable, or variant combinations exceed ~50
+- **Start monolithic, split when pain appears** — easier to split a working component than merge scattered one-offs
+- **After registering atoms, all higher tiers MUST use component instances** — never rebuild a button shape inside a card if a button component exists
+
+For detailed decision trees and anti-patterns, read `references/componentization-guide.md`.
+
+---
+
+## Visual Reference Naming
+
+When organizing screenshots or visual references to inform a design system, use a flat naming convention that maps directly to the component tiers:
+
+```
+{tier}--{component}.{breakpoint}.{variant}.{state}.png
+```
+
+| Segment | Values | Purpose |
+|-|-|-|
+| tier | `atom`, `molecule`, `organism`, `pattern`, `screen` | Maps 1:1 to component architecture |
+| component | kebab-case element name | What UI piece |
+| breakpoint | `tablet`, `mobile` (omit for desktop — it's the default) | Responsive variant |
+| variant | `primary`, `compact`, `dark`, `collapsed`, etc. | Optional variation |
+| state | `hover`, `active`, `error`, `loading`, `empty`, etc. | Optional interaction state |
+
+```
+screen--dashboard.png                    # desktop (implied default)
+screen--dashboard.tablet.png
+screen--dashboard.mobile.png
+organism--header.png
+organism--header.mobile.menu-open.png
+organism--sidebar.collapsed.png
+molecule--card.content.hover.png
+molecule--form-field.error.png
+atom--button.primary.png
+atom--button.primary.hover.png
+atom--input.text.focus.png
+pattern--section.hero-centered.png
+pattern--state.empty.png
+```
+
+**Grep-friendly patterns:**
+- `screen--*` — all full screens
+- `*mobile*` — all mobile breakpoints
+- `*.hover.*` — all hover states
+- `organism--*` — all organisms
+- `atom--button*` — all button references
+
+**Tips**: One concept per screenshot. Capture states — hover/focus/disabled drive 80% of token decisions. Dark mode gets a variant (`screen--dashboard.dark.png`), not a separate folder. Flat directory until 100+ images.
+
+---
 
 ## The 3-Tier Token Hierarchy
 
-Design tokens are organized into three tiers. Each tier builds on the one below it, creating a layered abstraction from raw values to component-specific decisions.
+Design tokens are organized into three tiers. Each builds on the one below, creating layered abstraction from raw values to component-specific decisions.
 
 | Tier | Purpose | Holds Raw Values? | Example |
 |-|-|-|-|
@@ -53,15 +178,13 @@ Design tokens are organized into three tiers. Each tier builds on the one below 
 | Semantic | Intent-based aliases | No | `color.background.danger` |
 | Component | Scoped to UI elements | No | `button.color.background.primary.hover` |
 
-**Primitive tokens** are the foundation. They define your design language's palette — all available colors, sizes, and values. They describe *what exists* in the system.
+**Primitive tokens** define your palette — all available colors, sizes, values. They describe *what exists*.
 
-**Semantic tokens** assign meaning. They answer *how* primitives are used: which color is a background, which is danger text, which spacing goes between stacked elements.
+**Semantic tokens** assign meaning — *how* primitives are used: which color is a background, which is danger text, which spacing goes between stacked elements.
 
-**Component tokens** handle exceptions. They answer *where* a semantic value is overridden for a specific component or state.
+**Component tokens** handle exceptions — *where* a semantic value is overridden for a specific component or state.
 
 ### Referencing Chain
-
-Tokens form a directed chain of references. Each tier only references the tier directly below it:
 
 ```
 Component tokens → Semantic tokens → Primitive tokens → Raw values
@@ -72,15 +195,17 @@ button.color.background.primary.hover
       → #1d4ed8                       (raw value)
 ```
 
-When theming, you only swap values at the **primitive** tier. The semantic and component tiers remain stable, and the entire UI updates automatically through the alias chain. This is the primary benefit of the tier system — one change at the primitive level cascades through hundreds of semantic and component references.
+When theming, swap values at the **primitive** tier only. Semantic and component tiers stay stable — the entire UI updates through the alias chain.
 
 ### Rules
 
-1. **Never skip tiers.** A component token must reference a semantic token, never a primitive directly. This ensures theming works correctly — swapping a primitive propagates through every layer without broken references.
-2. **Primitives are the only source of raw values.** Hex codes, pixel values, font stacks, and cubic-bezier curves live exclusively in the primitive tier. If you find a raw value in a semantic or component token, it's a bug.
-3. **Semantic tokens encode intent, not appearance.** Name them by role (`danger`, `surface`, `interactive`) rather than visual description (`red`, `light-gray`). This makes themes coherent — `color.background.danger` can be red in one theme and orange in another without renaming the token.
-4. **Component tokens are optional.** Only create them when a component genuinely diverges from the semantic layer. Most components can consume semantic tokens directly without needing their own tier. A good rule of thumb: if the component token would just alias a semantic token with no modification, skip it.
-5. **Start lean.** Begin with primitives + semantic tokens. Add the component tier only when real divergence demands it — premature component tokens add maintenance burden with no benefit. You can always promote a semantic reference to a component token later.
+1. **Never skip tiers.** Component → semantic → primitive. No shortcuts.
+2. **Primitives are the only source of raw values.** Hex codes, pixel values, font stacks live exclusively in primitives.
+3. **Semantic tokens encode intent, not appearance.** Name by role (`danger`, `surface`, `interactive`) not visual (`red`, `light-gray`).
+4. **Component tokens are optional.** Only create when a component genuinely diverges from semantics.
+5. **Start lean.** Begin with primitives + semantics. Add component tier when real divergence demands it.
+
+---
 
 ## Naming Taxonomy
 
@@ -90,9 +215,7 @@ When theming, you only swap values at the **primitive** tier. The semantic and c
 {namespace}.{category}.{concept}.{property}.{variant}.{scale}.{state}
 ```
 
-Not every token uses all seven levels. Include only the levels that add meaning. Most primitive tokens use 2–3 levels; semantic tokens use 3–4; component tokens use 4–6.
-
-The order is fixed. Don't rearrange levels — consistency across the system is more important than any individual token's readability.
+Not every token uses all seven levels. Include only levels that add meaning. The order is fixed — don't rearrange.
 
 ### Levels
 
@@ -101,387 +224,295 @@ The order is fixed. Don't rearrange levels — consistency across the system is 
 | namespace | System or brand identifier | Multi-system orgs | `acme`, `nord`, `ds` |
 | category | Token type / domain | Always | `color`, `space`, `font`, `shadow`, `border`, `motion`, `opacity`, `radius`, `z`, `breakpoint`, `size` |
 | concept | Semantic role or grouping | Semantic + component tiers | `background`, `text`, `border`, `surface`, `interactive`, `feedback`, `inline`, `stack` |
-| property | Specific attribute | When concept is ambiguous | `family`, `size`, `weight`, `line-height`, `duration`, `easing`, `width`, `style` |
-| variant | Named variation | When element has variants | `primary`, `secondary`, `danger`, `success`, `warning`, `info`, `neutral`, `inverse` |
-| scale | Position on a value scale | Primitive tier scales / sizing | `50`–`950`, `xs`/`s`/`m`/`l`/`xl`, `1`–`12` |
-| state | Interactive / contextual state | Component tier / interactive elements | `hover`, `active`, `focus`, `disabled`, `pressed`, `visited` |
+| property | Specific attribute | When concept is ambiguous | `family`, `size`, `weight`, `line-height`, `duration`, `easing` |
+| variant | Named variation | When element has variants | `primary`, `secondary`, `danger`, `success`, `warning`, `info` |
+| scale | Position on a value scale | Primitive tier / sizing | `50`–`950`, `xs`/`s`/`m`/`l`/`xl`, `1`–`12` |
+| state | Interactive / contextual state | Component tier / interactive | `hover`, `active`, `focus`, `disabled`, `pressed` |
 
-**Minimum required levels:** Every token needs at least `category` + one more level. A bare `color` is too vague; `color.blue.600` or `color.background.surface` is specific enough to be useful.
-
-**Maximum practical depth:** Tokens deeper than 5 levels become unwieldy. If you find yourself at 6–7 levels, consider whether some levels can be flattened or whether the token belongs in a different category.
-
-### Separator Conventions
-
-- **Token files** (`.tokens`, `.tokens.json`): use `.` as the separator — `color.blue.600`
-- **CSS custom properties**: use `-` as the separator — `--color-blue-600`
-- **SCSS variables**: use `-` as the separator — `$color-blue-600`
-- **JavaScript/TypeScript**: use camelCase — `colorBlue600` or nested objects `color.blue[600]`
-- **Figma Local Variables**: use `/` as the separator — `color / blue / 600`
-- **Penpot Design Tokens**: use `.` as the separator — `color.blue.600`
-- **Tailwind CSS v4 classes**: use `-` in utility classes — `bg-[--color-bg-surface]`
-- **Within levels**: use `kebab-case` — `line-height`, `ease-in-out`, `on-primary`
-- **Never mix** separators within the same context. Don't use `color-blue.600` or `color.blue-600`.
-
-The canonical source of truth is always the token file (using `.` separators). Platform-specific naming is derived during the build/transform step.
+**Minimum:** Every token needs `category` + one more level. **Maximum practical depth:** 5 levels. Deeper becomes unwieldy.
 
 ### Annotated Examples
 
-These diagrams show which naming level each segment occupies:
-
 ```
 color.blue.600
-└─cat──┘.└concept┘.└scale┘
-(primitive — raw hue value on a numeric scale)
+└─cat──┘.└concept┘.└scale┘                (primitive — raw hue on numeric scale)
 
 color.background.danger
-└─cat──┘.└─concept──┘.└variant┘
-(semantic — intent-based, no raw value)
+└─cat──┘.└─concept──┘.└variant┘            (semantic — intent-based, no raw value)
 
 button.color.background.primary.hover
-└─────component────────┘.└cat┘.└concept┘.└variant┘.└state┘
-(component — scoped to button, includes interaction state)
-
-font.size.300
-└cat┘.└property┘.└scale┘
-(primitive — numeric type scale)
+└─comp─┘.└cat┘.└concept┘.└variant┘.└state┘ (component — scoped, includes interaction state)
 
 space.inline.md
-└cat──┘.└concept┘.└scale┘
-(semantic — directional spacing with t-shirt size)
+└cat──┘.└concept┘.└scale┘                 (semantic — directional spacing, t-shirt size)
 ```
 
 ### Examples by Tier
 
-**Primitive tokens** — raw values on named scales:
+**Primitive** — raw values: `color.blue.600`, `space.4`, `font.size.300`, `font.weight.semibold`, `shadow.elevation.2`, `radius.md`, `motion.duration.fast`
 
-- `color.blue.600`, `color.neutral.100`, `color.green.500`, `color.red.600`
-- `space.4`, `space.8`, `space.12`
-- `font.size.300`, `font.weight.semibold`, `font.family.sans`
-- `shadow.elevation.2`, `motion.duration.fast`, `motion.easing.ease-out`
-- `radius.md`, `opacity.subtle`, `border.width.1`
+**Semantic** — intent: `color.background.surface`, `color.text.primary`, `color.interactive.default`, `color.feedback.success`, `space.inline.md`, `space.stack.lg`, `font.heading.size`, `shadow.overlay`
 
-**Semantic tokens** — intent-based aliases to primitives:
+**Component** — scoped overrides: `button.color.background.primary.hover`, `button.radius`, `input.color.border.error`, `card.shadow.hover`
 
-- `color.background.surface`, `color.background.danger`, `color.background.inverse`
-- `color.text.primary`, `color.text.on-primary`, `color.text.secondary`, `color.text.muted`
-- `color.border.default`, `color.interactive.default`, `color.feedback.success`
-- `space.inline.md`, `space.stack.lg`, `space.inset.md`
-- `font.heading.size`, `font.body.line-height`, `shadow.overlay`
+### Separator Conventions
 
-**Component tokens** — scoped overrides for specific UI elements:
+- **Token files** (`.tokens`): `.` — `color.blue.600`
+- **CSS custom properties**: `-` — `--color-blue-600`
+- **SCSS variables**: `-` — `$color-blue-600`
+- **Figma**: `/` — `color / blue / 600`
+- **Penpot**: `.` — `color.blue.600`
+- **Tailwind v4 classes**: `-` — `bg-[--color-bg-surface]`
+- **Within levels**: `kebab-case` — `line-height`, `ease-in-out`
 
-- `button.color.background.primary`, `button.color.background.primary.hover`
-- `button.color.text.primary`, `button.space.padding.md`, `button.radius`
-- `input.color.border.default`, `input.color.border.focus`, `input.color.border.error`
-- `card.shadow.default`, `card.shadow.hover`
+The canonical source is always the token file (`.` separators). Platform naming is derived during build.
+
+---
 
 ## Token Categories
 
-Each category below covers the primitive scale, semantic patterns, key conventions, and common pitfalls. Not every project needs all 12 categories — start with color, typography, and spacing, then add others as your system grows.
-
-**Priority order for new systems:** Color > Typography > Spacing > Border Radius > Shadow > Sizing > Border > Motion > Opacity > Z-Index > Breakpoints > Grid System. The first three cover ~80% of typical UI token needs.
+**Priority for new systems:** Color > Typography > Spacing > Border Radius > Shadow > Sizing > Border > Motion > Opacity > Z-Index > Breakpoints > Grid. The first three cover ~80% of typical UI token needs.
 
 ### 1. Color
 
-**Primitive scale:** Hue scales from `50` (lightest) to `950` (darkest), e.g. `color.blue.50` through `color.blue.950`. Include a `color.neutral.*` scale for grays. Typical hues: blue, red, green, yellow, orange, purple, pink, teal — choose only those your brand needs.
+**Primitives:** Hue scales `50`–`950` (lightest to darkest). E.g., `color.blue.50` through `color.blue.950`. Include `color.neutral.*` for grays.
 
 **Semantic patterns:**
 - `color.background.*` — surfaces, overlays, elevated containers
-- `color.text.*` — foreground content, headings, body, muted text
-- `color.border.*` — dividers, outlines, separators, input borders
+- `color.text.*` — foreground content, headings, body, muted
+- `color.border.*` — dividers, outlines, input borders
 - `color.interactive.*` — buttons, links, focus rings, hover states
-- `color.feedback.*` — success, warning, error, info states
+- `color.feedback.*` — success, warning, error, info
 
-**Convention:** Use `on-*` naming for contrast pairs. If `color.background.primary` is dark, `color.text.on-primary` is its readable foreground. Always define both sides of any contrast pair.
-
-**Pitfall:** Don't name semantic tokens by appearance (`color.text.red`). Name by intent (`color.text.danger`). Appearance-based names break when themes change.
+Use `on-*` for contrast pairs: `color.text.on-primary` pairs with `color.background.primary`. Always define both sides. Name by intent (`danger`) not appearance (`red`).
 
 ### 2. Typography
 
-**Primitive scale:** `font.family.sans`, `font.family.serif`, `font.family.mono` — each holds a font stack string. Sizes: `font.size.100` (12px) through `font.size.900` (60px) on a modular or linear scale. Weights: `font.weight.regular` (400), `font.weight.medium` (500), `font.weight.semibold` (600), `font.weight.bold` (700). Line heights: `font.line-height.tight` (1.2), `font.line-height.normal` (1.5), `font.line-height.relaxed` (1.75). Letter spacing: `font.letter-spacing.tight` (-0.025em, for headings), `font.letter-spacing.normal` (0, for body), `font.letter-spacing.wide` (0.025em, for captions and all-caps text). Paragraph spacing: `font.paragraph-spacing.none` (0), `font.paragraph-spacing.md` (1rem).
+**Primitives:** `font.family.{sans|serif|mono}`, `font.size.{100–900}` on rem scale, `font.weight.{regular|medium|semibold|bold}`, `font.line-height.{tight|normal|relaxed}`, `font.letter-spacing.{tight|normal|wide}`, `font.paragraph-spacing.{none|md}`.
 
-**Semantic patterns:**
-- `font.heading.*` — `font.heading.size`, `font.heading.weight`, `font.heading.line-height`
-- `font.body.*` — `font.body.size`, `font.body.weight`, `font.body.line-height`
-- `font.caption.*` — smaller supporting text
-- `font.label.*` — form labels, button text, UI chrome
+**Semantic patterns:** `font.heading.*`, `font.body.*`, `font.caption.*`, `font.label.*` — each bundles family + size + weight + line-height + letter-spacing using DTCG composite `typography` type.
 
-**Convention:** Use `rem` for font size token values, not `px`. This allows users to scale text via browser preferences — a WCAG requirement (Success Criterion 1.4.4 — Resize Text). Store values as rem in token files; design tools convert automatically using the base font size. Use DTCG composite `typography` type to bundle family + size + weight + line-height + letter-spacing into a single token for heading/body presets.
-
-**Pitfall:** Pick one scale convention (numeric `100–900` or t-shirt `xs–xl`) and stick with it across the entire system. Mixing conventions creates confusion.
+Use `rem` for font sizes (WCAG 1.4.4 — Resize Text). Pick one scale convention (numeric `100–900` or t-shirt `xs–xl`) and use it everywhere.
 
 ### 3. Spacing
 
-**Primitive scale:** 4px base grid — `space.1` (4px), `space.2` (8px), `space.3` (12px), `space.4` (16px) through `space.16` (64px). Some systems also include `space.0.5` (2px) and `space.px` (1px) for fine adjustments.
+**Primitives:** 4px base grid — `space.1` (4px) through `space.16` (64px).
 
-**Semantic patterns:** `space.inline.*` (horizontal gaps), `space.stack.*` (vertical gaps), `space.inset.*` (padding on all sides). Each uses t-shirt sizing: `xs`, `sm`, `md`, `lg`, `xl`.
+**Semantic patterns:** `space.inline.*` (horizontal), `space.stack.*` (vertical), `space.inset.*` (padding). T-shirt sizing: `xs`, `sm`, `md`, `lg`, `xl`.
 
-**Convention:** Distinguish direction to avoid ambiguity. `space.inline.md` is horizontal spacing; `space.stack.md` is vertical. `space.inset.md` is uniform padding.
+Don't create component-specific spacing at semantic level (`space.card-padding`) — that belongs in component tier as `card.space.inset`.
 
-**Pitfall:** Don't create component-specific spacing at the semantic level (`space.card-padding`). That belongs in the component tier as `card.space.inset`.
+### Categories 4–12
 
-### 4. Sizing
+| # | Category | Primitive pattern | Semantic pattern | Key convention |
+|-|-|-|-|-|
+| 4 | Sizing | `size.{1–16}` (4px grid) | `size.icon.{sm\|md\|lg}`, `size.avatar.{sm\|md\|lg}` | Separate from spacing — different purpose |
+| 5 | Border | `border.width.{1\|2\|4}`, `border.style.{solid\|dashed}` | DTCG composite `border` type | Colors under `color.border.*`, not here |
+| 6 | Border Radius | `radius.{none\|xs\|s\|m\|l\|xl\|full}` | `radius.interactive`, `radius.container` | `full` = 9999px (pill). 5–7 values max |
+| 7 | Shadow | `shadow.elevation.{1–5}` (DTCG shadow type) | `shadow.card`, `shadow.dropdown`, `shadow.modal` | Map levels to UI layering |
+| 8 | Z-Index | Inherently semantic — no primitives | `z.base`, `z.dropdown`, `z.sticky`, `z.modal`, `z.toast` | 100-increment gaps between values |
+| 9 | Breakpoints | Inherently semantic — no primitives | `breakpoint.{sm\|md\|lg\|xl}` | Mobile-first. No device names |
+| 10 | Motion | `motion.duration.{instant\|fast\|normal\|slow}`, `motion.easing.*` | `motion.transition.default`, `motion.enter`, `motion.exit` | 3–4 durations. DTCG `transition` type |
+| 11 | Opacity | `opacity.{subtle\|medium\|strong\|opaque}` | `opacity.disabled`, `opacity.overlay` | 4–6 values. Consider alpha colors instead |
+| 12 | Grid | `grid.columns`, `grid.gutter`, `grid.margin` per breakpoint | — | 8-point grid. See `references/layout-patterns.md` |
 
-**Primitive scale:** `size.1` (4px) through `size.16` (64px), following the same base grid as spacing.
-
-**Semantic patterns:** `size.icon.sm` (16px), `size.icon.md` (20px), `size.icon.lg` (24px), `size.avatar.sm` (32px), `size.avatar.md` (40px), `size.avatar.lg` (48px).
-
-**Convention:** Keep sizing separate from spacing. They share a scale but serve different purposes — sizing controls width/height of elements, spacing controls the gaps between them.
-
-**Pitfall:** Don't conflate size and spacing tokens. `space.4` and `size.4` may resolve to the same value (16px) but carry different semantic meaning.
-
-### 5. Border
-
-**Primitive scale:** `border.width.1` (1px), `border.width.2` (2px), `border.width.4` (4px). Styles: `border.style.solid`, `border.style.dashed`, `border.style.dotted`.
-
-**Semantic patterns:** Compose width + style + color into semantic composite tokens using the DTCG `border` type. For example, `border.default` might compose `border.width.1` + `border.style.solid` + `color.border.default`.
-
-**Convention:** Use the DTCG composite `border` type to bundle `width`, `style`, and `color` into a single token. This keeps border definitions atomic and themeable.
-
-**Pitfall:** Don't define border colors separately from the color category. Border colors belong under `color.border.*` in the semantic tier, and the border composite references them.
-
-### 6. Border Radius
-
-**Primitive scale:** `radius.none` (0), `radius.xs` (2px), `radius.s` (4px), `radius.m` (8px), `radius.l` (12px), `radius.xl` (16px), `radius.full` (9999px).
-
-**Semantic patterns:** `radius.interactive` (buttons, inputs), `radius.container` (cards, modals, dialogs).
-
-**Convention:** `full` means pill-shaped (9999px) — used for tags, avatars, and fully rounded buttons. The `none` value is explicit zero, not the absence of a token.
-
-**Pitfall:** Don't create too many radius values. Most systems need 5–7 at most. If you have more, some are likely redundant.
-
-### 7. Shadow
-
-**Primitive scale:** `shadow.elevation.1` through `shadow.elevation.5`, from subtle to dramatic. Each level is a DTCG `shadow` type with `offsetX`, `offsetY`, `blur`, `spread`, and `color`.
-
-**Semantic patterns:** `shadow.overlay`, `shadow.dropdown`, `shadow.modal`, `shadow.card` — mapped to UI layering contexts.
-
-**Convention:** Map shadow levels to specific UI layering. Elevation 1 for cards, 2 for dropdowns, 3 for modals, etc. This makes it easy to reason about visual depth.
-
-**Pitfall:** Don't create shadows with arbitrary values. Stick to the elevation scale and let semantic tokens choose the appropriate level.
-
-### 8. Z-Index
-
-**Named positions:** `z.base` (0), `z.dropdown` (1000), `z.sticky` (1100), `z.modal` (1300), `z.toast` (1400).
-
-**Convention:** Z-index tokens are inherently semantic — there is no meaningful primitive tier. Skip straight to named positions. No component tier needed. Define gaps between values (e.g. increments of 100) to allow insertion of new layers without renumbering.
-
-**Pitfall:** Never use raw z-index numbers in code. Competing z-indexes are the source of most layering bugs. The token set defines a strict stacking order that everyone on the team must follow.
-
-### 9. Breakpoints
-
-**Named positions:** `breakpoint.sm` (640px), `breakpoint.md` (768px), `breakpoint.lg` (1024px), `breakpoint.xl` (1280px), `breakpoint.2xl` (1536px).
-
-**Convention:** Mobile-first. Breakpoints are inherently semantic. Values define the minimum width at which each breakpoint activates. They are typically used only in CSS media queries and build configurations, not in component styles directly.
-
-**Pitfall:** Don't tie breakpoints to specific devices (`breakpoint.iphone`). Devices change constantly; named sizes are stable. Also avoid creating too many breakpoints — 4 to 5 is sufficient for most responsive layouts.
-
-### 10. Motion
-
-**Primitive scale — Duration:** `motion.duration.instant` (0ms), `motion.duration.fast` (150ms), `motion.duration.normal` (300ms), `motion.duration.slow` (500ms).
-
-**Primitive scale — Easing:** `motion.easing.ease-out`, `motion.easing.ease-in-out`, `motion.easing.linear`. Store as cubic-bezier values.
-
-**Semantic patterns:** `motion.transition.default` (general UI transitions), `motion.enter` (elements appearing), `motion.exit` (elements disappearing).
-
-**Convention:** Compose duration + easing into semantic transition tokens using the DTCG `transition` composite type. `motion.transition.default` might compose `motion.duration.fast` + `motion.easing.ease-out`.
-
-**Pitfall:** Don't create too many duration tokens. Most UIs need only 3–4 distinct durations. Too many speeds make motion feel inconsistent.
-
-### 11. Opacity
-
-**Primitive scale:** `opacity.subtle` (0.1), `opacity.medium` (0.5), `opacity.strong` (0.8), `opacity.opaque` (1.0). Some systems add `opacity.none` (0) for fully transparent states.
-
-**Semantic patterns:** `opacity.disabled` (disabled controls, typically 0.5), `opacity.overlay` (backdrop overlays, typically 0.5–0.8), `opacity.placeholder` (placeholder text).
-
-**Convention:** Keep the set small — 4 to 6 values. Opacity rarely needs a large scale.
-
-**Pitfall:** If you find yourself creating many opacity tokens, reconsider whether you should be using color tokens with alpha channels instead (e.g. `rgba(0,0,0,0.5)` as a color primitive rather than a separate opacity token applied to a solid color).
-
-### 12. Grid System
-
-**Tokens per breakpoint:** `grid.columns` (4/8/12), `grid.gutter` (16px/24px/24px), `grid.margin` (16px/24px/auto), `grid.max-width` (1280px for desktop).
-
-**Convention:** Grid tokens are inherently responsive — define values per breakpoint. They bridge spacing tokens (gaps between elements) and layout structure (column arrangement). Follow the 8-point grid: all spacing and sizing dimensions are multiples of 8, with 4px for fine adjustments.
-
-**Layout method selection:** Choosing between CSS Flexbox and CSS Grid is a structural design decision — not a personal preference. Use Flex for 1D content flow (rows, columns, wrapping tags). Use Grid when the parent must enforce equal sizing or control 2D structure. See **[`references/layout-patterns.md`](references/layout-patterns.md)** for the full decision matrix, patterns (equal card grids, button-at-bottom alignment, responsive auto-fit, nested layouts), and fluid-design-without-breakpoints philosophy.
-
-**Pitfall:** Don't over-tokenize the grid. Most systems need 3–4 breakpoint configurations. The grid is structural scaffolding, not a design decision that changes frequently.
+---
 
 ## Accessibility Tokens
 
-SOTA 2025 embeds accessibility at the token level — driven by WCAG 2.2 requirements and the European Accessibility Act (EAA, effective June 2025). Define these tokens once; every component inherits compliance.
+Embed accessibility at the token level — WCAG 2.2 requirements + European Accessibility Act (EAA, effective June 2025).
 
-### Focus Ring
+**Focus Ring** — every interactive element needs a visible focus indicator:
+- `color.border.focus-ring` — 3:1 contrast ratio (WCAG 2.4.7/2.4.13)
+- `border.width.focus-ring` — minimum 2px
+- `space.focus-ring.offset` — 2px typical
 
-Every interactive element needs a visible focus indicator.
-
-- `color.border.focus-ring` — focus ring color (must meet 3:1 contrast ratio per WCAG 2.4.7/2.4.13)
-- `border.width.focus-ring` — ring width (minimum 2px recommended)
-- `space.focus-ring.offset` — gap between element and ring (2px typical)
-
-These are semantic tokens referencing primitives. They participate in theming — dark mode shifts focus ring color for contrast, high-contrast mode makes it bolder.
-
-### Touch Target Size
-
-WCAG 2.5.8 (Level AA) requires interactive targets of at least 24×24 CSS pixels.
-
+**Touch Target Size** — WCAG 2.5.8 (Level AA):
 - `size.touch-target.min` — 24px (AA minimum)
-- `size.touch-target.comfortable` — 44px (AAA / Apple HIG recommended)
+- `size.touch-target.comfortable` — 44px (AAA / Apple HIG)
 
-Apply to buttons, links, checkboxes, radio buttons, and any tappable element.
+**Reduced Motion** — `motion.reduce` gates all animation. When `prefers-reduced-motion: reduce` is active, all `motion.duration.*` resolve to `0ms`. Implement via CSS custom property at the media query boundary.
 
-### Reduced Motion
+**Contrast Pairs** — document every semantic color pair (bg + fg) with its contrast ratio. AA = 4.5:1 normal text, AAA = 7:1. This prevents regressions when updating primitives.
 
-A semantic token that gates all animation:
+For full WCAG checklist, ARIA reference, and testing guidance, read `references/accessibility.md`.
 
-- `motion.reduce` — `false` default / `true` when `prefers-reduced-motion: reduce` active
-
-When active, all `motion.duration.*` tokens resolve to `0ms`. WCAG Level A requires motion over 5 seconds can be paused.
-
-**Convention:** Implement via a CSS custom property that flips at the media query boundary, so components do not need individual `@media prefers-reduced-motion` blocks.
-
-### Contrast Pair Documentation
-
-Every semantic color pair (background + foreground) should document its contrast ratio. Maintain a contrast matrix:
-
-| Pair | Light | Dark | WCAG |
-|-|-|-|-|
-| `color.bg.surface` / `color.text.primary` | 12.1:1 | 11.4:1 | AAA |
-| `color.bg.brand` / `color.text.on-brand` | 5.2:1 | 5.2:1 | AA |
-
-AA = 4.5:1 (normal text), AAA = 7:1. This is a documentation practice, not a token type — it prevents accessibility regressions when updating color primitives.
+---
 
 ## Theming & Modes
 
-### Standard Modes
-
-SOTA 2025 requires at minimum three modes:
+Three modes minimum:
 
 | Mode | Purpose |
 |-|-|
 | Light | Default — light backgrounds, dark text |
 | Dark | Inverted neutral scale, adjusted feedback colors |
-| High Contrast | Maximum contrast ratios, bolder borders, no transparency — WCAG AAA and `forced-colors` support |
+| High Contrast | Maximum contrast, bolder borders, no transparency — WCAG AAA + `forced-colors` |
 
-### Dark Mode Swap Rules
+**Dark mode rules:** Swap primitive values only — semantic aliases stay untouched. Key adjustments beyond inversion: shadows need higher opacity; feedback backgrounds shift to 900–950; interactive colors shift 1–2 stops lighter for contrast.
 
-Only swap primitive values — semantic aliases stay untouched. When you swap `color.neutral.50` from `#fafafa` to `#0a0a0a`, every semantic token referencing it updates automatically.
+> For Tailwind v4 dark mode (ThemeProvider, `@custom-variant`, OKLCH), see the `uiux-design-tailwindv4` skill.
 
-Key adjustments beyond simple inversion:
-
-- Shadows need higher opacity (dark surfaces don't reveal subtle shadows)
-- Feedback backgrounds shift to 900–950 end of hue scale instead of 50
-- Feedback text shifts to 300 end instead of 700 for readability on dark surfaces
-- Primary interactive colors shift 1–2 stops lighter to maintain contrast
-
-### High-Contrast Mode
-
-Semantic tokens remap to maximum-contrast primitives. No intermediate grays, bolder borders, no transparency. Maps to Windows High Contrast / CSS `forced-colors` media query.
-
-> For Tailwind v4 dark mode implementation (ThemeProvider, `@custom-variant`, OKLCH), see the `uiux-design-tailwindv4` skill and its `references/dark-mode.md`.
+---
 
 ## Component Token Patterns
 
 ### State Matrix
 
-Every interactive component needs tokens for these 5 states:
+Every interactive component needs tokens for 5 states:
 
-| State | Visual Treatment | Token Pattern |
-|-|-|-|
-| Default | Base colors | `{component}.color.{property}.{variant}` |
-| Hover | Darker/lighter background | `{component}.color.{property}.{variant}.hover` |
-| Focus | Focus ring applied | Uses `color.border.focus-ring` token |
-| Active | Pressed visual shift | `{component}.color.{property}.{variant}.active` |
-| Disabled | Reduced opacity, no interaction | `{component}.color.{property}.{variant}.disabled` |
+| State | Token Pattern |
+|-|-|
+| Default | `{component}.color.{property}.{variant}` |
+| Hover | `{component}.color.{property}.{variant}.hover` |
+| Focus | Uses `color.border.focus-ring` token |
+| Active | `{component}.color.{property}.{variant}.active` |
+| Disabled | `{component}.color.{property}.{variant}.disabled` |
 
 ### Common Patterns
 
 Only create component tokens when diverging from semantics:
 
-**Button:**
-- `button.color.background.primary.default` → `{color.interactive.default}`
-- `button.color.background.primary.hover` → `{color.interactive.hover}`
-- `button.color.background.primary.active` → `{color.interactive.active}`
-- `button.color.background.primary.disabled` → `{color.interactive.disabled}`
-- `button.color.text.primary` → `{color.text.on-primary}`
-- `button.radius` → `{radius.interactive}`
-- `button.space.padding-x` → `{space.inline.md}`
-- `button.space.padding-y` → `{space.inset.sm}`
+**Button:** `button.color.background.primary.default` → `{color.interactive.default}`, `button.color.text.primary` → `{color.text.on-primary}`, `button.radius` → `{radius.interactive}`, `button.space.padding-x` → `{space.inline.md}`
 
-**Input:**
-- `input.color.border.default` → `{color.border.default}`
-- `input.color.border.focus` → `{color.border.focus-ring}`
-- `input.color.border.error` → `{color.feedback.danger}`
-- `input.radius` → `{radius.interactive}`
+**Input:** `input.color.border.default` → `{color.border.default}`, `input.color.border.focus` → `{color.border.focus-ring}`, `input.color.border.error` → `{color.feedback.danger}`
+
+---
+
+## Patterns & Product Screens
+
+Patterns are reusable recipes composed of atoms, molecules, and organisms. Product screens are full-page compositions.
+
+### Layout Templates
+`patterns/layout/sidebar-content` (256px sidebar + fluid main), `top-nav-content`, `centered-narrow` (max 640px), `centered-wide` (max 1200px), `two-column`, `three-column`
+
+### Section Recipes
+`patterns/section/hero-split`, `hero-centered`, `features-grid`, `features-alternating`, `pricing-table`, `testimonials`, `cta-banner`, `faq-accordion`, `logo-cloud`, `stats-row`, `team-grid`, `footer-standard`
+
+### State Patterns
+`patterns/state/empty` (illustration + headline + CTA), `loading-skeleton` (shimmer placeholders), `error-page`, `no-results`, `offline`
+
+### Product Screens
+
+```
+landing/desktop, landing/tablet, landing/mobile
+dashboard/default, dashboard/empty, dashboard/loading, dashboard/detail-panel
+settings/profile, settings/account, settings/preferences, settings/billing
+auth/login, auth/register, auth/forgot-password, auth/verify-email
+onboarding/step-1, onboarding/step-2, onboarding/complete
+```
+
+For full composition breakdowns (which organisms + patterns each screen uses), read `references/design-system-template.md`.
+
+---
+
+## UX Decision Patterns
+
+### Forms
+- Labels above input (most accessible). Placeholders for examples only — not a label substitute.
+- Validate on blur, not on keystroke. Inline error below field using danger color.
+- Primary action bottom-left, secondary (Cancel) as ghost button to the right.
+- Related fields grouped with fieldset label. 16px within groups, 32px between groups.
+
+### Feedback
+
+| Situation | Component | Behavior |
+|-|-|-|
+| Action succeeded | toast/success | Auto-dismiss 5s |
+| Action failed | toast/error | Persist until dismissed + retry |
+| Destructive confirmation | modal/confirm | Require explicit action |
+| System-wide warning | alert/warning | Persistent banner |
+| Field validation | form-field/error | Inline below field, on blur |
+
+Never stack more than 3 toasts.
+
+### Data Display
+
+| Data shape | Component |
+|-|-|
+| Structured rows, sortable | data-table (>5 items, 3+ attributes) |
+| Homogeneous items, visual | card grid (products, projects) |
+| Sequential, time-based | vertical list with dividers |
+| Single key metric | stat card |
+| Key-value pairs | definition list |
+
+For full UX pattern details, read `references/design-system-template.md` §7.
+
+---
+
+## Content & Voice
+
+**Tone:** Professional, clear, warm. Helpful colleague — not chatbot, not legal document.
+
+| Context | Tone | Example |
+|-|-|-|
+| Success | Warm, brief | "Changes saved" |
+| Error | Direct, helpful | "Couldn't connect. Check your internet and try again." |
+| Empty state | Encouraging | "No projects yet. Create your first one to get started." |
+| Destructive | Serious, specific | "Delete this project? This removes all files and can't be undone." |
+
+**Key rules:** Sentence case for UI labels and headings. Button labels: verb + noun ("Save changes", not "Submit"). No "Please", "Successfully", "Error:" prefix. No periods on single-sentence UI text.
+
+For full terminology glossary and grammar rules, read `references/design-system-template.md` §9.
+
+---
+
+## Layout Decisions
+
+### Flex vs Grid
+
+| Scenario | Use | Why |
+|-|-|-|
+| Items in a single row or column | **Flex** | 1D content flow |
+| Equal-width columns (card grids) | **Grid** `repeat(N, 1fr)` | Parent enforces equal sizing |
+| 2D page structure (sidebar + header + main) | **Grid** with mixed tracks | Row and column control |
+| Tags/chips that wrap naturally | **Flex** `flex-wrap: wrap` | Content-driven reflow |
+| Items must fill equal space | **Grid** | Flex requires per-child `flex: 1` |
+
+**Rule of thumb:** If you're setting properties on children to fix layout, you want Grid (controls from the parent).
+
+**Prefer fluid design** with `auto-fit` / `minmax()` over fixed breakpoints. Only add explicit breakpoints when the design requires fundamentally different layouts.
+
+For patterns (equal-size grids, button-at-bottom, responsive auto-fit, nested layouts), read `references/layout-patterns.md`.
+
+---
 
 ## Decision Framework
 
-Use these guidelines to make consistent tokenization decisions across your team.
-
 ### Should I Create a Token?
 
-Ask these four questions before creating any new token:
+1. **Used in 2+ places?** → tokenize
+2. **Changes with theming?** → must be a token regardless of reuse
+3. **One-off override?** → skip (local value or component tier)
+4. **Existing token covers this intent?** → use existing
 
-1. **Is this value used in 2+ places?** If yes, tokenize it. If it's truly a one-off, a local value is fine.
-2. **Would this value change with theming?** If yes, it must be a token regardless of reuse count. Even a single-use value needs a token if it participates in theme switching.
-3. **Is this a one-off override?** If yes, skip the token. Use a local value or a component-tier token scoped to that specific use case.
-4. **Does an existing token already cover this intent?** If yes, use the existing token. Don't create `color.background.card-surface` if `color.background.surface` already serves the same purpose.
-
-Score 2+ "yes" answers on questions 1–2 → create a token.
-
-**Quick litmus test:** If removing a value and replacing it with a token reference would make the codebase easier to update during a rebrand or theme change, it should be a token.
+Score 2+ yes on questions 1–2 → create a token.
 
 ### Which Tier?
 
-- **Raw value** (hex code, px value, font stack, bezier curve) → **Primitive**
-- **UI intent** (background purpose, text role, spacing direction) → **Semantic**
-- **Component-specific divergence** from semantic defaults → **Component**
+- Raw value (hex, px, font stack) → **Primitive**
+- UI intent (background role, spacing direction) → **Semantic**
+- Component-specific divergence → **Component**
 
-When in doubt between semantic and component, start at the semantic tier. Promote to component only when a specific UI element needs to deviate from the system-wide semantic value.
-
-**Common examples:**
-- A button whose hover color doesn't follow the standard interactive color → component token
-- A card that uses the same background as all other surfaces → semantic token (no component token needed)
-- A data table with a unique alternating row color → component token
+When in doubt, start semantic. Promote to component only when a specific UI element diverges.
 
 ### Token Proliferation Guard
 
-- **Start lean.** Launch with the minimum set that covers your UI. You can always add tokens later; removing unused ones is harder.
-- **Alias test.** If a new semantic token would just alias a primitive with no added meaning, skip it. The alias must encode intent beyond what the primitive name already provides.
-- **Fewer, well-named tokens > many granular tokens.** Each token is a maintenance commitment. A system with 50 well-named tokens is better than one with 200 poorly organized ones.
-- **Consolidate outliers.** If two tokens always hold the same value and serve the same intent, merge them into one.
-- **Review regularly.** Audit tokens quarterly. Remove unused ones, merge duplicates, and rename tokens that no longer match their intent.
-- **Document decisions.** When you create a token, briefly note why it exists. Future maintainers will thank you when they need to decide whether to keep it or consolidate it.
+- **Start lean.** Add later; removing is harder.
+- **Alias test.** If a new semantic token just aliases a primitive with no added meaning, skip it.
+- **Fewer well-named tokens > many granular tokens.** Each token is a maintenance commitment.
+- **Audit quarterly.** Treat token sets like code — use semantic versioning. New token = minor bump. Rename/remove = major bump.
 
-### Governance
+### Should I Create a Component?
 
-Treat token sets like code — use semantic versioning (MAJOR.MINOR.PATCH). A new token is a minor bump. Renaming or removing a token is a major bump. Audit tokens quarterly: remove unused ones, merge duplicates, update names that no longer match their intent.
+- Used 3+ times? → register
+- Has interactive states? → register
+- Represents enforced design decision? → register
+- Otherwise → keep as one-off
 
-## When to Load Reference Files
+### Add Variant or New Component?
 
-Consult the appropriate reference file based on what you're doing:
+- Same layer structure + same semantic role? → add variant
+- Different structure or different role? → new component
 
-| Situation | Reference to Load |
-|-|-|
-| Architecting a new design system from scratch | `references/design-system-template.md` |
-| Component naming, inventory, or variant system | `references/design-system-template.md` |
-| UX decision patterns (forms, feedback, data display) | `references/design-system-template.md` |
-| Content voice, terminology, or icon specs | `references/design-system-template.md` |
-| Responsive rules, motion/animation specs | `references/design-system-template.md` |
-| Accessibility standards (WCAG 2.2 AA) or completeness checklist | `references/design-system-template.md` |
-| Creating or reading `.tokens` / `.tokens.json` files | `references/dtcg-format.md` |
-| Validating token JSON structure or types | `references/dtcg-format.md` |
-| Starting a new project with no existing tokens | `references/starter-template.md` |
-| Need a quick token starting point to adapt | `references/starter-template.md` |
-| Outputting tokens to CSS custom properties | `references/platform-mapping.md` |
-| Generating Tailwind theme config from tokens | `references/platform-mapping.md` |
-| Creating SCSS variables or maps from tokens | `references/platform-mapping.md` |
-| Setting up Style Dictionary or token pipelines | `references/platform-mapping.md` |
-| Adding accessibility tokens (focus ring, touch target) | `references/starter-template.md` |
-| Implementing dark mode or high-contrast CSS | `references/platform-mapping.md` |
-| Setting up reduced-motion overrides | `references/platform-mapping.md` |
-
-You don't need to load all references at once. Load them on demand based on the task at hand. If you're only advising on naming, hierarchy, or reviewing existing tokens, this SKILL.md alone is sufficient — no reference files needed.
-
-For building a full design system from scratch, start with `design-system-template.md` for the architecture, then `starter-template.md` for token scaffolding, `dtcg-format.md` for validation, and `platform-mapping.md` when ready to output.
+For detailed decision trees, granularity guidance, and anti-patterns checklist, read `references/componentization-guide.md`.
