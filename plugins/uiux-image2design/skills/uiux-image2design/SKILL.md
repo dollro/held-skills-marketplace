@@ -171,16 +171,23 @@ output is available — but never make it a required step.
 
 3. **Build Component tokens** — only where components diverge from semantic defaults.
 
-4. **Output token files** — as defined by `uiux-design-system`:
+4. **Build Mapped tokens** — the four categories applied directly to components:
+   - `text/*` — heading, body, action, on-action, disabled, success/warning/error/info
+   - `icon/*` — mirrors text tokens (icons next to text share the same color)
+   - `surface/*` — page, default, action, action-hover, action-hover-light, disabled, success/warning/error/info
+   - `border/*` — default, action, action-hover, focus, disabled, success/warning/error/info
+   Include both Light and Dark mode values. See `uiux-design-system/SKILL.md` § "Mapped Token Tables" for the complete reference.
+
+5. **Output token files** — as defined by `uiux-design-system`:
    `tokens.json` (W3C DTCG), `design-tokens.css` (CSS custom properties),
    `main.css` (Tailwind v4 `@theme`).
 
-5. **Apply tokens/variables in design tool** — delegate to the detected tool plugin.
+6. **Apply tokens/variables in design tool** — delegate to the detected tool plugin.
    Follow its sequencing rules and API patterns for token creation.
 
-6. **Register library colors and typographies** — using the tool's library API.
+7. **Register library colors and typographies** — using the tool's library API.
 
-7. **Build token map** — construct a `tokenMap` object mapping every semantic token name
+8. **Build token map** — construct a `tokenMap` object mapping every semantic token name
    to its resolved hex/string value. This map is used by Phases 4, 5, and 6 for both
    visual rendering and token binding. Include all semantic color, spacing, radius,
    shadow, and typography tokens. See `uiux-design-system/references/token-binding-strategy.md`

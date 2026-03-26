@@ -69,6 +69,24 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
     "6": { "$value": { "value": 1.5, "unit": "rem" } }, "8": { "$value": { "value": 2, "unit": "rem" } },
     "12": { "$value": { "value": 3, "unit": "rem" } }, "16": { "$value": { "value": 4, "unit": "rem" } }
   },
+  "scale": {
+    "$type": "dimension", "$description": "4px base grid — unified number scale for spacing, sizing, borders",
+    "0": { "$value": { "value": 0, "unit": "px" } },
+    "25": { "$value": { "value": 1, "unit": "px" }, "$description": "Exception: borders" },
+    "50": { "$value": { "value": 2, "unit": "px" }, "$description": "Exception: focus rings" },
+    "100": { "$value": { "value": 4, "unit": "px" } },
+    "200": { "$value": { "value": 8, "unit": "px" } },
+    "300": { "$value": { "value": 12, "unit": "px" } },
+    "400": { "$value": { "value": 16, "unit": "px" } },
+    "500": { "$value": { "value": 20, "unit": "px" } },
+    "600": { "$value": { "value": 24, "unit": "px" } },
+    "700": { "$value": { "value": 28, "unit": "px" } },
+    "800": { "$value": { "value": 32, "unit": "px" } },
+    "900": { "$value": { "value": 36, "unit": "px" } },
+    "1000": { "$value": { "value": 40, "unit": "px" } },
+    "1100": { "$value": { "value": 48, "unit": "px" } },
+    "1200": { "$value": { "value": 64, "unit": "px" } }
+  },
   "border": {
     "width": {
       "$type": "dimension",
@@ -240,3 +258,68 @@ A minimal but complete design token set in W3C DTCG format. Use as scaffolding f
   }
 }
 ```
+
+## Mapped / Component Tokens (Tier 3)
+
+The mapped tier defines the four token categories that get applied directly to components. Each references semantic tokens — never raw values.
+
+> **Note:** This tier is optional for small projects. Start with primitives + semantics. Add mapped tokens when you need component-specific divergence or multi-brand/dark mode support. Production systems with dark mode should always include this tier.
+
+```json
+{
+  "text": {
+    "$type": "color",
+    "heading": { "$value": "{color.text.primary}" },
+    "body": { "$value": "{color.text.secondary}" },
+    "action": { "$value": "{color.interactive.default}" },
+    "action-hover": { "$value": "{color.interactive.hover}" },
+    "on-action": { "$value": "{color.text.on-primary}" },
+    "disabled": { "$value": "{color.text.disabled}" },
+    "success": { "$value": "{color.feedback.success}" },
+    "warning": { "$value": "{color.feedback.warning}" },
+    "error": { "$value": "{color.feedback.danger}" },
+    "information": { "$value": "{color.feedback.info}" }
+  },
+  "icon": {
+    "$type": "color",
+    "$description": "Icon tokens mirror text tokens — icons next to text should share the same color",
+    "default": { "$value": "{color.text.secondary}" },
+    "action": { "$value": "{color.interactive.default}" },
+    "on-action": { "$value": "{color.text.on-primary}" },
+    "disabled": { "$value": "{color.text.disabled}" },
+    "success": { "$value": "{color.feedback.success}" },
+    "error": { "$value": "{color.feedback.danger}" }
+  },
+  "surface": {
+    "$type": "color",
+    "page": { "$value": "#ffffff", "$description": "Full page background" },
+    "default": { "$value": "{color.background.surface}" },
+    "action": { "$value": "{color.interactive.default}" },
+    "action-hover": { "$value": "{color.interactive.hover}" },
+    "action-hover-light": { "$value": "{color.background.info}", "$description": "Subtle hover for inputs/rows" },
+    "disabled": { "$value": "{color.background.subtle}" },
+    "success": { "$value": "{color.background.success}" },
+    "warning": { "$value": "{color.background.warning}" },
+    "error": { "$value": "{color.background.danger}" },
+    "information": { "$value": "{color.background.info}" }
+  },
+  "border": {
+    "$type": "color",
+    "default": { "$value": "{color.border.default}" },
+    "action": { "$value": "{color.interactive.default}" },
+    "action-hover": { "$value": "{color.interactive.hover}" },
+    "focus": { "$value": "{color.border.focus-ring}" },
+    "disabled": { "$value": "{color.border.default}" },
+    "success": { "$value": "{color.feedback.success}" },
+    "warning": { "$value": "{color.feedback.warning}" },
+    "error": { "$value": "{color.feedback.danger}" },
+    "information": { "$value": "{color.feedback.info}" }
+  }
+}
+```
+
+---
+
+## Scaling Up
+
+This starter template uses minimal stops for feedback colors (base/light/dark). For production design systems with dark mode support, expand each feedback color to a full 50–950 shade range — same structure as the `primary` and `neutral` scales. This enables the mapped tier's light/dark mode tables (e.g., `surface/error` maps to `error.50` in light mode and `error.900` in dark mode).

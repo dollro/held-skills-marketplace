@@ -97,6 +97,9 @@ Create professional, user-centered designs in Figma using the `figma-console-mcp
 | Screen sizes & platform specs | `uiux-design-system/references/platform-guidelines.md` |
 | Color conversion utilities | `uiux-design-system/references/color-utilities.md` |
 | Token binding strategy | `uiux-design-system/references/token-binding-strategy.md` |
+| Mapped token categories (text/icon/surface/border) | `uiux-design-system/SKILL.md` § "Mapped Token Tables" |
+| Design system template & checklist | `uiux-design-system/references/design-system-template.md` |
+| Multi-brand & dark mode strategy | `uiux-design-system/SKILL.md` § "Multi-Brand Strategies" |
 | Figma MCP tool catalog | [figma-api-reference.md](references/figma-api-reference.md) |
 | Figma design system guide | [figma-design-system-guide.md](references/figma-design-system-guide.md) |
 | Layout decision guide (**read before step 5**) | [generation-recipes.md § Layout Selection Guide](references/generation-recipes.md) + `uiux-design-system/references/layout-patterns.md` |
@@ -160,6 +163,21 @@ return {
 **If user HAS a design system:** use their colors, spacing, typography, and naming conventions.
 
 **If user has NO design system:** use the default tokens below, offer to establish patterns, reference `uiux-design-system/references/component-patterns.md`.
+
+### Mapped Token Categories
+
+When setting up Figma variable collections, structure the mapped/component tier into four categories matching the design system architecture:
+
+- **text/** — `text/heading`, `text/body`, `text/action`, `text/on-action`, `text/disabled`, `text/error`, `text/success`
+- **icon/** — mirrors text tokens (`icon/default` = `text/body`, `icon/action` = `text/action`, etc.)
+- **surface/** — `surface/page`, `surface/default`, `surface/action`, `surface/action-hover`, `surface/action-hover-light`, `surface/disabled`
+- **border/** — `border/default`, `border/action`, `border/focus`, `border/disabled`, `border/error`
+
+Each category should include state variants (default, hover, focus, disabled, error, success). Add Light/Dark modes to the collection and remap semantic values per mode.
+
+For the complete token tables with light/dark mode values, read `uiux-design-system/SKILL.md` § "Mapped Token Tables".
+
+**Internal components:** Prefix private building blocks with a dot (`.menu-item`, `.tab-item`) — Figma won't publish them to the library. Only composed components (`Menu`, `Tab Bar`) should be published.
 
 ## Key Figma API Gotchas
 

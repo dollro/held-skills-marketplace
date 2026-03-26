@@ -13,6 +13,7 @@ components aren't registered, tokens aren't bound, or instances are detached.
 
 ## Table of Contents
 
+0. [Internal vs Published Components](#0-internal-vs-published-components)
 1. [Should This Be a Component?](#1-should-this-be-a-component)
 2. [Granularity: Split vs. Monolithic](#2-granularity-split-vs-monolithic)
 3. [Variant Architecture](#3-variant-architecture)
@@ -22,6 +23,38 @@ components aren't registered, tokens aren't bound, or instances are detached.
 7. [Scaling to 100+ Screens](#7-scaling-to-100-screens)
 8. [Anti-Patterns Checklist](#8-anti-patterns-checklist)
 9. [Decision Trees](#9-decision-trees)
+10. [Recommended Build Order](#10-recommended-build-order)
+
+---
+
+## 0. Internal vs Published Components
+
+Before deciding whether to componentize, understand the two publication levels:
+
+**Published components** (end users see these):
+- Named normally: `Menu`, `Tab Bar`, `Carousel`, `Input`
+- Available in the asset panel / component library
+- The components designers use day-to-day
+
+**Internal components** (building blocks, not published):
+- Prefixed with a dot: `.menu-item`, `.tab-item`, `.carousel-item`, `.text-area`
+- The dot prefix tells Figma not to publish it in the library
+- In code-based systems, use `_` prefix or an `internal/` directory
+- Used inside published components via composition
+
+**Why this matters:** End users should only see composed, ready-to-use components — not the individual building blocks. A `.menu-item` is meaningless on its own; the `Menu` component (composed of `.menu-item` instances) is what designers need.
+
+**Examples:**
+
+```
+.menu-item     → internal → used inside Menu
+.tab-item      → internal → used inside Tab Bar
+.carousel-item → internal → used inside Carousel
+.text-area     → internal → used inside Text Area (label + area + hint)
+.button-group-item → internal → used inside Button Group
+```
+
+**Rule:** If a sub-component has no independent meaning (a tab item outside a tab bar), make it internal. If it's reusable across multiple parents (an avatar used in cards, headers, and comments), publish it.
 
 ---
 
@@ -354,6 +387,45 @@ Does a registered component exist for this element?
         ├── Yes → Register it first, then use instances
         └── No → Build fresh (one-off)
 ```
+
+---
+
+## 10. Recommended Build Order
+
+Build atoms first, then compose upward. This order minimizes rework — each component uses instances of previously built components:
+
+**Phase 1 — Core atoms:**
+1. Button (filled, outline, transparent × states × sizes)
+2. Label (default, required with asterisk)
+3. Input Field (all states including focus ring)
+
+**Phase 2 — Core molecules:**
+4. Input (composed: Label + Input Field + Hint Text)
+5. Checkbox + Checkbox Label
+6. Radio Button + Radio Label
+7. Switch/Toggle + Switch Label
+
+**Phase 3 — Content atoms + organisms:**
+8. Text Area (Label + multiline field + Hint)
+9. Menu Item (internal `.menu-item`) → Menu
+10. Tab Item (internal `.tab-item`) → Tab Bar
+
+**Phase 4 — Secondary atoms:**
+11. Button Group (from `.button-group-item`)
+12. Link + Breadcrumb variant
+13. Avatar (icon/image/initials × sizes) + Avatar Group
+14. Tag/Chip (selected/unselected)
+15. Badge (count + dot × semantic colors)
+
+**Phase 5 — Feedback + complex organisms:**
+16. Loader/Spinner (sizes + animation)
+17. Progress Bar + Progress Circle
+18. Snackbar/Toast (semantic variants + progress)
+19. Button Icon (icon-only circular button)
+20. Carousel (.carousel-item + navigation + progress)
+21. Table (Cell Item → Column → Table — most complex)
+
+**Why this order?** Each phase builds on the previous. Input (phase 2) needs Label and Input Field (phase 1). Menu (phase 3) needs its internal `.menu-item`. Toast (phase 5) may use Button Icon for the close button.
 
 ---
 

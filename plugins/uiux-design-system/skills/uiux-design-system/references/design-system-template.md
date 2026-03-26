@@ -255,24 +255,28 @@ Don't: Don't use for simple confirmations ("Are you sure you want to save?") —
 
 ## 3. Typography Scale
 
+> **Methodology:** Sizes derived from a Major Third (1.25) scale ratio starting at 16px base, snapped to nearest multiple of 4. Line heights use ×1.2 for headings and ×1.5 for body, also snapped to 4px grid. Adjust ratio and base for your project — Minor Third (1.2) for conservative apps, Perfect Fourth (1.333) for dramatic marketing.
+
 | Style | Font | Size | Line Height | Weight | Usage |
 |-|-|-|-|-|-|
-| heading/h1 | Inter | 36px | 1.2 | 700 | Page titles |
-| heading/h2 | Inter | 30px | 1.25 | 700 | Section headers |
-| heading/h3 | Inter | 24px | 1.3 | 600 | Subsections |
-| heading/h4 | Inter | 20px | 1.35 | 600 | Card titles |
-| heading/h5 | Inter | 18px | 1.4 | 600 | Subheadings |
-| heading/h6 | Inter | 16px | 1.5 | 600 | Label headings |
-| body/lg | Inter | 18px | 1.6 | 400 | Lead text |
-| body/md | Inter | 16px | 1.6 | 400 | Main content |
-| body/sm | Inter | 14px | 1.5 | 400 | Secondary content |
-| caption/default | Inter | 12px | 1.5 | 400 | Labels, hints |
-| caption/strong | Inter | 12px | 1.5 | 500 | Emphasized captions |
-| label/default | Inter | 14px | 1.4 | 500 | Form labels |
-| label/sm | Inter | 12px | 1.4 | 500 | Small labels |
-| mono/default | JetBrains Mono | 14px | 1.5 | 400 | Code blocks |
-| mono/sm | JetBrains Mono | 12px | 1.5 | 400 | Inline code |
-| overline/default | Inter | 11px | 1.5 | 600 | Uppercase, letter-spacing 0.05em |
+| heading/h1 | Inter | 60px | 72px | 700 | Page titles, hero headlines |
+| heading/h2 | Inter | 48px | 56px | 700 | Section headers |
+| heading/h3 | Inter | 40px | 48px | 600 | Subsections |
+| heading/h4 | Inter | 32px | 40px | 600 | Card titles, panel headers |
+| heading/h5 | Inter | 24px | 28px | 600 | Subheadings |
+| heading/h6 | Inter | 20px | 24px | 600 | Label headings |
+| body/lg | Inter | 18px | 28px | 400 | Lead text |
+| body/md | Inter | 16px | 24px | 400 | Main content |
+| body/sm | Inter | 14px | 20px | 400 | Secondary content |
+| caption/default | Inter | 12px | 16px | 400 | Labels, hints |
+| caption/strong | Inter | 12px | 16px | 500 | Emphasized captions |
+| label/default | Inter | 14px | 20px | 500 | Form labels |
+| label/sm | Inter | 12px | 16px | 500 | Small labels |
+| mono/default | JetBrains Mono | 14px | 20px | 400 | Code blocks |
+| mono/sm | JetBrains Mono | 12px | 16px | 400 | Inline code |
+| overline/default | Inter | 11px | 16px | 600 | Uppercase, letter-spacing 0.05em |
+
+**Responsive typography rule:** Body text stays 16px on all breakpoints. Only headings scale down on mobile. See the responsive table in the main SKILL.md for desktop→mobile mappings.
 
 ---
 
@@ -653,28 +657,82 @@ For each organism and pattern, create **three frames** at the standard breakpoin
 
 Before considering the design system complete:
 
-- [ ] All primitive color ramps defined
+### Phase 1: Token Foundation
+- [ ] Define brand color palette (primary + error + success + warning + info + neutral)
+- [ ] Build 50–950 scales for each color (opacity method → solid hex conversion)
+- [ ] Define number scale (4px grid multiples)
+- [ ] Set font family tokens (body, heading, mono)
+- [ ] Set font weight tokens (regular, medium, semibold, bold)
+- [ ] Create Primitive/Brand collection
+
+### Phase 2: Semantic Layer
+- [ ] Create Alias/Semantic collection with full shade ranges per group
+- [ ] Add foundation values (white, black)
+- [ ] Define border width aliases (default: 1px, focus: 2px)
+- [ ] Define border radius aliases (sm through full)
 - [ ] All semantic tokens reference primitives (no raw hex in semantic tier)
+
+### Phase 3: Component/Mapped Tokens
+- [ ] Create Mapped collection with four categories: text, icon, surface, border
+- [ ] Define all state variants (default, hover, focus, disabled, error, success, etc.)
+- [ ] Add `on-action` variants for content on primary surfaces
+- [ ] Icon tokens mirror text tokens intentionally
+- [ ] Scope variables to appropriate types (hide brand colors from component fills)
+
+### Phase 4: Typography
+- [ ] Generate type scale using ratio method (e.g., typescale.com)
+- [ ] Snap all sizes to 4px grid
+- [ ] Calculate line heights (×1.2 headings, ×1.5 body, snap to 4px)
+- [ ] Create responsive collection with Desktop/Mobile modes
+- [ ] Set paragraph spacing values
+- [ ] Create all text styles (Heading/H1 through Body/XS-Link)
+- [ ] All typographies registered in typography assets
+
+### Phase 5: Theming
 - [ ] Light + Dark theme defined and switchable
-- [ ] Every atom has: all states (default/hover/active/disabled/focus), all sizes (sm/md/lg)
+- [ ] Dark mode remaps semantic tier (not primitives)
+- [ ] Test dark mode with accessibility contrast checker
+- [ ] High contrast mode tokens defined (for EAA compliance)
+- [ ] All semantic color pairings pass WCAG AA contrast
+
+### Phase 6: Components (Build Order)
+- [ ] Button (filled, outline, transparent × states × sizes)
+- [ ] Label (default, required)
+- [ ] Input Field (with all states) → Input (composed: Label + Field + Hint)
+- [ ] Checkbox, Radio, Switch (selected/unselected × states) + label molecules
+- [ ] Text Area, Menu (from .menu-item), Tab Bar (from .tab-item)
+- [ ] Button Group, Link + breadcrumb, Avatar + group, Tag/Chip, Badge
+- [ ] Loader, Progress Bar + circle, Snackbar/Toast
+- [ ] Button Icon, Carousel, Table (cells → columns → table)
+- [ ] Every atom has all states (default/hover/active/disabled/focus)
 - [ ] Every molecule shows which atoms it composes
 - [ ] Every organism has responsive frames (desktop/tablet/mobile)
 - [ ] Every main component has an annotation
-- [ ] All layouts use Flex or Grid (no absolute positioning except overlays)
-- [ ] Pattern recipes use placeholder content
-- [ ] Product screens use real content and actual component instances
-- [ ] Cover page has current version and changelog
-- [ ] All colors registered in both token system AND color assets
-- [ ] All typographies registered in typography assets
+- [ ] Internal components prefixed with dot (.)
 - [ ] Icon set covers navigation, action, status, and social categories
 - [ ] Empty/loading/error states documented for every data-driven screen
-- [ ] Design principles documented on getting-started page
-- [ ] Motion tokens defined (duration scale + easing curves)
-- [ ] All semantic color pairings pass WCAG AA contrast
+
+### Phase 7: Accessibility Audit
+- [ ] All focus states implemented with 2px visible ring
+- [ ] All interactive elements have ≥24px touch targets (AA), prefer 44px
+- [ ] All text/surface combinations meet WCAG AA contrast (4.5:1 / 3:1)
+- [ ] Focus ring tokens defined
+- [ ] Reduced motion tokens defined
+- [ ] High contrast mode tokens defined (EAA)
 - [ ] Accessibility annotations on every interactive component
+
+### Phase 8: Publish & Distribute
+- [ ] Review all component names (no accidental `.` prefixes on public components)
+- [ ] Publish library
+- [ ] Export tokens as W3C DTCG JSON
+- [ ] Transform to CSS custom properties via Style Dictionary
+- [ ] Integrate with Tailwind v4 `@theme` block
+- [ ] Document the token API for developers
+- [ ] Cover page has current version and changelog
+- [ ] Design principles documented on getting-started page
 - [ ] Voice and tone guidelines documented
 - [ ] Terminology glossary defined and consistent
 - [ ] Form validation pattern documented
 - [ ] Feedback pattern decision table documented
 - [ ] Data display guidance documented
-- [ ] Focus ring style consistent across all interactive components
+- [ ] Motion tokens defined (duration scale + easing curves)

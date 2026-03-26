@@ -1,5 +1,7 @@
 # Accessibility Guidelines Reference (WCAG)
 
+> **Compliance context:** These guidelines target WCAG 2.2 Level AA — the legal baseline for most jurisdictions. Since June 2025, the **European Accessibility Act (EAA)** requires digital products sold in the EU to meet these standards. Non-compliance carries legal and financial risk.
+
 ## Quick Compliance Checklist
 
 ### Level AA Requirements (Minimum Standard)
@@ -256,6 +258,56 @@ role="status" - Status updates (like polite)
 - Focus trapped within modal
 - Escape key closes modal
 - Focus returns to trigger element when closed
+
+---
+
+## High Contrast & Forced Colors
+
+### High Contrast Override Tokens
+
+For users who need maximum contrast (Windows High Contrast mode, `forced-colors` media query), define override tokens:
+
+```
+a11y/high-contrast/text        → #000000
+a11y/high-contrast/background  → #FFFFFF
+a11y/high-contrast/border      → #000000
+a11y/high-contrast/link        → #0000EE
+```
+
+### CSS Implementation
+
+```css
+@media (forced-colors: active) {
+  :root {
+    --color-background-surface: Canvas;
+    --color-text-primary: CanvasText;
+    --color-border-default: CanvasText;
+    --color-interactive-default: LinkText;
+  }
+}
+```
+
+In `forced-colors` mode, browsers override most colors with system colors. Use the CSS system color keywords (`Canvas`, `CanvasText`, `LinkText`, `ButtonText`, etc.) to map your tokens to the user's chosen high contrast palette.
+
+### Focus Ring Tokens
+
+Every interactive element must have a visible focus indicator. Define these tokens in your system:
+
+- `a11y/focus-ring-color` → maps to `border/focus` (typically primary/500)
+- `a11y/focus-ring-width` → 2px minimum
+- `a11y/focus-ring-offset` → 2px typical
+- `a11y/focus-ring-style` → solid
+
+**Implementation pattern:** Use a separate shape layered around the component with absolute positioning — 2px stroke on the outside, no fill, constrained to resize with the component. This approach works in both design tools and CSS (`outline: 2px solid var(--border-focus); outline-offset: 2px`).
+
+### Reduced Motion Tokens
+
+```
+a11y/transition-duration/default → 200ms
+a11y/transition-duration/reduced → 0ms
+```
+
+Gate all animation behind `prefers-reduced-motion`. When reduced motion is active, all `motion.duration.*` tokens resolve to 0ms.
 
 ---
 

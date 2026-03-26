@@ -102,6 +102,9 @@ The MCP plugin communicates via WebSocket (port 4402). There is **no automatic r
 | Penpot design system implementation (pages, frames, naming, assets) | [penpot-design-system-guide.md](references/penpot-design-system-guide.md) |
 | Component specs (buttons, forms, nav) | `uiux-design-system/references/component-patterns.md` |
 | Accessibility (contrast, touch targets) | `uiux-design-system/references/accessibility.md` |
+| Mapped token categories (text/icon/surface/border) | `uiux-design-system/SKILL.md` § "Mapped Token Tables" |
+| Design system template & checklist | `uiux-design-system/references/design-system-template.md` |
+| Multi-brand & dark mode strategy | `uiux-design-system/SKILL.md` § "Multi-Brand Strategies" |
 | Screen sizes & platform specs | `uiux-design-system/references/platform-guidelines.md` |
 | Full Penpot Plugin API reference | [penpot-api-reference.md](references/penpot-api-reference.md) |
 | Color conversion utilities (OKLCH→hex, HSL→hex) | `uiux-design-system/references/color-utilities.md` |
@@ -184,6 +187,21 @@ return { colors: [...colors], textStyles, componentCount: components.length };
 - Use the default tokens below as a starting point
 - Offer to help establish consistent patterns
 - Reference specs in `uiux-design-system/references/component-patterns.md`
+
+### Mapped Token Categories
+
+When setting up Penpot token sets, structure the mapped/component tier into four categories matching the design system architecture:
+
+- **text/** — `text/heading`, `text/body`, `text/action`, `text/on-action`, `text/disabled`, `text/error`, `text/success`
+- **icon/** — mirrors text tokens (`icon/default` = `text/body`, `icon/action` = `text/action`, etc.)
+- **surface/** — `surface/page`, `surface/default`, `surface/action`, `surface/action-hover`, `surface/action-hover-light`, `surface/disabled`
+- **border/** — `border/default`, `border/action`, `border/focus`, `border/disabled`, `border/error`
+
+Each category should include state variants (default, hover, focus, disabled, error, success). Add Light/Dark theme sets and remap semantic values per theme.
+
+For the complete token tables with light/dark mode values, read `uiux-design-system/SKILL.md` § "Mapped Token Tables".
+
+**Internal components:** Prefix private building blocks with a dot (`.menu-item`, `.tab-item`) so they don't appear in the assets panel for end users. Only composed components (`Menu`, `Tab Bar`) should be registered as library components.
 
 ## Key Penpot API Gotchas
 

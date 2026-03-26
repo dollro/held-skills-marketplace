@@ -48,23 +48,47 @@ Key principle: semantic CSS vars always reference primitive CSS vars, never raw 
 
 ### Dark Mode
 
-Override primitive custom properties within a dark scope. Semantic vars stay unchanged — they reference the same primitives, which now resolve differently.
+Override **semantic** custom properties within a dark scope. Primitive vars stay unchanged — they're just the raw palette. Semantic vars remap which primitives they reference, and mapped vars auto-resolve through the alias chain.
 
 ```css
+/* Primitives — always available, never change per theme */
+:root {
+  --color-purple-400: #a78bfa;
+  --color-purple-500: #6c5ce7;
+  --color-purple-600: #5a4bd6;
+  --color-gray-200: #e5e5e5;
+  --color-gray-700: #404040;
+  --color-gray-900: #171717;
+}
+
+/* Semantics — light mode (default) */
+:root {
+  --color-primary-default: var(--color-purple-500);
+  --color-primary-hover: var(--color-purple-600);
+  --color-neutral-text: var(--color-gray-700);
+  --color-neutral-bg: #ffffff;
+}
+
+/* Semantics — dark mode: remap which primitives are referenced */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-neutral-50: #0a0a0a;
-    --color-neutral-900: #fafafa;
-    /* Swap the full neutral scale + adjust feedback colors */
+    --color-primary-default: var(--color-purple-400);
+    --color-primary-hover: var(--color-purple-500);
+    --color-neutral-text: var(--color-gray-200);
+    --color-neutral-bg: var(--color-gray-900);
   }
 }
 
 /* Or class-based for manual toggle: */
 .dark {
-  --color-neutral-50: #0a0a0a;
-  --color-neutral-900: #fafafa;
+  --color-primary-default: var(--color-purple-400);
+  --color-primary-hover: var(--color-purple-500);
+  --color-neutral-text: var(--color-gray-200);
+  --color-neutral-bg: var(--color-gray-900);
 }
 ```
+
+Key principle: **semantic CSS vars remap which primitives they reference** in dark mode. Mapped/component tokens (`--surface-action`, `--text-body`, etc.) don't change — they reference semantics which auto-resolve to the correct primitive for each theme. This is more flexible than overriding primitives directly, especially for multi-brand scenarios where different brands may need different dark mode adjustments.
 
 ### High Contrast
 

@@ -20,6 +20,58 @@ Build production-ready design systems with Tailwind CSS v4, including CSS-first 
 - Integrating shadcn/ui components with Tailwind v4
 - Fixing Tailwind v4 color/theme issues
 
+## Design System Foundation
+
+This skill implements the code side of a design system. For the architectural foundation — token tiers, naming conventions, component specs — it builds on `uiux-design-system`:
+
+| Design System Knowledge | Reference |
+|-|-|
+| 3-tier token architecture (primitive → semantic → mapped) | `uiux-design-system/SKILL.md` § "The 3-Tier Token Hierarchy" |
+| Mapped token categories (text/icon/surface/border) | `uiux-design-system/SKILL.md` § "Mapped Token Tables" |
+| Component specs & build recipes | `uiux-design-system/references/component-patterns.md` |
+| Color scale generation (opacity method) | `uiux-design-system/SKILL.md` § "Token Categories > Color" |
+| Typography type scale (ratio-based + 4px snap) | `uiux-design-system/SKILL.md` § "Token Categories > Typography" |
+| Accessibility (WCAG 2.2 + EAA, contrast ratios) | `uiux-design-system/references/accessibility.md` |
+| Design-to-code pipeline (DTCG → CSS → Tailwind) | `uiux-design-system/SKILL.md` § "Design-to-Code Pipeline" |
+| Multi-brand theming strategy | `uiux-design-system/SKILL.md` § "Multi-Brand Strategies" |
+
+### How Tailwind v4 Maps to the 3-Tier Token System
+
+| Token Tier | Tailwind v4 Implementation |
+|-|-|
+| **Primitive** (raw values) | CSS custom properties in `:root` — hex/OKLCH/HSL values |
+| **Semantic** (intent aliases) | CSS custom properties referencing primitives — `var(--color-purple-500)` |
+| **Mapped** (component-ready) | `@theme` block — maps semantic tokens to Tailwind utilities (`bg-primary`, `text-foreground`) |
+
+Dark mode swaps values at the **semantic tier** (not primitives). The `@theme` block and utility classes stay unchanged — they auto-resolve through the alias chain. See `uiux-design-system/references/platform-mapping.md` for the full strategy.
+
+### Mapped Token Categories in @theme
+
+The design system defines four mapped categories. Here's how they map to Tailwind `@theme`:
+
+```css
+@theme {
+  /* text/* tokens → text-* utilities */
+  --color-text-heading: var(--color-neutral-text);
+  --color-text-body: var(--color-neutral-text);
+  --color-text-action: var(--color-primary-default);
+  --color-text-on-action: var(--text-on-action);
+
+  /* surface/* tokens → bg-* utilities */
+  --color-surface-page: var(--surface-page);
+  --color-surface-default: var(--surface-default);
+  --color-surface-action: var(--color-primary-default);
+
+  /* border/* tokens → border-* utilities */
+  --color-border-default: var(--border-default);
+  --color-border-focus: var(--border-focus);
+
+  /* icon/* mirrors text/* — use the same color utilities */
+}
+```
+
+This is complementary to the shadcn/ui naming pattern (Approach B below). Both work — choose based on whether you're using shadcn.
+
 ## Key v4 Changes
 
 | v3 Pattern | v4 Pattern |
