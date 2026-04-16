@@ -170,6 +170,15 @@
       "category": "development",
       "tags": ["figma", "design", "ui-ux", "accessibility", "component-patterns", "mcp", "variables", "token-binding"],
       "keywords": ["figma", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system", "variables"]
+    },
+    {
+      "name": "investment-memo",
+      "source": "./plugins/investment-memo",
+      "description": "Senior VC Investment Analyst (Seed/Series A) producing institutional-grade investment memos from pitch decks and DD materials. Scores 30+ criteria across Team, Technology/IP, Market, Competition, Business Model, Financials with red-flag gates, BCSA adoption framework, and Deep-Tech Matrix positioning. Adds a /investment-memo skill.",
+      "version": "1.0.0",
+      "category": "analysis",
+      "tags": ["venture-capital", "investment-memo", "due-diligence", "startup", "seed", "series-a", "BCSA", "DTM"],
+      "keywords": ["investment", "memo", "pitch-deck", "due-diligence", "vc", "startup", "valuation", "deal-flow"]
     }
   ]
 }

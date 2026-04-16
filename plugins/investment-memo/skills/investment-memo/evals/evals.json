@@ -1,0 +1,23 @@
+{
+  "skill_name": "investment-memo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's the pitch deck for NanoTherm GmbH -- they're building next-gen thermal interface materials for EV battery packs. Seed round, asking for €1.5M at €5M pre-money. Two co-founders: CTO has a PhD in materials science from TU Munich with 6 patents, CEO spent 8 years at Continental in battery systems. They have an LOI from a Tier-1 automotive OEM and TRL 5 prototype. Burn is €40K/month, 18 months runway post-close. No revenue yet. The total round is €2.5M with a co-investor (unnamed VC, €1M soft-circled). Their key claim is 3x better thermal conductivity than current solutions at 40% lower cost per unit. Two direct competitors identified: Henkel (incumbent) and a US startup ThermalX (Series B, $20M raised). They hold 2 granted patents and 4 pending in the EU. Team of 6 (4 engineers, 1 operations, 1 sales). Target market: EV battery thermal management, estimated TAM €8B by 2030. Please evaluate this deal and produce an investment memo.",
+      "expected_output": "A structured investment memo markdown file covering all chapters (exec summary, team, technology, market, competition, business model, financials, deal structure, synthesis) with per-criterion scores, red flag assessment, BCSA analysis, DTM positioning, SWOT, investment thesis/anti-thesis, and a clear verdict. Should flag data gaps (e.g., no detailed financials, no reference checks). Tone should be professional with VC terminology.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Evaluate this deal: CloudGuard AI, a B2B cybersecurity startup based in Berlin. Series A, €5M ask at €18M pre-money. Solo technical founder -- former Google Security Lead with 15 years experience, published 12 papers on zero-trust architecture. €900K ARR growing 120% YoY, 140% NRR, 25 enterprise customers including 2 DAX-listed companies. Monthly burn €80K, 14 months runway. No co-founder -- CRO hired 3 months ago from Salesforce. The product is an AI-powered endpoint detection platform, pure SaaS, 85% gross margin. Key competitors: CrowdStrike, SentinelOne, and 3 EU startups (Sekoia, Cybereason EU, and one stealth). Two competing term sheets from other VCs. Cap table: founder 78%, angel investors 12%, ESOP 10%. They want to use proceeds for: 60% sales/marketing expansion, 25% R&D, 15% ops. Total round €8M with co-investors. Please produce the investment memo.",
+      "expected_output": "Investment memo that identifies the solo-founder red flag (criterion 2.2), acknowledges strong traction and PMF signals, evaluates the competitive landscape against major incumbents, produces SaaS-appropriate financial analysis (burn multiple, magic number, payback period), and gives a nuanced verdict. Should flag the team complementarity risk prominently while recognizing the strong commercial metrics. BCSA should note this is applied-tech/SaaS, not deep-tech.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We just got an intro to a climate-tech startup called GreenCycle. They do something with industrial waste recycling using a novel enzymatic process. Pre-seed stage, very early. The founder is a former McKinsey consultant who pivoted after her PhD in biochemistry at ETH Zurich. She's raising €500K at €2M pre-money. That's basically all I know so far. Can you start an investment memo and tell me what information I need to gather?",
+      "expected_output": "The skill should NOT attempt to produce a full scored memo from this limited information. It should: (1) extract and organize what IS available, (2) produce a preliminary assessment noting the strong founder profile, (3) generate a comprehensive and prioritized list of information gaps organized by chapter/criterion, focusing on red-flag criteria first, (4) ask specific, targeted questions the user should bring back answers to. The tone should make clear this is a preliminary intake, not a final evaluation.",
+      "files": []
+    }
+  ]
+}
