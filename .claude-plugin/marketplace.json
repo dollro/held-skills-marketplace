@@ -174,11 +174,11 @@
     {
       "name": "design-parity",
       "source": "./plugins/design-parity",
-      "description": "Close the gap between a Claude Design spec and its implementation. Renders HTML/PNG targets, screenshots the running frontend, runs pixel diffs, produces ranked delta reports, and iteratively applies fixes (structure → layout → type → color). Adds a /design-parity skill.",
-      "version": "1.0.0",
+      "description": "Close the gap between a Claude Design spec and its implementation. Config-driven (parity.config.yaml) with runtime adapters for Playwright MCP, Chrome DevTools MCP, and a bundled Node runtime. Supports canvas-with-selector targets, non-interactive auth (form/cookie/storage-state), regex/region masks, fixtures, auto-matched viewports for PNG baselines, and operable fix_plan.json output. Adds a /design-parity skill.",
+      "version": "2.0.0",
       "category": "development",
-      "tags": ["design-parity", "visual-diff", "claude-design", "playwright", "odiff", "screenshot", "vision"],
-      "keywords": ["design-parity", "visual-regression", "pixel-diff", "claude-design", "design-spec", "match-design", "mockup-parity"]
+      "tags": ["design-parity", "visual-diff", "claude-design", "playwright", "playwright-mcp", "chrome-devtools-mcp", "odiff", "screenshot", "vision", "config-driven"],
+      "keywords": ["design-parity", "visual-regression", "pixel-diff", "claude-design", "design-spec", "match-design", "mockup-parity", "playwright-mcp", "chrome-devtools-mcp", "fix-plan"]
     },
     {
       "name": "investment-memo",

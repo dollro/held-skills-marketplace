@@ -1,0 +1,105 @@
+# parity.config.yaml — committed to the repo, single source of truth for a parity run.
+# Place at the repo root next to .parity/. All paths are resolved relative to this file.
+
+# -----------------------------------------------------------------------------
+# Runtime adapter
+# -----------------------------------------------------------------------------
+# auto              — detect in order: MCP playwright → MCP chrome-devtools → node-playwright
+# node-playwright   — bundled Node runtime (requires `npm install`)
+# mcp-playwright    — emit an ordered MCP tool-call plan for the Playwright MCP server
+# mcp-chrome-devtools — emit plan for Chrome DevTools MCP server
+runtime: auto
+
+# -----------------------------------------------------------------------------
+# Defaults (can be overridden per-screen)
+# -----------------------------------------------------------------------------
+base_url: http://localhost:3000
+viewport: [1440, 900]     # if a screen has a PNG target and viewport is unset, the PNG dims are used
+dpr: 1
+wait_for: networkidle     # load | domcontentloaded | networkidle
+timeout_ms: 30000
+
+# -----------------------------------------------------------------------------
+# Authentication (all modes run headless — no human interaction required)
+# -----------------------------------------------------------------------------
+auth:
+  mode: form              # form | cookie | storage-state | none
+  login_url: /login/
+  fields:                 # CSS selector → value. ${env:VAR} is expanded at runtime.
+    "#login-username": ${env:SS_EMAIL}
+    "#login-password": ${env:SS_PASSWORD}
+  submit_selector: "button[type=submit]"   # optional; defaults to pressing Enter
+  success_match: "/\\/app\\//"             # regex on final URL after login
+  storage_state: .parity/auth.json         # where to persist/reload cookies
+  # Alternate modes:
+  # mode: cookie
+  # cookies:
+  #   - { name: sessionid, value: "${env:SS_COOKIE}", domain: localhost, path: / }
+  #
+  # mode: storage-state
+  # storage_state: .parity/auth.json       # pre-generated elsewhere
+
+# -----------------------------------------------------------------------------
+# Rubric overrides (optional; otherwise uses defaults from references/rubric.md)
+# -----------------------------------------------------------------------------
+rubric: ./parity.rubric.yaml
+
+# -----------------------------------------------------------------------------
+# Screens
+# -----------------------------------------------------------------------------
+screens:
+  # Simple case: full-page HTML target
+  - id: landing
+    path: /
+    target: targets/landing.html
+
+  # PNG target — viewport auto-matches the PNG dimensions
+  - id: landing-hero
+    path: /
+    target: targets/landing-hero.png       # 1147×758 — impl viewport set to match
+
+  # Authenticated route
+  - id: dashboard-onboarding
+    path: /app/dashboard/
+    target: targets/dashboard-onboarding.png
+    requires_auth: true
+
+  # Selector-based target: one HTML canvas containing many screens,
+  # screenshot just this subtree.
+  - id: settings
+    path: /app/settings/
+    target:
+      html: targets/canvas.html
+      selector: "#settings-main [data-screen]"
+    requires_auth: true
+
+  # Path with params — resolved from fixtures below
+  - id: transcript-detail
+    path: /app/transcripts/{session_id}
+    target: targets/transcript-detail.png
+    requires_auth: true
+    fixtures: [first-session]
+    mask:
+      - ".save-status-chip"                          # selector
+      - { selector: "[data-fresh-date]" }            # explicit selector form
+      - { region: [1100, 20, 140, 24] }              # x,y,w,h in viewport px
+      - { text: "/\\d{1,2}:\\d{2} ?(AM|PM)|ago|today/i" }  # regex over text nodes
+
+# -----------------------------------------------------------------------------
+# Fixtures — executed before the matching screen is captured
+# -----------------------------------------------------------------------------
+fixtures:
+  first-session:
+    # `seed` runs once; path_params are then substituted into path templates.
+    seed: node scripts/seed.mjs --user testuser --sessions 3 --recap acme
+    path_params:
+      session_id: ${env:FIXTURE_SESSION_ID}
+    # optional:
+    # teardown: node scripts/seed.mjs --cleanup
+
+# -----------------------------------------------------------------------------
+# Artifact layout (normally leave defaults)
+# -----------------------------------------------------------------------------
+artifacts:
+  root: .parity                # gitignored audit + deps + runs
+  keep_iterations: 10          # prune older ones

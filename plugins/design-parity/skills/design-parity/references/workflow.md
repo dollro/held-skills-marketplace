@@ -1,177 +1,209 @@
 # Workflow Reference
 
-Detailed procedure for each step of the parity loop. Read this when the main SKILL.md summary isn't enough.
+Config-driven procedure. Read this when the main SKILL.md summary isn't enough.
 
-## Stabilization — the most important section
+## 0. One-time setup
 
-The #1 cause of flaky design-parity loops is environmental noise mistaken for design drift. Every screenshot — both target and impl — must pass through identical stabilization, or you'll chase ghosts forever.
-
-### Required stabilization steps
-
-```js
-// In screenshot.mjs, these are all applied by default:
-
-// 1. Lock viewport exactly
-await page.setViewportSize({ width: 1440, height: 900 });
-
-// 2. Disable animations and transitions
-await page.addStyleTag({
-  content: `
-    *, *::before, *::after {
-      animation-duration: 0s !important;
-      animation-delay: 0s !important;
-      transition-duration: 0s !important;
-      transition-delay: 0s !important;
-      scroll-behavior: auto !important;
-    }
-  `
-});
-
-// 3. Wait for network idle (not just load)
-await page.goto(url, { waitUntil: 'networkidle' });
-
-// 4. Wait for web fonts to load
-await page.evaluate(() => document.fonts.ready);
-
-// 5. Scroll through the page to trigger lazy-loaded images,
-//    then scroll back to top and wait for settle
-await page.evaluate(async () => {
-  const height = document.body.scrollHeight;
-  for (let y = 0; y < height; y += window.innerHeight) {
-    window.scrollTo(0, y);
-    await new Promise(r => setTimeout(r, 100));
-  }
-  window.scrollTo(0, 0);
-});
-await page.waitForTimeout(500);
-
-// 6. Mask dynamic regions
-await page.evaluate((selectors) => {
-  for (const sel of selectors) {
-    document.querySelectorAll(sel).forEach(el => {
-      el.style.visibility = 'hidden';
-    });
-  }
-}, ['[data-timestamp]', '.live-counter', '.carousel-indicator']);
+```bash
+# In the project root
+node /path/to/skill/scripts/parity.mjs init
+#   → parity.config.yaml, parity.rubric.yaml, .parity/.gitignore
 ```
 
-### DPR consistency
+Edit `parity.config.yaml`: set `base_url`, the auth block, and the `screens` list. Commit the config + rubric. `.parity/` is gitignored — it holds runs, cached auth, and node_modules.
 
-Use DPR=1 for all screenshots unless targeting retina specifically. If the target HTML was exported at DPR=1 and impl is captured at DPR=2, every text pixel will differ.
+Install tooling once:
 
-```js
-const context = await browser.newContext({
-  viewport: { width: 1440, height: 900 },
-  deviceScaleFactor: 1,
-});
+```bash
+cd .parity && npm init -y && npm install --save-dev \
+  /path/to/skill/scripts odiff-bin pngjs playwright yaml
 ```
 
-### Font loading
+(The `scripts/` directory is an npm bin — `npx parity run` works once installed.)
 
-Web fonts are the #1 cause of "why does the text area have tons of red pixels in the diff." If the target uses Inter loaded from Google Fonts and the impl uses the system font while fonts are loading, the whole typography diverges.
+## 1. Authenticate (non-interactive)
 
-Make sure:
-- Both target and impl load the same font files
-- `document.fonts.ready` is awaited before screenshot
-- No `font-display: swap` flashing — use `font-display: block` or preload
-
-## Route mapping
-
-When the target exports are filenames and the impl is a set of routes, you need a mapping. Ask the user once, save to `.parity/routes.json`:
-
-```json
-{
-  "dashboard": {
-    "target": "targets/dashboard.html",
-    "url": "http://localhost:3000/dashboard",
-    "auth": "authenticated"
-  },
-  "settings": {
-    "target": "targets/settings-page.html",
-    "url": "http://localhost:3000/settings"
-  }
-}
+```bash
+npx parity auth
 ```
 
-For authenticated routes, handle auth once at the start:
+Runs the `auth:` block from config headlessly — fills login fields, clicks submit, waits for `success_match`, persists `storage_state`. Re-run after expiry. For `mode: cookie` or `mode: storage-state`, this is a no-op validation.
+
+Legacy interactive flow (humans only, not usable in agent loops):
 
 ```bash
 node scripts/screenshot.mjs --auth-setup --url http://localhost:3000/login
-# opens a visible browser so user can log in, saves storageState to .parity/auth.json
 ```
 
-Then pass `--storage-state .parity/auth.json` to subsequent screenshot calls.
+## 2. Run the loop
 
-## When the target is a PNG, not HTML
-
-If the user only has PNG exports from Claude Design:
-
-1. Read the PNG dimensions. Do they match a standard viewport (1440x900, 1920x1080, 390x844, 414x896)?
-2. If yes: set impl viewport to match, proceed.
-3. If no: ask the user what viewport the PNG was rendered at. Do NOT resize.
-
-The reason: resizing always introduces interpolation artifacts that the diff will flag. Better to match the source than fight the math.
-
-## Extracting computed styles for precise deltas
-
-When the rubric says "use computed styles for exact values," use this helper in `screenshot.mjs`:
-
-```js
-// scripts/screenshot.mjs --extract-styles "h1,h2,.btn-primary"
-const styles = await page.evaluate((selectors) => {
-  const results = {};
-  for (const sel of selectors) {
-    const el = document.querySelector(sel);
-    if (!el) continue;
-    const cs = getComputedStyle(el);
-    results[sel] = {
-      fontFamily: cs.fontFamily,
-      fontSize: cs.fontSize,
-      fontWeight: cs.fontWeight,
-      lineHeight: cs.lineHeight,
-      letterSpacing: cs.letterSpacing,
-      color: cs.color,
-      backgroundColor: cs.backgroundColor,
-      borderRadius: cs.borderRadius,
-      padding: cs.padding,
-      margin: cs.margin,
-      boxShadow: cs.boxShadow,
-    };
-  }
-  return results;
-}, selectors.split(','));
+```bash
+npx parity run                  # all screens, next iteration number
+npx parity run --screen settings
+npx parity run --strict         # fail on viewport/PNG-dim mismatch instead of auto-matching
 ```
 
-Run this for both target and impl. Write to `.parity/<screen>/target_styles.json` and `.parity/<screen>/impl_styles.json`. Diff them programmatically — this gives exact deltas that vision can only approximate.
+Artifacts land at `.parity/runs/<screen>/iteration_N/{target,impl,diff}.png + run.json`.
 
-## Batching fixes
+## 3. Non-node runtimes (MCP)
 
-Don't re-screenshot after every single fix — it's slow and obscures which fixes worked. Batch fixes by:
+If the calling agent has a Playwright MCP or Chrome DevTools MCP server connected, set one of:
 
-- **Category**: all typography fixes, then all color fixes
-- **File**: all fixes in `Button.tsx`, then all fixes in `Card.tsx`
-- **Severity**: all blockers, then all majors
+```bash
+export PARITY_MCP_PLAYWRIGHT=1
+export PARITY_MCP_CHROME_DEVTOOLS=1
+```
 
-Re-screenshot after each batch completes. This keeps the iteration count meaningful and the diff progression legible.
+Then:
 
-## Convergence criteria (full)
+```bash
+npx parity plan --screen dashboard > plan.json
+```
 
-A screen is considered converged when ALL of:
+Feed `plan.json` into the agent's tool-use loop — it executes `steps[]` in order via MCP. After the plan emits `impl.png` and `target.png`, run `diff.mjs` locally to finish:
 
-- `diffPercentage < 0.5%`
-- Zero `blocker` deltas
-- Zero `major` deltas
-- User has not flagged any `minor` or `cosmetic` deltas as blocking
+```bash
+node scripts/diff.mjs --base .parity/runs/dashboard/iteration_1/target.png \
+                       --compare .parity/runs/dashboard/iteration_1/impl.png \
+                       --out     .parity/runs/dashboard/iteration_1/diff.png
+```
 
-"Converged" does not mean "identical." Pursuing identical with an AI vision loop is a trap — diminishing returns kick in hard below 0.1%. The goal is "a designer reviewing this would say 'ship it.'"
+See `runtimes.md` for adapter details.
 
-## When to stop and ask the user
+## 4. Stabilization — the most important section
+
+Flakiness comes from environmental noise mistaken for design drift. Every screenshot — target and impl, node or MCP — passes through identical stabilization:
+
+1. Lock viewport + DPR. DPR=1 is default; use 2 only when targeting retina specifically.
+2. Disable animations + transitions via `*{animation-duration:0}` init script.
+3. `page.goto(..., { waitUntil: 'networkidle' })`.
+4. `await document.fonts.ready`.
+5. `document.getAnimations().forEach(a => a.finish())`.
+6. Scroll full page height (triggers lazy images + intersection observers), scroll back to top.
+7. Settle 400ms.
+8. Apply masks.
+9. Capture.
+
+Never adapt stabilization per screen — it defeats the purpose.
+
+## 5. Targets
+
+### Full HTML file
+```yaml
+- id: dashboard
+  path: /dashboard
+  target: targets/dashboard.html
+```
+
+### PNG export
+```yaml
+- id: landing-hero
+  path: /
+  target: targets/landing-hero.png     # viewport auto-matches PNG dims
+```
+
+With `--strict`, a viewport override that disagrees with the PNG fails the run. Without `--strict`, we auto-match and warn.
+
+### Canvas-with-many-screens HTML
+One HTML export, many screens laid out on a canvas. Use the selector form:
+
+```yaml
+- id: settings
+  path: /app/settings/
+  target:
+    html: targets/canvas.html
+    selector: "#settings-main [data-screen]"
+```
+
+`screenshot.mjs --selector` captures only that subtree via `page.locator(sel).screenshot()`.
+
+## 6. Masks
+
+Three kinds, combinable per screen:
+
+```yaml
+mask:
+  - ".save-status-chip"                              # selector shorthand
+  - { selector: "[data-fresh-date]" }                # selector explicit
+  - { region: [1100, 20, 140, 24] }                  # x, y, w, h in viewport px
+  - { text: "/\\d{1,2}:\\d{2} ?(AM|PM)|ago|today/i" } # regex across text nodes
+```
+
+- **Selector**: `visibility: hidden` (preserves layout).
+- **Region**: opaque black rectangle overlay at top of z-stack.
+- **Text**: walk text nodes, replace matching content with spaces before capture. Use for timestamps, relative times, countdown tickers that live inside larger elements.
+
+## 7. Fixtures
+
+Populated states often need seeding. Declare a fixture; it runs before the matching screens are captured.
+
+```yaml
+fixtures:
+  first-session:
+    seed: node scripts/seed.mjs --user testuser --sessions 3
+    path_params:
+      session_id: ${env:FIXTURE_SESSION_ID}
+    teardown: node scripts/seed.mjs --cleanup
+
+screens:
+  - id: transcript-detail
+    path: /app/transcripts/{session_id}
+    target: targets/transcript-detail.png
+    fixtures: [first-session]
+```
+
+## 8. Rubric overrides
+
+Reference a `parity.rubric.yaml` from config. See `parity.rubric.example.yaml` for the full schema. Common overrides: ΔE threshold, ignore-below-Npx for typography, border-radius noise floor, ignore-regions for always-live areas.
+
+## 9. Vision analysis + deltas
+
+After the diff, load `target.png`, `impl.png`, `diff.png` into Claude's vision. Apply the rubric in category order:
+
+1. Structure
+2. Layout
+3. Typography
+4. Color
+5. Micro
+
+Write two files per iteration:
+
+- `deltas.json` — what's wrong (for humans)
+- `fix_plan.json` — what to change (for an operator/agent; see `fix-plan.md`)
+
+Convergence = `diffPercentage < 0.5%` AND zero blocker/major deltas.
+
+## 10. Artifact layout
+
+```text
+parity.config.yaml             # committed
+parity.rubric.yaml             # committed
+parity/fixtures/               # committed — seed helpers
+.parity/                       # gitignored
+├── .gitignore
+├── auth.json                  # storageState
+├── node_modules/              # bundled runtime deps
+├── package.json
+└── runs/
+    └── <screen>/
+        └── iteration_N/
+            ├── target.png
+            ├── impl.png
+            ├── diff.png
+            ├── run.json
+            ├── deltas.json
+            └── fix_plan.json
+```
+
+Old iterations prune automatically when `artifacts.keep_iterations` is exceeded.
+
+## 11. When to stop and ask the user
 
 Stop and ask before:
-- Making structural changes (adding/removing components)
-- Changing framework-level choices (switching from CSS Modules to Tailwind, etc.)
-- Modifying shared design tokens that affect other screens not in the parity run
-- After 5 iterations without convergence
-- When the fix would require backend/API changes
+- Making structural changes (adding/removing components) beyond what the rubric permits.
+- Changing framework-level choices (CSS Modules → Tailwind, etc.).
+- Modifying shared design tokens that affect screens outside the current run.
+- After 5 iterations without convergence.
+- When the fix would require backend/API changes.
 
 The skill's autonomy extends to CSS and layout fixes. It does not extend to architectural decisions.

@@ -1,0 +1,52 @@
+# parity.rubric.yaml — override the default rubric thresholds and add
+# project-specific ignore rules. Referenced from parity.config.yaml via `rubric:`.
+
+structure:
+  # If impl has extra elements not present in target, is that a delta?
+  allow_extra_in_impl: false
+  # Some components are scaffolded out in the impl but deliberately hidden in target.
+  ignore_selectors:
+    - "[data-testid='debug-panel']"
+
+layout:
+  # Position/size delta tolerance in px before it becomes a delta.
+  position_tolerance_px: 2
+  size_tolerance_px: 2
+
+typography:
+  # Differences smaller than this are dropped as measurement noise.
+  ignore_below_px: 1
+  font_weight_tolerance: 0          # 0 = strict; 100 = "regular vs medium is fine"
+  line_height_tolerance_px: 1
+
+color:
+  # Perceptual distance. 2.0 is the "just-noticeable" threshold for humans.
+  delta_e_threshold: 2.0
+  # Regions/selectors where color drift is noise (live data, charts, etc.)
+  ignore_regions:
+    - selector: ".tooltip-carousel"
+    - region: [0, 0, 1147, 48]          # header banner that renders a time-of-day gradient
+
+micro:
+  # Border radius, shadow depth — cosmetic category by default.
+  border_radius_tolerance_px: 1
+  shadow_offset_tolerance_px: 1
+  # Below 2px, border-radius differences are imperceptible — drop them entirely.
+  ignore_border_radius_below_px: 2
+
+# Text-content rules. Typography check flags font drift; this catches copy drift.
+text:
+  # Patterns whose *content* should be ignored when comparing text runs.
+  ignore_text_patterns:
+    - "/\\d{1,2}:\\d{2} ?(AM|PM)?/i"
+    - "/\\d+ ?(minute|hour|day)s? ago/i"
+
+severity_mapping:
+  # Which category+deviation size maps to which severity.
+  # Used when emitting deltas.json so downstream tooling can filter.
+  structure_missing_primary: blocker
+  structure_missing_secondary: major
+  layout_position_gt_8px: major
+  typography_weight_mismatch: major
+  color_delta_e_gt_5: major
+  micro_any: cosmetic

@@ -1,236 +1,223 @@
 ---
 name: design-parity
-description: Close the gap between a Claude Design spec and its implementation. Use when the user has exported screens from Claude Design (as HTML or PNG) and wants Claude Code to compare them against a running frontend, produce a ranked delta report, and iteratively apply fixes until they match. Triggers include "compare to the design", "match the spec", "design parity", "fix the differences from Claude Design", "why does my implementation not match the mockup", or when Claude Design HTML exports are present alongside a running dev server URL.
+description: Close the gap between a Claude Design spec and its implementation. Use when the user has exported screens from Claude Design (HTML or PNG) and wants Claude Code to compare them against a running frontend, produce a ranked delta report, and iteratively apply fixes until they match. Driven by a committed parity.config.yaml and a runtime adapter that detects Playwright MCP, Chrome DevTools MCP, or a bundled Node runtime. Triggers include "compare to the design", "match the spec", "design parity", "fix the differences from Claude Design", "why does my implementation not match the mockup", or when Claude Design HTML exports are present alongside a running dev server URL.
 ---
 
 # Design Parity
 
 ## What this skill does
 
-Close the gap between a Claude Design spec (target) and its implementation (actual) through a repeatable compare-and-fix loop. The skill produces a ranked delta report — not just pixel diffs — and applies fixes hierarchically (structure before style).
+Close the gap between a Claude Design spec (target) and its implementation (actual) through a repeatable compare-and-fix loop. Produces a ranked delta report — not just pixel diffs — and applies fixes hierarchically (structure before style). The full run is driven by a single committed `parity.config.yaml`, so the same command works on a dev machine, in CI, and inside an MCP-assisted agent session.
 
 ## Core loop
 
 ```
 ┌───────────────────────────────────────────────────────────┐
-│  1. Prepare target  (Claude Design HTML → rendered PNG)   │
-│  2. Screenshot impl (running dev server at same viewport) │
+│  1. Prepare target  (HTML → rendered PNG, or PNG as-is)   │
+│  2. Screenshot impl (running dev server, same viewport)   │
 │  3. Pixel diff      (odiff finds WHERE things differ)     │
 │  4. Vision analysis (Claude explains WHAT and WHY)        │
 │  5. Rank deltas     (by perceptual impact, not pixel count)│
-│  6. Apply fixes     (structure → layout → type → color)   │
-│  7. Re-screenshot   (goto 2 until converged or accepted)  │
+│  6. Emit fix_plan   (operable edits, not advice)          │
+│  7. Apply + re-run  (goto 2 until converged or accepted)  │
 └───────────────────────────────────────────────────────────┘
 ```
 
-Each iteration writes artifacts to `.parity/<screen>/` so the loop is resumable and reviewable.
+Every iteration writes to `.parity/runs/<screen>/iteration_N/`. The loop is resumable and reviewable.
 
-## Prerequisites — ask the user if missing
+## Prerequisites
 
-Before running, confirm the user has:
+1. **Target exports** — HTML (preferred; same rendering stack = fewer false positives) or PNG.
+2. **A running dev server** reachable at the URL in `parity.config.yaml → base_url`.
+3. **A `parity.config.yaml`** — scaffold with `parity init`. Never guess routes; the config is the contract.
+4. **Viewport** — default `1440×900`. For PNG targets, viewport auto-matches the PNG dimensions unless `--strict`.
 
-1. **Target exports** — one of:
-   - HTML export from Claude Design (`File → Export → Standalone HTML`) — **preferred**
-   - PNG screenshots of each target screen — acceptable fallback
-2. **A running local dev server** with a reachable URL (e.g. `http://localhost:3000`)
-3. **A route map** — which URL path corresponds to which target file. If not obvious from filenames, ask.
-4. **Viewport spec** — default `1440×900` desktop. For responsive work also run `390×844` mobile.
+If anything is missing, ask one clarifying question. Do not guess routes.
 
-If anything is missing, ask a single clarifying question. Do not guess routes.
+## Runtime adapters
 
-## Why HTML exports beat PNGs
+The skill dispatches browser ops through one of three adapters. Set in `parity.config.yaml → runtime:` (default `auto`):
 
-When the target is a PNG, every "difference" is filtered through two different rendering stacks (Claude Design's vs. the user's browser). Font metrics, subpixel rendering, and DPR all diverge — producing false positives that aren't real bugs.
+|-|-|
+| `auto` | detect: MCP playwright → MCP chrome-devtools → node-playwright |
+| `node-playwright` | bundled Node runtime (needs local `npm install`) |
+| `mcp-playwright` | emit an ordered MCP tool-call plan; the calling agent executes it |
+| `mcp-chrome-devtools` | same, targeting Chrome DevTools MCP |
 
-When the target is HTML, we render it in the **same browser, same viewport, same DPR** as the implementation. The only remaining differences are real differences. Always prefer HTML when available.
-
-## Step-by-step workflow
-
-Detailed procedure lives in `references/workflow.md`. Summary:
-
-### 1. Setup
+Signal MCP availability to the skill via env:
 
 ```bash
-# Install dependencies if not present
-npm install --save-dev playwright odiff-bin pngjs
-
-# Initialize .parity directory
-mkdir -p .parity
+export PARITY_MCP_PLAYWRIGHT=1         # or PARITY_MCP_CHROME_DEVTOOLS=1
 ```
 
-### 2. Prepare target renders
+Stabilization steps (fonts, animations, lazy scroll, masks) are identical across adapters — they're expressed as an IIFE that each runtime runs as-is. See `references/runtimes.md`.
 
-For each target HTML file in `targets/`:
+## Commands
 
 ```bash
-node scripts/screenshot.mjs \
-  --url "file://$(pwd)/targets/dashboard.html" \
-  --viewport 1440x900 \
-  --out .parity/dashboard/target.png
+parity init                       # scaffold config, rubric, .parity/.gitignore
+parity auth                       # headless login per config.auth block
+parity run [--screen <id>] [--strict]
+parity plan [--screen <id>]       # emit MCP plan (for runtime: mcp-*)
 ```
 
-For PNG targets: copy directly to `.parity/<screen>/target.png`. Check that dimensions match the viewport — if they don't, warn the user before continuing.
+All commands read `./parity.config.yaml` by default; override with `--config`.
 
-### 3. Screenshot implementation
+## Config (excerpt)
 
-```bash
-node scripts/screenshot.mjs \
-  --url "http://localhost:3000/dashboard" \
-  --viewport 1440x900 \
-  --out .parity/dashboard/impl.png \
-  --wait-for "networkidle" \
-  --disable-animations
+```yaml
+runtime: auto
+base_url: http://localhost:3000
+viewport: [1440, 900]
+auth:
+  mode: form                      # form | cookie | storage-state | none
+  login_url: /login/
+  fields:
+    "#login-username": ${env:SS_EMAIL}
+    "#login-password": ${env:SS_PASSWORD}
+  success_match: "/\\/app\\//"
+  storage_state: .parity/auth.json
+screens:
+  - id: dashboard
+    path: /dashboard
+    target: targets/dashboard.html
+    requires_auth: true
+  - id: settings
+    path: /app/settings/
+    target:
+      html: targets/canvas.html    # multi-screen canvas export
+      selector: "#settings-main [data-screen]"
+    mask:
+      - ".save-status-chip"
+      - { region: [1100, 20, 140, 24] }
+      - { text: "/\\d{1,2}:\\d{2}|ago|today/i" }
+    requires_auth: true
+fixtures:
+  first-session:
+    seed: node scripts/seed.mjs --user testuser --sessions 3
 ```
 
-The `screenshot.mjs` helper handles font loading, animation disabling, and lazy-image stabilization. **Do not roll your own `page.screenshot()` call** — stabilization is the entire difference between a useful skill and flaky noise.
+Full schema in `references/parity.config.example.yaml`; rubric overrides in `parity.rubric.example.yaml`.
 
-### 4. Pixel diff
+## Why HTML targets beat PNGs
 
-```bash
-node scripts/diff.mjs \
-  --base .parity/dashboard/target.png \
-  --compare .parity/dashboard/impl.png \
-  --out .parity/dashboard/diff.png \
-  --threshold 0.1 \
-  --antialiasing true \
-  > .parity/dashboard/diff.json
+When the target is a PNG, every "difference" is filtered through two different rendering stacks (Claude Design's vs. the user's browser). Font metrics, subpixel rendering, and DPR all diverge → false positives that aren't real bugs.
+
+When the target is HTML, we render it in the **same browser, same viewport, same DPR** as the implementation. The only remaining differences are real. Always prefer HTML when available.
+
+## Masks — three kinds
+
+```yaml
+mask:
+  - ".save-status-chip"                         # selector shorthand
+  - { selector: "[data-fresh-date]" }           # selector explicit
+  - { region: [x, y, w, h] }                    # opaque rectangle overlay
+  - { text: "/timestamp-regex/i" }              # replace matching text nodes with spaces
 ```
 
-The diff produces:
-- `diff.png` — overlay showing changed pixels
-- `diff.json` — machine-readable summary with `diffCount`, `diffPercentage`, bounding boxes of changed regions
+Regex-text masks are essential for "11:42 AM" / "2 hours ago" strings that change every run but aren't tied to a single selector.
 
-If `diffPercentage < 0.5%`, consider the screen converged. Otherwise continue.
+## Fixture seeding
 
-### 5. Vision analysis
+Some screens require populated data. Declare fixtures; they run before screenshots:
 
-Load all three images into context:
-- `target.png`
-- `impl.png`
-- `diff.png` (highlights changed regions)
-
-Apply the rubric from `references/rubric.md` — **hierarchical, in this order**:
-
-1. **Structure** — are all elements present? Any extra or missing components?
-2. **Layout** — positions, alignment, spacing, grid/flex ordering
-3. **Typography** — font family, size, weight, line-height, letter-spacing
-4. **Color** — fill, border, shadow colors with ΔE thresholds
-5. **Micro** — border radius, shadow depth, iconography
-
-Produce `.parity/<screen>/deltas.json` with this shape:
-
-```json
-{
-  "screen": "dashboard",
-  "iteration": 1,
-  "converged": false,
-  "deltas": [
-    {
-      "category": "structure",
-      "severity": "blocker",
-      "description": "Target has a 'Filter' button in the header; implementation is missing it.",
-      "region": {"x": 820, "y": 64, "w": 96, "h": 36},
-      "suggested_fix": "Add <Button variant='ghost'>Filter</Button> to HeaderActions.tsx after the search input.",
-      "files": ["src/components/HeaderActions.tsx"]
-    },
-    {
-      "category": "typography",
-      "severity": "major",
-      "description": "H1 font-weight differs. Target: 600. Impl: 400.",
-      "region": {"x": 48, "y": 120, "w": 400, "h": 48},
-      "suggested_fix": "Change .page-title font-weight to 600 (or 'font-semibold' in Tailwind).",
-      "files": ["src/styles/typography.css"]
-    }
-  ]
-}
+```yaml
+fixtures:
+  first-session:
+    seed: node scripts/seed.mjs --user testuser --sessions 3
+    path_params:
+      session_id: ${env:FIXTURE_SESSION_ID}
+    teardown: node scripts/seed.mjs --cleanup
 ```
 
-### 6. Apply fixes
+Path templates (`/app/transcripts/{session_id}`) substitute `path_params` before navigation.
 
-Process deltas in severity order: `blocker` → `major` → `minor` → `cosmetic`. Within a severity, process by category order from step 5 (structure first).
+## Viewport / PNG-dim handling
 
-Apply fixes with the `Edit` tool, one delta at a time. After each fix, do **not** re-screenshot immediately — batch related fixes before re-running the loop.
+- HTML target: viewport comes from config (default 1440×900).
+- PNG target: viewport auto-matches the PNG dimensions. An explicit override is warned about, not blocked — unless `--strict`.
+- Never resize the target or impl — interpolation poisons the diff.
 
-### 7. Re-screenshot and loop
+## Vision analysis
 
-Run steps 3–5 again. Track progress:
+Load `target.png`, `impl.png`, and `diff.png` into context. Apply the rubric (`references/rubric.md`, overridable via `parity.rubric.yaml`) in this order:
 
-```
-.parity/dashboard/
-├── iteration_1/
-│   ├── impl.png
-│   ├── diff.png
-│   ├── diff.json
-│   └── deltas.json
-├── iteration_2/
-│   └── ...
-└── summary.json      # rolling: iteration count, diffPercentage trend
-```
+1. **Structure** — missing, extra, or miscontained elements.
+2. **Layout** — positions, alignment, spacing, flex/grid order.
+3. **Typography** — family, size, weight, line-height, letter-spacing.
+4. **Color** — fill, border, shadow (ΔE threshold).
+5. **Micro** — radius, shadow depth, iconography.
 
-Stop when **any** of:
-- `diffPercentage < 0.5%` *and* no `blocker` or `major` deltas
-- User says "accept" or "good enough"
-- Three consecutive iterations without meaningful improvement (likely hit a fundamental limitation — ask user)
+Write two files per iteration:
+
+- `deltas.json` — ranked findings with category, severity, region, description.
+- `fix_plan.json` — concrete `replace` / `patch` / `delete_lines` / `insert_after` / `note` ops an operator (human or agent) can apply directly. See `references/fix-plan.md`.
 
 ## Thresholds (defaults)
 
-| Metric | Threshold | Notes |
-|---|---|---|
-| Pixel threshold | `0.1` | odiff default, covers anti-aliasing noise |
-| Antialiasing filter | `true` | must be on to avoid font-rendering false positives |
-| ΔE color threshold | `2.0` | below this, humans cannot perceive the difference |
-| Convergence | `< 0.5%` diff | + no blocker/major deltas |
-| Max iterations | `5` | if exceeded, ask user before continuing |
+|-|-|
+| Metric | Threshold |
+| Pixel threshold | `0.1` (odiff default) |
+| Antialiasing filter | `true` |
+| ΔE color threshold | `2.0` |
+| Convergence | `< 0.5%` diff AND zero blocker/major |
+| Max iterations | `5` before asking user |
 
-## What to ignore (mask these regions)
+All overridable in `parity.rubric.yaml`.
 
-When generating target and impl screenshots, mask:
-- Timestamps, "last updated X minutes ago" strings
-- Dynamic user avatars / initials
-- Carousel/ticker content that rotates
-- Charts fed by live data (mask the plot area, not the axis labels)
+## Apply → re-run
 
-Pass regions via `--mask` to `screenshot.mjs`. See `references/workflow.md` for the exact selector syntax.
+Process deltas in severity order (`blocker` → `major` → `minor` → `cosmetic`), then by category (structure first). Batch related fixes before re-screenshotting — post-per-fix captures are slow and obscure which edits worked.
+
+Stop when **any** of:
+- `diffPercentage < 0.5%` AND no blocker/major deltas
+- User says "accept"
+- Three iterations without meaningful improvement (ask user)
 
 ## Common failure modes
 
-See `references/troubleshooting.md` for the full list. Top three:
+Top three — see `references/troubleshooting.md` for the full list:
 
-1. **Every pixel appears different** — viewport, DPR, or OS font stack mismatch. Fix: re-check `--viewport`, render target at same DPR, use web fonts not system fonts.
-2. **Diff keeps flipping between states** — animations or transitions. Fix: `--disable-animations` is on; also check for intersection-observer-triggered fade-ins.
-3. **Claude fixes color but breaks layout** — wrong category order. Always process `structure` and `layout` deltas before `color`.
+1. **Every pixel different** — viewport, DPR, or font stack mismatch. Check the three values; web fonts not system fonts.
+2. **Diff flips between states** — animations. `disable-animations` is on by default; check intersection-observer fade-ins.
+3. **Claude fixes color but breaks layout** — wrong category order. Always process `structure` + `layout` before `color`.
 
 ## Constraints
 
-- Do not run this skill without an explicit running dev server URL — it will not start servers for the user.
-- Do not update the target files. The target is the source of truth; only the implementation changes.
-- If the user exported target as PNG and viewport doesn't match, warn and stop. Don't scale images — it corrupts the comparison.
-- Do not delete the `.parity/` directory between runs. It's the audit trail.
+- Never start servers. The dev server URL must already be reachable.
+- Never edit target files. Targets are source of truth; only the implementation changes.
+- Never resize images to force a viewport match.
+- Never delete `.parity/`. It's the audit trail and the dependency cache.
 
 ## Output to user
 
-After each iteration, produce a concise summary (not the full JSON):
+After each iteration, print a concise summary (not the full JSON):
 
 ```
 Iteration 2 of dashboard:
-  Pixel diff:    2.3% → 0.8% (improved)
-  Blockers:      1 → 0
-  Major:         4 → 2
-  Minor:         7 → 5
+  Pixel diff:  2.3% → 0.8% (improved)
+  Blockers:    1 → 0
+  Major:       4 → 2
+  Minor:       7 → 5
 
-Remaining major issues:
-  1. Sidebar collapse button padding (4px too tight)
-  2. Card shadow offset differs (target uses y=4, impl uses y=2)
+Remaining major:
+  1. Sidebar collapse padding (4px too tight)
+  2. Card shadow offset (target y=4, impl y=2)
 
-Suggested next action: apply fixes, re-run. ETA to convergence: 1-2 more iterations.
+Next: apply 2 fixes in fix_plan.json, re-run. ETA: 1-2 iterations.
 ```
 
-Write the full JSON to `.parity/<screen>/iteration_N/deltas.json` for the audit trail.
+Full JSON to `.parity/runs/<screen>/iteration_N/{deltas,fix_plan}.json`.
 
 ## Related files
 
-- `references/workflow.md` — detailed per-step procedure with Playwright flags
-- `references/rubric.md` — full hierarchical comparison rubric with examples
+- `references/workflow.md` — detailed config-driven procedure
+- `references/runtimes.md` — adapter selection, MCP plan shape, stabilization JS
+- `references/rubric.md` — hierarchical comparison rubric with examples
+- `references/fix-plan.md` — fix_plan.json schema and guidance
+- `references/parity.config.example.yaml` — full config schema with comments
+- `references/parity.rubric.example.yaml` — rubric override schema
 - `references/troubleshooting.md` — false-positive patterns and fixes
-- `scripts/screenshot.mjs` — stabilized Playwright screenshot helper
-- `scripts/diff.mjs` — odiff wrapper that emits structured JSON
+- `scripts/parity.mjs` — unified entry point (run / plan / auth / init)
+- `scripts/screenshot.mjs` — stabilized Playwright helper (selector, region, text masks)
+- `scripts/diff.mjs` — odiff wrapper emitting structured JSON
