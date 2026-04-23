@@ -1,0 +1,5 @@
+{
+  "name": "design-parity",
+  "description": "Close the gap between a Claude Design spec and its implementation through a repeatable compare-and-fix loop with ranked delta reports. Adds a /design-parity skill.",
+  "version": "1.0.0"
+}

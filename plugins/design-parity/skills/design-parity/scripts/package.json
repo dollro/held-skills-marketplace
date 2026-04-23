@@ -1,0 +1,19 @@
+{
+  "name": "design-parity-scripts",
+  "version": "0.1.0",
+  "description": "Helper scripts for the design-parity skill",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "screenshot": "node screenshot.mjs",
+    "diff": "node diff.mjs"
+  },
+  "dependencies": {
+    "odiff-bin": "^3.2.0",
+    "pngjs": "^7.0.0",
+    "playwright": "^1.47.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

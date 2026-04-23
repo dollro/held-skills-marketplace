@@ -172,6 +172,15 @@
       "keywords": ["figma", "design", "ui", "ux", "interface", "layout", "accessibility", "design-system", "variables"]
     },
     {
+      "name": "design-parity",
+      "source": "./plugins/design-parity",
+      "description": "Close the gap between a Claude Design spec and its implementation. Renders HTML/PNG targets, screenshots the running frontend, runs pixel diffs, produces ranked delta reports, and iteratively applies fixes (structure → layout → type → color). Adds a /design-parity skill.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": ["design-parity", "visual-diff", "claude-design", "playwright", "odiff", "screenshot", "vision"],
+      "keywords": ["design-parity", "visual-regression", "pixel-diff", "claude-design", "design-spec", "match-design", "mockup-parity"]
+    },
+    {
       "name": "investment-memo",
       "source": "./plugins/investment-memo",
       "description": "Senior VC Investment Analyst (Seed/Series A) producing institutional-grade investment memos from pitch decks and DD materials. Scores 30+ criteria across Team, Technology/IP, Market, Competition, Business Model, Financials with red-flag gates, BCSA adoption framework, and Deep-Tech Matrix positioning. Adds a /investment-memo skill.",
